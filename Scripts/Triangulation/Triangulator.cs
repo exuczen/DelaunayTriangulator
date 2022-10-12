@@ -6,7 +6,7 @@ namespace Triangulation
     public class Triangulator
     {
         public int TrianglesCount => trianglesCount;
-        public int PointsCount => pointsCount;
+        public int PointsCount { get => pointsCount; set => pointsCount = value; }
         public Vector2[] Points => points;
         public Triangle[] Triangles => triangles;
 

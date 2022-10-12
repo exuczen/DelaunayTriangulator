@@ -20,9 +20,9 @@ namespace Triangulation
             triangulator.ExceptionThrower = exceptionThrower;
         }
 
-        public override void Initialize(Vector2Int viewSize)
+        public override void Initialize(Vector2 viewSize)
         {
-            triangulator.Initialize(new Vector2(viewSize.x, viewSize.y), true);
+            triangulator.Initialize(viewSize, true);
 #if TRIANGULATION_INTERNAL
             if (triangulator.PointsCount == 0)
             {
@@ -53,7 +53,7 @@ namespace Triangulation
             }
         }
 
-        protected override void OnClear(Vector2Int viewSize)
+        protected override void OnClear(Vector2 viewSize)
         {
 #if TRIANGULATION_INTERNAL
             AddCornerVertices(viewSize, true);
@@ -80,18 +80,18 @@ namespace Triangulation
             }
         }
 
-        private void AddCornerVertices(Vector2Int viewSize, bool triangulate)
+        private void AddCornerVertices(Vector2 viewSize, bool triangulate)
         {
-            int halfSize = Math.Max(viewSize.x, viewSize.y) * 3 >> 2;
-            int centerX = viewSize.x >> 1;
-            int centerY = viewSize.y >> 1;
+            float halfSize = Math.Max(viewSize.x, viewSize.y) * 0.75f;
+            float centerX = viewSize.x * 0.5f;
+            float centerY = viewSize.y * 0.5f;
 
             for (int i = -1; i <= 1; i += 2)
             {
-                int y = centerY + i * halfSize;
+                float y = centerY + i * halfSize;
                 for (int j = -1; j <= 1; j++)
                 {
-                    int x = centerX + j * halfSize;
+                    float x = centerX + j * halfSize;
                     base.AddParticle(new Vector2(x, y));
                 }
             }

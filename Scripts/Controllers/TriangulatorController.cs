@@ -29,7 +29,7 @@ namespace Triangulation
             triangulator = new Triangulator(particles.Capacity, Vector2.Epsilon);
         }
 
-        public virtual void Initialize(Vector2Int viewSize)
+        public virtual void Initialize(Vector2 viewSize)
         {
         }
 
@@ -67,7 +67,7 @@ namespace Triangulation
             }
         }
 
-        public void Clear(Vector2Int viewSize)
+        public void Clear(Vector2 viewSize)
         {
             triangulator.Clear();
             OnClear(viewSize);
@@ -79,7 +79,7 @@ namespace Triangulation
             InvokeTriangulateAction(() => triangulator.Triangulate());
         }
 
-        protected virtual void OnClear(Vector2Int viewSize)
+        protected virtual void OnClear(Vector2 viewSize)
         {
         }
 
