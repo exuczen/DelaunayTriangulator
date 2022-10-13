@@ -245,13 +245,10 @@ namespace Triangulation
             pointsList.CopyTo(points, 0);
         }
 
-        private void ClearPoint(int pointIndex, bool onGrid = true)
+        protected override void ClearPoint(int pointIndex, bool addToUnused = true)
         {
-            if (onGrid)
-            {
-                pointGrid.ClearPoint(pointIndex, points);
-            }
-            base.ClearPoint(pointIndex);
+            pointGrid.ClearPoint(pointIndex, points);
+            base.ClearPoint(pointIndex, addToUnused);
         }
 
         private void ClearPoints(List<int> pointsIndices)

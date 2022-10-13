@@ -74,6 +74,13 @@ namespace Triangulation
             UpdateTriangulation();
         }
 
+        public int UpdateTriangulation(int pointsCount)
+        {
+            triangulator.PointsCount = pointsCount;
+            UpdateTriangulation();
+            return triangulator.PointsCount;
+        }
+
         public void UpdateTriangulation()
         {
             InvokeTriangulateAction(() => triangulator.Triangulate());

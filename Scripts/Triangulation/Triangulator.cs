@@ -114,15 +114,15 @@ namespace Triangulation
             pointsCount = 0;
         }
 
-        protected virtual void ClearPoint(int pointIndex)
+        protected virtual void ClearPoint(int pointIndex, bool addToUnused = true)
         {
             if (pointIndex < 0)
             {
                 throw new Exception("ClearPoint: " + pointIndex);
             }
-            int lastIndex = pointsCount - 1;
             points[pointIndex] = default;
-            if (pointIndex < lastIndex)
+            int lastIndex = pointsCount - 1;
+            if (addToUnused && pointIndex < lastIndex)
             {
                 //if (unusedPointIndices.Contains(pointIndex))
                 //{
@@ -307,11 +307,15 @@ namespace Triangulation
                     unusedPointIndices.Add(i);
                 }
             }
-
-            for (int i = 0; i < unusedPointIndices.Count; i++)
+            // Clear unused points
+            unusedPointIndices.Sort();
+            for (int i = unusedPointIndices.Count - 1; i >= 0; i--)
             {
-                int pointIndex = unusedPointIndices[i];
-                points[pointIndex] = default;
+                ClearPoint(unusedPointIndices[i], false);
+            }
+            if (pointsCount == 0)
+            {
+                unusedPointIndices.Clear();
             }
         }
 
