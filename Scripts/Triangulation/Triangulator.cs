@@ -181,6 +181,8 @@ namespace Triangulation
 
             FindUnusedPoints();
 
+            ClearUnusedPoints();
+
             return true;
         }
 
@@ -307,7 +309,10 @@ namespace Triangulation
                     unusedPointIndices.Add(i);
                 }
             }
-            // Clear unused points
+        }
+
+        private void ClearUnusedPoints()
+        {
             unusedPointIndices.Sort();
             for (int i = unusedPointIndices.Count - 1; i >= 0; i--)
             {
