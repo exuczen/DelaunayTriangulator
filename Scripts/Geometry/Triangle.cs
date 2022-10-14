@@ -322,6 +322,13 @@ namespace Triangulation
             return A == index || B == index || C == index;
         }
 
+        public void GetIndices(int[] indexBuffer, int offset)
+        {
+            indexBuffer[offset++] = A;
+            indexBuffer[offset++] = B;
+            indexBuffer[offset++] = C;
+        }
+
         public void GetIndices(int[] indexBuffer)
         {
             indexBuffer[0] = A;

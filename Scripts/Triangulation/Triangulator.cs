@@ -134,7 +134,7 @@ namespace Triangulation
             {
                 pointsCount--;
             }
-            else
+            else if (addToUnused)
             {
                 throw new Exception("ClearPoint: " + pointIndex + " / " + pointsCount);
             }
