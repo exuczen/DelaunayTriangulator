@@ -16,7 +16,7 @@ namespace Triangulation
 
         public TriangleGrid TriangleGrid => triangleGrid;
         public PointGrid PointGrid => pointGrid;
-        public EdgeInfo BaseEdgeInfo => baseEdgeInfo;
+        public EdgeInfo EdgeInfo => baseEdgeInfo;
         public List<int> CellPointsIndices => cellPointsIndices;
         public Polygon CellPolygon => cellPolygon;
 
