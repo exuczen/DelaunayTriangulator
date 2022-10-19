@@ -5,7 +5,7 @@ namespace Triangulation
 {
     public class TriangleGrid
     {
-        private const int MinDivsCount = 16;
+        public const int MinDivsCount = 16;
 
         public float CellTolerance => cellTolerance;
         public Vector2 CellSize => cellSize;

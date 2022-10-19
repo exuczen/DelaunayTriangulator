@@ -15,22 +15,13 @@ namespace Triangulation
 
         protected readonly Stopwatch stopwatch = new Stopwatch();
 
-        public TriangulatorController(IParticles particles)
+        public TriangulatorController(IParticles particles, bool createTriangulator)
         {
             this.particles = particles;
-        }
-
-        public TriangulatorController(IParticles particles, bool createTriangulator) : this(particles)
-        {
-            if (!createTriangulator)
+            if (createTriangulator)
             {
-                throw new ArgumentException("TriangulatorController: createTriangulator: " + createTriangulator);
+                triangulator = new Triangulator(particles.Capacity, Vector2.Epsilon);
             }
-            triangulator = new Triangulator(particles.Capacity, Vector2.Epsilon);
-        }
-
-        public virtual void Initialize(Vector2 viewSize)
-        {
         }
 
         public virtual void UpdateTriangulation(TriangulationType type, Vector2 point)

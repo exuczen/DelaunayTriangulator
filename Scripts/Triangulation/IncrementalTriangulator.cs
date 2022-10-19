@@ -80,17 +80,17 @@ namespace Triangulation
             }
         }
 
-        public void Initialize(Vector2 gridSize, bool triangulate)
+        public void Initialize(Vector2 gridSize, bool triangulate, int triangleGridDivs, int pointGridDivsMlp)
         {
             if (baseTriangleSet == null)
             {
                 throw new Exception("baseTriangleSet == null");
             }
-            triangleGrid = new TriangleGrid(baseTriangleSet, gridSize);
+            triangleGrid = new TriangleGrid(baseTriangleSet, gridSize, triangleGridDivs);
 
             cellPolygon.Tolerance = triangleGrid.CellTolerance;
 
-            pointGrid = new PointGrid(gridSize, triangleGrid.XYCount * 5);
+            pointGrid = new PointGrid(gridSize, triangleGrid.XYCount * pointGridDivsMlp);
 
             if (triangulate)
             {

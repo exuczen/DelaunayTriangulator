@@ -10,7 +10,7 @@ namespace Triangulation
 
         protected new IncrementalTriangulator triangulator = null;
 
-        public IncrementalTriangulatorController(IParticles particles, IExceptionThrower exceptionThrower) : base(particles)
+        public IncrementalTriangulatorController(IParticles particles, IExceptionThrower exceptionThrower) : base(particles, false)
         {
 #if TRIANGULATION_INTERNAL
             base.triangulator = triangulator = new IncrementalTriangulator(particles.Capacity, Vector2.Epsilon, true);
@@ -20,9 +20,9 @@ namespace Triangulation
             triangulator.ExceptionThrower = exceptionThrower;
         }
 
-        public override void Initialize(Vector2 viewSize)
+        public void Initialize(Vector2 viewSize, int triangleGridDivs = TriangleGrid.MinDivsCount, int pointGridDivsMlp = 5)
         {
-            triangulator.Initialize(viewSize, true);
+            triangulator.Initialize(viewSize, true, triangleGridDivs, pointGridDivsMlp);
 #if TRIANGULATION_INTERNAL
             if (triangulator.PointsCount == 0)
             {
