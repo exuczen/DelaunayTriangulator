@@ -1,4 +1,8 @@
-﻿using System;
+﻿#if UNITY_EDITOR || UNITY_STANDALONE
+#define UNITY
+#endif
+
+using System;
 using System.Collections.Generic;
 
 namespace Triangulation
@@ -6,6 +10,24 @@ namespace Triangulation
     public static class Log
     {
         public const string KIND_OF_FAKAP = " !!! KIND OF FAKAP !!!";
+
+        public static void WriteLine(string value)
+        {
+#if UNITY
+            UnityEngine.Debug.Log(value);
+#else
+            Console.WriteLine(value);
+#endif
+        }
+
+        public static void WriteLine(string format, params object[] args)
+        {
+#if UNITY
+            UnityEngine.Debug.LogFormat(format, args);
+#else
+            Console.WriteLine(format, args);
+#endif
+        }
 
         public static void PrintEdgePeaks(List<EdgePeak> peaks, string prefix = null)
         {
