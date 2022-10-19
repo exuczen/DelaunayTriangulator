@@ -146,7 +146,7 @@ namespace Triangulation
                 throw new Exception("RemoveTriangle: trianglesCount: " + trianglesCount + " triangleIndex: " + triangleIndex);
             }
             ref var triangle = ref triangles[triangleIndex];
-            //Console.WriteLine(GetType() + ".RemoveTriangle: " + triangle);
+            //Log.WriteLine(GetType() + ".RemoveTriangle: " + triangle);
             triangle.FillColor = Color.Black;
 
             edgeInfo.RemoveEdgesFromDicts(triangle);

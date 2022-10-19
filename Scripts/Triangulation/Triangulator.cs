@@ -240,7 +240,7 @@ namespace Triangulation
 
         private void RemoveUnusedPoints()
         {
-            //Console.WriteLine(GetType() + ".RemoveUnusedPoints: unusedPointIndices.Count: " + unusedPointIndices.Count + " pointsCount: " + pointsCount);
+            //Log.WriteLine(GetType() + ".RemoveUnusedPoints: unusedPointIndices.Count: " + unusedPointIndices.Count + " pointsCount: " + pointsCount);
             if (unusedPointIndices.Count > 0 && pointsCount > 0)
             {
                 unusedPointIndices.Sort();
@@ -275,7 +275,7 @@ namespace Triangulation
                 for (int l = 0; l < usedPointIndices[0]; l++)
                 {
                     unusedPointIndices.Add(l);
-                    Console.WriteLine(GetType() + ".FindUnusedPoints: " + l);
+                    Log.WriteLine(GetType() + ".FindUnusedPoints: " + l);
                 }
                 int k = 0;
                 while (k < usedPointIndices.Count - 1)
@@ -289,7 +289,7 @@ namespace Triangulation
                         for (int l = usedPointIndices[k] + 1; l < usedPointIndices[k + 1]; l++)
                         {
                             unusedPointIndices.Add(l);
-                            Console.WriteLine(GetType() + ".FindUnusedPoints: " + l);
+                            Log.WriteLine(GetType() + ".FindUnusedPoints: " + l);
                         }
                     }
                     k++;
@@ -298,7 +298,7 @@ namespace Triangulation
                 for (int l = usedPointIndices[lastUsedIndex] + 1; l < pointsCount; l++)
                 {
                     unusedPointIndices.Add(l);
-                    Console.WriteLine(GetType() + ".FindUnusedPoints: " + l);
+                    Log.WriteLine(GetType() + ".FindUnusedPoints: " + l);
                 }
                 usedPointIndices.Clear();
             }
@@ -326,7 +326,7 @@ namespace Triangulation
 
         private void FindValidTriangles(Predicate<Triangle> predicate)
         {
-            //Console.WriteLine(GetType() + ".FindValidTriangles: " + completedTrianglesCount + " " + trianglesCount);
+            //Log.WriteLine(GetType() + ".FindValidTriangles: " + completedTrianglesCount + " " + trianglesCount);
 
             Array.Copy(triangles, 0, completedTriangles, completedTrianglesCount, trianglesCount);
             completedTrianglesCount += trianglesCount;
@@ -359,7 +359,7 @@ namespace Triangulation
         {
             var triangle = triangles[triangleIndex];
 
-            //Console.WriteLine(GetType() + ".ReplaceTriangleWithEdges: " + triangleIndex + " " + triangle);
+            //Log.WriteLine(GetType() + ".ReplaceTriangleWithEdges: " + triangleIndex + " " + triangle);
 
             AddTriangleEdges(triangle);
 

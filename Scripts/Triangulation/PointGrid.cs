@@ -112,7 +112,7 @@ namespace Triangulation
                 setPoint(new Vector2(cellXYI.x * cellSize.x, cellXYI.y * cellSize.y));
                 result = true;
             }
-            //Console.WriteLine(GetType() + ".TryAddPoint: " + cellXY + " " + pointIndex + ", " + savedIndex + " " + result);
+            //Log.WriteLine(GetType() + ".TryAddPoint: " + cellXY + " " + pointIndex + ", " + savedIndex + " " + result);
             return result;
         }
 

@@ -59,11 +59,11 @@ namespace Triangulation
 
         private void PrintEdgeDict<T>(Dictionary<int, T> dict, string prefix)
         {
-            Console.WriteLine(GetType() + prefix);
+            Log.WriteLine(GetType() + prefix);
             foreach (var kvp in dict)
             {
                 GetEdgeFromKey(kvp.Key, out int edgeA, out int edgeB);
-                Console.WriteLine(GetType() + ".PrintEdgeDict: edge: " + edgeA + " " + edgeB + " value: " + kvp.Value);
+                Log.WriteLine(GetType() + ".PrintEdgeDict: edge: " + edgeA + " " + edgeB + " value: " + kvp.Value);
             }
         }
 
@@ -74,19 +74,19 @@ namespace Triangulation
 
         public void PrintPointsExternal(int pointsCount, string prefix = null)
         {
-            Console.WriteLine(GetType() + ".PrintPointsExternal: " + prefix);
+            Log.WriteLine(GetType() + ".PrintPointsExternal: " + prefix);
             for (int i = 0; i < pointsCount; i++)
             {
                 if (pointsExternal[i])
                 {
-                    Console.WriteLine(i + " " + pointsExternal[i]);
+                    Log.WriteLine(i + " " + pointsExternal[i]);
                 }
             }
             for (int i = 0; i < pointsCount; i++)
             {
                 if (!pointsExternal[i])
                 {
-                    Console.WriteLine(i + " " + pointsExternal[i]);
+                    Log.WriteLine(i + " " + pointsExternal[i]);
                 }
             }
         }
@@ -185,7 +185,7 @@ namespace Triangulation
 
         public void SetPointExternal(int pointIndex, bool external)
         {
-            //Console.WriteLine(GetType() + ".SetPointExternal: " + pointIndex + " " + external);
+            //Log.WriteLine(GetType() + ".SetPointExternal: " + pointIndex + " " + external);
             pointsExternal[pointIndex] = external;
         }
 
@@ -313,7 +313,7 @@ namespace Triangulation
                     {
                         throw new Exception("InsertExternalEdges: !validPrevEdge.SharesVertex(addedEndEdge): " + validPrevEdge + " " + addedEndEdge);
                     }
-                    //Console.WriteLine(GetType() + ".InsertExternalEdges: INVERT ADDED EDGES ORDER: " + validPrev + " " + validPrevEdge);
+                    //Log.WriteLine(GetType() + ".InsertExternalEdges: INVERT ADDED EDGES ORDER: " + validPrev + " " + validPrevEdge);
                     //Log.PrintEdges(addedExtEdges, addedCount);
                     ArrayUtils.InvertOrder(addedExtEdges, 0, addedCount - 1);
                     //Log.PrintEdges(addedExtEdges, addedCount, "***");
@@ -377,9 +377,9 @@ namespace Triangulation
                 if (extEdgeIndex < 0)
                 {
                     extEdgeIndex = GetExternalEdgeIndex(extEdge);
-                    //Console.WriteLine(GetType() + ".InsertExternalEdgesWithPointOnEdge: IsPointOppositeToExternalEdge: " + IsPointOppositeToExternalEdge(points[pointIndex], extEdgeIndex, out _));
+                    //Log.WriteLine(GetType() + ".InsertExternalEdgesWithPointOnEdge: IsPointOppositeToExternalEdge: " + IsPointOppositeToExternalEdge(points[pointIndex], extEdgeIndex, out _));
                 }
-                Console.WriteLine(GetType() + ".InsertExternalEdgesWithPointOnEdge: extEdge: " + extEdge + " pointIndex: " + pointIndex);
+                Log.WriteLine(GetType() + ".InsertExternalEdgesWithPointOnEdge: extEdge: " + extEdge + " pointIndex: " + pointIndex);
                 edgeBuffer[0] = new EdgeEntry(extEdge.A, pointIndex);
                 edgeBuffer[1] = new EdgeEntry(extEdge.B, pointIndex);
 
@@ -438,7 +438,7 @@ namespace Triangulation
 
             while (prev != end && baseEdgeInfo.IsEdgeExternal(prevEdge, out _))
             {
-                //Console.WriteLine(GetType() + ".GetPeakExternalEdgesRange: prevEdge: " + prevEdge + " prevVertex: " + prevVertex);
+                //Log.WriteLine(GetType() + ".GetPeakExternalEdgesRange: prevEdge: " + prevEdge + " prevVertex: " + prevVertex);
                 beg = prev;
                 pointsToClear.Add(prevVertex);
                 prevVertex = prevEdge.GetOtherVertex(prevVertex);
@@ -446,12 +446,12 @@ namespace Triangulation
             }
             if (next == beg)
             {
-                //Console.WriteLine(GetType() + ".GetPeakExternalEdgesRange: next == beg: " + next + " nextVertex: " + nextVertex);
+                //Log.WriteLine(GetType() + ".GetPeakExternalEdgesRange: next == beg: " + next + " nextVertex: " + nextVertex);
                 pointsToClear.Add(nextVertex);
             }
             while (next != beg && baseEdgeInfo.IsEdgeExternal(nextEdge, out _))
             {
-                //Console.WriteLine(GetType() + ".GetPeakExternalEdgesRange: nextEdge: " + nextEdge + " nextVertex: " + nextVertex);
+                //Log.WriteLine(GetType() + ".GetPeakExternalEdgesRange: nextEdge: " + nextEdge + " nextVertex: " + nextVertex);
                 end = next;
                 pointsToClear.Add(nextVertex);
                 nextVertex = nextEdge.GetOtherVertex(nextVertex);
@@ -500,7 +500,7 @@ namespace Triangulation
         public void ReplacePeakExternalEdges(IndexRange addedPeakRange, EdgeInfo addedEdgeInfo)
         {
             var removedRange = GetBaseExternalEdgesRange(addedEdgeInfo.extEdges, addedPeakRange);
-            //Console.WriteLine(GetType() + ".ReplacePeakExternalEdges: removedRange: " + removedRange + " addedPeakRange: " + addedPeakRange);
+            //Log.WriteLine(GetType() + ".ReplacePeakExternalEdges: removedRange: " + removedRange + " addedPeakRange: " + addedPeakRange);
             if (removedRange.GetIndexCount() < extEdgeCount)
             {
                 var addedExtEdges = addedEdgeInfo.addedExtEdges;
@@ -546,7 +546,7 @@ namespace Triangulation
 
         public void FindExternalEdges(int pointsCount, IExceptionThrower exceptionThrower)
         {
-            Console.WriteLine(GetType() + ".FindExternalEdges: ");
+            Log.WriteLine(GetType() + ".FindExternalEdges: ");
 
             extEdgeCount = 0;
 
@@ -589,7 +589,7 @@ namespace Triangulation
                         ref var triangle = ref GetTriangleRef(triangleKey, out _);
                         triangle.FillColor = Color.LightGreen;
 
-                        Console.WriteLine(GetType() + ".UpdateTriangleDicts: " + edge + " changed from internal to external");
+                        Log.WriteLine(GetType() + ".UpdateTriangleDicts: " + edge + " changed from internal to external");
                     }
                     else
                     {
@@ -662,12 +662,12 @@ namespace Triangulation
 
                 //if (!AddEdgesToCounterDict(triangles[i]))
                 //{
-                //    Console.WriteLine(GetType() + ".AddEdgesToCounterDict: REMOVED TRIANGLE: " + triangles[i]);
+                //    Log.WriteLine(GetType() + ".AddEdgesToCounterDict: REMOVED TRIANGLE: " + triangles[i]);
                 //    triangles[i] = triangles[--trianglesCount];
                 //}
                 //else
                 //{
-                //    Console.WriteLine(GetType() + ".AddEdgesToCounterDict: " + triangles[i]);
+                //    Log.WriteLine(GetType() + ".AddEdgesToCounterDict: " + triangles[i]);
                 //}
             }
             //PrintEdgeCounterDict("II");
@@ -720,7 +720,7 @@ namespace Triangulation
                     {
                         edgeI.SwapNextPrev();
                     }
-                    //Console.WriteLine(GetType() + ".JoinSortExternalEdges: terminal edge: " + edgeI);
+                    //Log.WriteLine(GetType() + ".JoinSortExternalEdges: terminal edge: " + edgeI);
                     edgeIndexPool.Insert(0, i);
                 }
                 else
@@ -752,7 +752,7 @@ namespace Triangulation
 
                     if (nextIndex == firstIndex || nextIndex < 0)
                     {
-                        //Console.WriteLine(GetType() + ".JoinSortExternalEdges: ADD RANGE: " + range + " edgeCounter: " + edgeCounter + " " + extEdge);
+                        //Log.WriteLine(GetType() + ".JoinSortExternalEdges: ADD RANGE: " + range + " edgeCounter: " + edgeCounter + " " + extEdge);
                         extEdgeRanges.Add(range);
 
                         if (edgeIndexPool.Count > 0)
@@ -855,7 +855,7 @@ namespace Triangulation
 
             while (edgeIndex != end)
             {
-                //Console.WriteLine(GetType() + ".InvokeForExternalEdgesRange: " + edgeIndex + " " + extEdges[edgeIndex].LastPointDegenerateAngle);
+                //Log.WriteLine(GetType() + ".InvokeForExternalEdgesRange: " + edgeIndex + " " + extEdges[edgeIndex].LastPointDegenerateAngle);
                 if (!action(extEdges[edgeIndex]))
                 {
                     return false;
@@ -942,7 +942,7 @@ namespace Triangulation
             var edgeA = new EdgeEntry(addedPointIndex, begVertex);
             var edgeB = new EdgeEntry(addedPointIndex, endVertex);
 
-            Console.WriteLine(GetType() + ".GetExternalEdgesRangeLoopPeak: " + edgeA + " " + edgeB);
+            Log.WriteLine(GetType() + ".GetExternalEdgesRangeLoopPeak: " + edgeA + " " + edgeB);
             return new EdgePeak(edgeA, edgeB, points);
         }
 
@@ -1082,7 +1082,7 @@ namespace Triangulation
             {
                 beg = end = -1;
             }
-            Console.WriteLine(GetType() + ".GetOppositeExternalEdgesRange: begEdgeValid: " + begEdgeValid + " endEdgeValid: " + endEdgeValid);
+            Log.WriteLine(GetType() + ".GetOppositeExternalEdgesRange: begEdgeValid: " + begEdgeValid + " endEdgeValid: " + endEdgeValid);
 
             range = new IndexRange(beg, end, extEdgeCount);
             bool edgesValid = extEdgeIndex >= 0 && begEdgeValid && endEdgeValid;
@@ -1132,7 +1132,7 @@ namespace Triangulation
             int next = GetNextClosestExternalEdge(point, extEdgeIndex, true, out float nextSqrDist);
             int prev = GetNextClosestExternalEdge(point, extEdgeIndex, false, out float prevSqrDist);
             extEdgeIndex = nextSqrDist < prevSqrDist ? next : prev;
-            Console.WriteLine(GetType() + ".GetClosestExternalEdge: " + extEdges[extEdgeIndex] + " " + extEdgeIndex);
+            Log.WriteLine(GetType() + ".GetClosestExternalEdge: " + extEdges[extEdgeIndex] + " " + extEdgeIndex);
             return extEdgeIndex;
         }
 
@@ -1189,7 +1189,7 @@ namespace Triangulation
             }
             if (!isPointOpposite)
             {
-                Console.WriteLine(GetType() + "GetFirstEdgeOppositeToExternalPoint: OPPOSITE EDGE NOT FOUND " + counter);
+                Log.WriteLine(GetType() + "GetFirstEdgeOppositeToExternalPoint: OPPOSITE EDGE NOT FOUND " + counter);
                 return -1;
             }
             else
@@ -1219,7 +1219,7 @@ namespace Triangulation
 
             lastPointExtEdgeIndices.Add(edgeIndex);
 
-            Console.WriteLine(GetType() + ".IsPointOppositeToExternalEdge: edge: " + edgeIndex + " " + extEdge + " pointOnEdge: " + pointOnEdge + " opposite: " + opposite);
+            Log.WriteLine(GetType() + ".IsPointOppositeToExternalEdge: edge: " + edgeIndex + " " + extEdge + " pointOnEdge: " + pointOnEdge + " opposite: " + opposite);
             return opposite;
         }
 
@@ -1235,7 +1235,7 @@ namespace Triangulation
             int sign2 = Math.Sign(Vector2.Cross(edgePeak.EdgeVecB, pointRay));
             //float crossNextEdgePointRay = Vector2.Cross(edgePeak.EdgeVecB.Normalize(), pointRay.Normalize());
             //int sign2 = Math.Abs(crossNextEdgePointRay) < Vector2.Epsilon ? 0 : Math.Sign(crossNextEdgePointRay);
-            //Console.WriteLine(GetType() + ".IsTerminalExtEdgeValid: signs: " + sign1 + ", " + sign2 + " for edges: " + extEdge + " " + nextEdge);
+            //Log.WriteLine(GetType() + ".IsTerminalExtEdgeValid: signs: " + sign1 + ", " + sign2 + " for edges: " + extEdge + " " + nextEdge);
             return sign2 == 0 || sign1 == sign2;
         }
 
@@ -1291,7 +1291,7 @@ namespace Triangulation
                     int prev = extEdges[startIndex].Prev;
                     while (!result && next != prev)
                     {
-                        //Console.WriteLine(GetType() + ".GetExternalEdgeIndex: " + next + " " + prev);
+                        //Log.WriteLine(GetType() + ".GetExternalEdgeIndex: " + next + " " + prev);
                         nextResult = extEdges[next].Equals(edge);
                         result = nextResult || extEdges[prev].Equals(edge);
                         next = extEdges[next].Next; //GetNextIndex(next, extEdgeCount);
@@ -1323,7 +1323,7 @@ namespace Triangulation
                     }
                 }
             }
-            Console.WriteLine(GetType() + ".GetExternalEdgeIndex: extEdgeCount: " + extEdgeCount + " edge: " + edge + " stepCounter: " + stepCounter + " edgeIndex: " + edgeIndex);
+            Log.WriteLine(GetType() + ".GetExternalEdgeIndex: extEdgeCount: " + extEdgeCount + " edge: " + edge + " stepCounter: " + stepCounter + " edgeIndex: " + edgeIndex);
             if (edgeIndex < 0)
             {
                 throw new Exception("GetExternalEdgeIndex: Edge Not Found: " + edge + " startIndex: " + startIndex);

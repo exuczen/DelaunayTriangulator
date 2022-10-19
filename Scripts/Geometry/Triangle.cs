@@ -69,7 +69,7 @@ namespace Triangulation
             for (int i = 0; i < 3; i++)
             {
                 float absCosAngle = Math.Abs(Vector2.Dot(-edgeBuffer[i], edgeBuffer[(i + 1) % 3]));
-                //Console.WriteLine("Triangle.IsDegenerate: angle: " + (Math.Acos(absCosAngle) * SPMath.Rad2Deg));
+                //Log.WriteLine("Triangle.IsDegenerate: angle: " + (Math.Acos(absCosAngle) * SPMath.Rad2Deg));
                 if (absCosAngle > CosMinAngle)
                 {
                     return true;
@@ -167,14 +167,14 @@ namespace Triangulation
             int sign;
             if (log)
             {
-                Console.WriteLine(GetType() + ".ContainsPoint:");
+                Log.WriteLine(GetType() + ".ContainsPoint:");
             }
             for (int i = 0; i < 3; i++)
             {
                 sign = Math.Sign(crossBuffer[i]);
                 if (log)
                 {
-                    Console.WriteLine(GetType() + ".ContainsPoint: " + crossBuffer[i] + " " + sign);
+                    Log.WriteLine(GetType() + ".ContainsPoint: " + crossBuffer[i] + " " + sign);
                 }
                 if (sign != 0)
                 {
@@ -428,8 +428,8 @@ namespace Triangulation
                 cY = miny + dy;
                 sqrR = dx * dx + dy * dy;
 
-                //Console.WriteLine(GetType() + ".ComputeCircumCircle: collinear: " + G + " " + cX + " " + cY + " " + sqrR + " | " + a + " " + b + " " + c);
-                Console.WriteLine(GetType() + ".ComputeCircumCircle: collinear: " + this);
+                //Log.WriteLine(GetType() + ".ComputeCircumCircle: collinear: " + G + " " + cX + " " + cY + " " + sqrR + " | " + a + " " + b + " " + c);
+                Log.WriteLine(GetType() + ".ComputeCircumCircle: collinear: " + this);
             }
             else
             {

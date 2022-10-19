@@ -154,7 +154,7 @@ namespace Triangulation
                     return true;
                 }
             }
-            Console.WriteLine(GetType() + ".AddPointToTriangulation: *************");
+            Log.WriteLine(GetType() + ".AddPointToTriangulation: *************");
             bool result;
 
             if (triangleGrid.GetCell(point, out var cell, out var cellXY))
@@ -183,11 +183,11 @@ namespace Triangulation
                             if (!isInTriangle && triangle.ContainsPoint(point, points, false))
                             {
                                 isInTriangle = true;
-                                Console.WriteLine(GetType() + ".AddPoints: isInTriangle: " + triangle);
+                                Log.WriteLine(GetType() + ".AddPoints: isInTriangle: " + triangle);
                             }
                         }
                     });
-                    Console.WriteLine(GetType() + ".AddPointToTriangulation: " + pointIndex + " isInTriangle: " + isInTriangle + " cellTrianglesIndices.Count: " + cellTrianglesIndices.Count + " cellPointsIndices.Count: " + cellPointsIndices.Count);
+                    Log.WriteLine(GetType() + ".AddPointToTriangulation: " + pointIndex + " isInTriangle: " + isInTriangle + " cellTrianglesIndices.Count: " + cellTrianglesIndices.Count + " cellPointsIndices.Count: " + cellPointsIndices.Count);
                     if (!isInTriangle)
                     {
                         if (internalOnly)
@@ -305,7 +305,7 @@ namespace Triangulation
                     bool isPointExternal = baseEdgeInfo.IsPointExternal(i);
                     if (!isPointExternal && !triangle.HasVertex(i) && triangle.CircumCircle.ContainsPoint(point, 1f) && !unusedPointIndices.Contains(i))
                     {
-                        Console.WriteLine(GetType() + ".ValidateTriangulation: point " + i + " of triangle " + GetFirstTriangleWithVertex(i) + " inside triangle: " + triangle + " isPointExternal: " + isPointExternal);
+                        Log.WriteLine(GetType() + ".ValidateTriangulation: point " + i + " of triangle " + GetFirstTriangleWithVertex(i) + " inside triangle: " + triangle + " isPointExternal: " + isPointExternal);
                         //baseEdgeInfo.PrintExternalEdges("ValidateTriangulation: ");
                         circleOverlapResult = true;
                     }
@@ -334,12 +334,12 @@ namespace Triangulation
             });
             if (cellTrianglesIndices.Count == 0)
             {
-                Console.WriteLine(GetType() + ".ProcessClearPoint: cellTrianglesIndices.Count == 0 for pointIndex: " + pointIndex);
+                Log.WriteLine(GetType() + ".ProcessClearPoint: cellTrianglesIndices.Count == 0 for pointIndex: " + pointIndex);
                 return;
             }
             bool isPointExternal = baseEdgeInfo.IsPointExternal(pointIndex);
 
-            Console.WriteLine(GetType() + ".ProcessClearPoint: " + pointIndex + " isPointExternal: " + isPointExternal);
+            Log.WriteLine(GetType() + ".ProcessClearPoint: " + pointIndex + " isPointExternal: " + isPointExternal);
 
             AddCellTrianglesEdges();
 
@@ -420,7 +420,7 @@ namespace Triangulation
         {
             if (cellTrianglesIndices.Count == 0)
             {
-                Console.WriteLine(GetType() + ".ProcessInternalPoint: cellTrianglesIndices.Count == 0");
+                Log.WriteLine(GetType() + ".ProcessInternalPoint: cellTrianglesIndices.Count == 0");
                 return false;
             }
             AddCellTrianglesEdges();
@@ -515,9 +515,9 @@ namespace Triangulation
         private bool AddExternalPointTriangles(int addedPointIndex, ref IndexRange extEdgesRange, out EdgePeak loopPeak, out bool processInternal)
         {
             processInternal = false;
-            Console.WriteLine(GetType() + ".AddExternalPointTriangles: extEdgesRange: " + extEdgesRange);
+            Log.WriteLine(GetType() + ".AddExternalPointTriangles: extEdgesRange: " + extEdgesRange);
             extEdgesRange = baseEdgeInfo.TrimExternalEdgesRange(extEdgesRange, out bool innerDegenerate);
-            Console.WriteLine(GetType() + ".AddExternalPointTriangles: extEdgesRange: " + extEdgesRange + " innerDegenerate: " + innerDegenerate);
+            Log.WriteLine(GetType() + ".AddExternalPointTriangles: extEdgesRange: " + extEdgesRange + " innerDegenerate: " + innerDegenerate);
 
             if (extEdgesRange.FullLength <= 0)
             {
@@ -530,7 +530,7 @@ namespace Triangulation
             bool result;
             if (innerDegenerate)
             {
-                Console.WriteLine(GetType() + ".AddExternalPointTriangles: Inner Degenerate Triangle with addedPointIndex: " + addedPointIndex);
+                Log.WriteLine(GetType() + ".AddExternalPointTriangles: Inner Degenerate Triangle with addedPointIndex: " + addedPointIndex);
                 baseEdgeInfo.LoopCopyExternalEdgesRange(extEdgesRange, addedPointIndex, addedEdgeInfo, out loopPeak);
                 cellPolygon.SetFromExternalEdges(addedEdgeInfo, points);
                 cellPolygon.Triangulate(addedTriangles, ref addedTrianglesCount, points);
@@ -592,7 +592,7 @@ namespace Triangulation
         {
             if (!cellTrianglesIndices.Contains(triangleIndex))
             {
-                //Console.WriteLine(GetType() + ".AddCellTriangleToProcess: " + triangles[triangleIndex]);
+                //Log.WriteLine(GetType() + ".AddCellTriangleToProcess: " + triangles[triangleIndex]);
                 cellTrianglesIndices.Add(triangleIndex);
 
                 if (addToCellPoints)
@@ -612,7 +612,7 @@ namespace Triangulation
                 AddTriangleEdges(baseTriangleSet.Triangles[triangleIndex]);
             }
             ForEachEdgeInDict((edgeKey, edge) => {
-                //Console.WriteLine(GetType() + ".AddCellTrianglesEdges: " + edge);
+                //Log.WriteLine(GetType() + ".AddCellTrianglesEdges: " + edge);
                 if (edge.Count == 1)
                 {
                     addedEdgeInfo.AddExternalEdge(edge);
@@ -677,12 +677,12 @@ namespace Triangulation
             if (!edge.LastPointDegenerateTriangle)
             {
                 AddTriangleToProcess(edge, pointIndex);
-                //Console.WriteLine(GetType() + ".AddExternalTriangle: " + addedTriangles[addedTrianglesCount - 1]);
+                //Log.WriteLine(GetType() + ".AddExternalTriangle: " + addedTriangles[addedTrianglesCount - 1]);
                 return true;
             }
             else
             {
-                Console.WriteLine(GetType() + ".AddExternalTriangle: SKIPPED EXTERNAL DEGENERATE TRIANGLE: " + edge + " pointIndex: " + pointIndex + Log.KIND_OF_FAKAP);
+                Log.WriteLine(GetType() + ".AddExternalTriangle: SKIPPED EXTERNAL DEGENERATE TRIANGLE: " + edge + " pointIndex: " + pointIndex + Log.KIND_OF_FAKAP);
                 return false;
             }
         }
@@ -694,26 +694,26 @@ namespace Triangulation
             if (!edge.LastPointDegenerateTriangle)
             {
                 AddTriangleToProcess(edge, pointIndex);
-                //Console.WriteLine(GetType() + ".AddInternalTriangle: " + addedTriangles[addedTrianglesCount - 1]);
+                //Log.WriteLine(GetType() + ".AddInternalTriangle: " + addedTriangles[addedTrianglesCount - 1]);
                 return true;
             }
             else if (edge.LastPointInRange && baseEdgeInfo.IsEdgeExternal(edge))
             {
                 if (!degenerateTriangle.IsValid)
                 {
-                    Console.WriteLine(GetType() + ".AddInternalTriangle: ADDED DEGENERATE TRIANGLE: edge: " + edge + " pointIndex: " + pointIndex);
+                    Log.WriteLine(GetType() + ".AddInternalTriangle: ADDED DEGENERATE TRIANGLE: edge: " + edge + " pointIndex: " + pointIndex);
                     degenerateTriangle = new DegenerateTriangle(edge, pointIndex);
                     return true;
                 }
                 else
                 {
-                    Console.WriteLine(GetType() + ".AddInternalTriangle: SKIPPED INTERNAL DEGENERATE TRIANGLE > 1: edge: " + edge + " pointIndex: " + pointIndex);
+                    Log.WriteLine(GetType() + ".AddInternalTriangle: SKIPPED INTERNAL DEGENERATE TRIANGLE > 1: edge: " + edge + " pointIndex: " + pointIndex);
                     return false;
                 }
             }
             else
             {
-                Console.WriteLine(GetType() + ".AddInternalTriangle: SKIPPED INTERNAL DEGENERATE TRIANGLE: " + edge + " pointIndex: " + pointIndex + Log.KIND_OF_FAKAP);
+                Log.WriteLine(GetType() + ".AddInternalTriangle: SKIPPED INTERNAL DEGENERATE TRIANGLE: " + edge + " pointIndex: " + pointIndex + Log.KIND_OF_FAKAP);
                 return false;
             }
         }
@@ -727,7 +727,7 @@ namespace Triangulation
         {
             for (int i = 0; i < trianglesCount; i++)
             {
-                Console.WriteLine(GetType() + ".PrintTriangles: " + i + " " + triangles[i]);
+                Log.WriteLine(GetType() + ".PrintTriangles: " + i + " " + triangles[i]);
             }
         }
     }

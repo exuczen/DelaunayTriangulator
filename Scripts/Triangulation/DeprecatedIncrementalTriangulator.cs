@@ -53,7 +53,7 @@ namespace Triangulation
         //    ForEachTriangleInCell(point, (triangle, triangleIndex) => {
         //        if (triangle.HasVertex(pointIndex))
         //        {
-        //            //Console.WriteLine(GetType() + ".AddCellTrianglesToProcess: " + triangle + " pointIndex: " + pointIndex);
+        //            //Log.WriteLine(GetType() + ".AddCellTrianglesToProcess: " + triangle + " pointIndex: " + pointIndex);
         //            AddCellTriangleToProcess(triangle, triangleIndex);
         //        }
         //    });
@@ -135,10 +135,10 @@ namespace Triangulation
         //        }
         //        cellPointsIndices.Sort(compareYX);
         //    }
-        //    //Console.WriteLine(GetType() + ".SortCellPoints: ");
+        //    //Log.WriteLine(GetType() + ".SortCellPoints: ");
         //    //foreach (var index in cellPointsIndices)
         //    //{
-        //    //    Console.WriteLine(GetType() + "." + index + " " + points[index]);
+        //    //    Log.WriteLine(GetType() + "." + index + " " + points[index]);
         //    //}
         //}
     }

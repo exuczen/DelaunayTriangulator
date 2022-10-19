@@ -223,7 +223,7 @@ namespace Triangulation
                 prevPoint = point;
                 point = points[pointIndex];
 
-                //Console.WriteLine(GetType() + "." + points[pointIndex] + " " + pointsYX[sortedIndex]);
+                //Log.WriteLine(GetType() + "." + points[pointIndex] + " " + pointsYX[sortedIndex]);
 
                 if (pointIndex != 0 && Math.Abs(point.x - prevPoint.x) < tolerance && Math.Abs(point.y - prevPoint.y) < tolerance)
                 {
@@ -317,7 +317,7 @@ namespace Triangulation
         //        if (triangles[triangleIndex].A >= 0)
         //        {
         //            action(triangles[triangleIndex].ToIntegerTriangle(), counter++);
-        //            //Console.WriteLine(GetType() + ".IntegerTriangles: " + triangleIndex + " : " + triangles[triangleIndex]);
+        //            //Log.WriteLine(GetType() + ".IntegerTriangles: " + triangleIndex + " : " + triangles[triangleIndex]);
         //        }
         //    }
         //}
@@ -340,7 +340,7 @@ namespace Triangulation
                 {
                     // Valid triangle found. Increment count.
                     indicesDict.Add(triangleIndex, validTriangles.Count);
-                    //Console.WriteLine(GetType() + ".FindValidTriangles: " + triangleIndex + " -> " + validTriangles.Count + " : " + triangle);
+                    //Log.WriteLine(GetType() + ".FindValidTriangles: " + triangleIndex + " -> " + validTriangles.Count + " : " + triangle);
                     validTriangles.Add(triangle);
                 }
                 else
@@ -351,7 +351,7 @@ namespace Triangulation
 
                 triangleIndex = triangles[triangleIndex].Next;
             }
-            //Console.WriteLine("FindValidTriangles: {0}, {1}, {2}", trianglesFirst, trianglesLast, validTriangles.Count);
+            //Log.WriteLine("FindValidTriangles: {0}, {1}, {2}", trianglesFirst, trianglesLast, validTriangles.Count);
             //ToIntegerTriangles();
 
             int validTrianglesCount = validTriangles.Count;
@@ -370,7 +370,7 @@ namespace Triangulation
 
             //for (int i = 0; i < validTrianglesCount; i++)
             //{
-            //    Console.WriteLine(GetType() + ".ValidTriangles: " + i + " : " + triangles[i]);
+            //    Log.WriteLine(GetType() + ".ValidTriangles: " + i + " : " + triangles[i]);
             //}
 
             for (int i = validTrianglesCount; i < trianglesCount; i++)
@@ -400,7 +400,7 @@ namespace Triangulation
                     //var t =
                     AddTriangle(edge.A, edge.B, pointIndex);
 
-                    //Console.WriteLine(GetType() + ".ReplaceEdgesWithTriangles: " + t);
+                    //Log.WriteLine(GetType() + ".ReplaceEdgesWithTriangles: " + t);
 
                     count++;
                 }
@@ -430,7 +430,7 @@ namespace Triangulation
             else
             {
                 trianglesFirst = triangle.Next;
-                //Console.WriteLine("ReplaceTriangleWithEdges: {0}, {1}", triangleIndex, trianglesFirst);
+                //Log.WriteLine("ReplaceTriangleWithEdges: {0}, {1}", triangleIndex, trianglesFirst);
             }
 
             // Remove triangle from non completed linked list
@@ -444,7 +444,7 @@ namespace Triangulation
             triangles[firstFreeTriangle].Previous = triangleIndex;
             firstFreeTriangle = triangleIndex;
 
-            //Console.WriteLine(GetType() + ".ReplaceTriangleWithEdges: " + triangleIndex + " : " + triangle);
+            //Log.WriteLine(GetType() + ".ReplaceTriangleWithEdges: " + triangleIndex + " : " + triangle);
 
             // Add triangle edges to edges table
 
@@ -540,7 +540,7 @@ namespace Triangulation
 
             trianglesFirst = triangleIndex;
 
-            //Console.WriteLine("AddTriangle: {0}, {1}, {2}", trianglesFirst, triangle.Next, firstFreeTriangle);
+            //Log.WriteLine("AddTriangle: {0}, {1}, {2}", trianglesFirst, triangle.Next, firstFreeTriangle);
 
             // Insert the triangle into non completed triangles linked list
 
@@ -567,7 +567,7 @@ namespace Triangulation
 
             triangles[triangleIndex] = triangle;
 
-            //Console.WriteLine("AddTriangle: {0}, {1}", triangleIndex, triangle);
+            //Log.WriteLine("AddTriangle: {0}, {1}", triangleIndex, triangle);
 
             return ref triangles[triangleIndex];
         }

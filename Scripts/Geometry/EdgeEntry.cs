@@ -128,7 +128,7 @@ namespace Triangulation
                 //LastPointDegenerateAngle = cosAngleC > Triangle.CosMinAngle;
                 LastPointDegenerateAngle = cosAngleC > Triangle.CosMinAngle || (!inRange && (degenerateAngleA || degenerateAngleB));
                 LastPointInRange = inRange;
-                //Console.WriteLine(GetType() + ".IsPointOnEdge: " + ToLastPointDataString());
+                //Log.WriteLine(GetType() + ".IsPointOnEdge: " + ToLastPointDataString());
             }
             return onEdge;
         }

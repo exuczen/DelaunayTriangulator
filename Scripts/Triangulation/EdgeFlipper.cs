@@ -31,7 +31,7 @@ namespace Triangulation
             bool result = edgeInfo.ForEachInnerEdge((edgeKey, edgeData) => {
                 if (IsInnerEdgeNonDelaunay(GetEdgeFromKey(edgeKey), edgeData))
                 {
-                    Console.WriteLine(GetType() + ".Validate: IsInnerEdgeNonDelaunay: " + edgeKey + ", " + edgeData + Log.KIND_OF_FAKAP);
+                    Log.WriteLine(GetType() + ".Validate: IsInnerEdgeNonDelaunay: " + edgeKey + ", " + edgeData + Log.KIND_OF_FAKAP);
                     return false;
                 }
                 return true;
@@ -99,7 +99,7 @@ namespace Triangulation
                 triangleKeys[0] = edgeData.Triangle1Key;
                 triangleKeys[1] = edgeData.Triangle2Key;
 
-                //Console.WriteLine(GetType() + ".FlipEdgesRecursively");
+                //Log.WriteLine(GetType() + ".FlipEdgesRecursively");
                 //edgeInfo.PrintEdgeCounterDict();
                 //edgeInfo.PrintExtEdgeTriangleDict();
                 //edgeInfo.PrintInnerEdgeTriangleDict();
@@ -115,7 +115,7 @@ namespace Triangulation
                     removedTriangleKeys.Add(triangleKey);
                     addedTriangleKeys.Remove(triangleKey);
                 }
-                Console.WriteLine(GetType() + ".FlipEdgesRecursively: FLIPPING TRIANGLES: " + flipTriangles[0] + ", " + flipTriangles[1] + ", flip edge: " + edge);
+                Log.WriteLine(GetType() + ".FlipEdgesRecursively: FLIPPING TRIANGLES: " + flipTriangles[0] + ", " + flipTriangles[1] + ", flip edge: " + edge);
                 for (int i = 0; i < 2; i++)
                 {
                     for (int j = 0; j < 2; j++)
@@ -145,7 +145,7 @@ namespace Triangulation
                 //edgeInfo.PrintEdgeCounterDict();
                 //edgeInfo.PrintExtEdgeTriangleDict();
                 //edgeInfo.PrintInnerEdgeTriangleDict();
-                Console.WriteLine(GetType() + ".FlipEdgesRecursively: FLIPPED TRIANGLES: " + flipTriangles[0] + ", " + flipTriangles[1]);
+                Log.WriteLine(GetType() + ".FlipEdgesRecursively: FLIPPED TRIANGLES: " + flipTriangles[0] + ", " + flipTriangles[1]);
 
                 for (int i = 0; i < 2; i++)
                 {
@@ -162,13 +162,13 @@ namespace Triangulation
             }
             else
             {
-                Console.WriteLine(GetType() + ".FlipEdgesRecursively: " + edge + " NOT FOUND IN innerEdgeTriangleDict");
+                Log.WriteLine(GetType() + ".FlipEdgesRecursively: " + edge + " NOT FOUND IN innerEdgeTriangleDict");
             }
         }
 
         private bool IsEdgeInnerNonDelaunay(EdgeEntry edge, int edgeKey/*, bool skipChecked*/)
         {
-            //Console.WriteLine(GetType() + ".IsEdgeInnerNonDelaunay: " + edge + " " + edgeInfo.IsEdgeInternal(edgeKey) + " " + edgeInfo.GetInnerEdgeData(edgeKey, out var edgeData) + " " + edgeData);
+            //Log.WriteLine(GetType() + ".IsEdgeInnerNonDelaunay: " + edge + " " + edgeInfo.IsEdgeInternal(edgeKey) + " " + edgeInfo.GetInnerEdgeData(edgeKey, out var edgeData) + " " + edgeData);
             if (edgeInfo.IsEdgeInternal(edgeKey) && edgeInfo.GetInnerEdgeData(edgeKey, out var edgeData))
             {
                 //if (skipChecked)

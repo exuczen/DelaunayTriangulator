@@ -23,7 +23,7 @@ namespace Triangulation
                 {
                     addedCount = addedRange.GetIndexCount();
                 }
-                Console.WriteLine(GetType() + ".ReplaceExternalEdges: addedRange: " + addedRange + " addedInverseRange: " + addedInvRange + " removedRange: " + removedRange);
+                Log.WriteLine(GetType() + ".ReplaceExternalEdges: addedRange: " + addedRange + " addedInverseRange: " + addedInvRange + " removedRange: " + removedRange);
                 //Log.PrintEdges(addedExtEdges, addedCount, "ReplaceExternalEdges: PrintAddedExternalEdges: ");
 
                 //PrintExternalEdges("ReplacePeakExternalEdges 1");
@@ -42,7 +42,7 @@ namespace Triangulation
         //    var addedPeakRange = addedEdgeInfo.GetPeakExternalEdgesRange(peak, this, pointsToClear);
         //    var removedRange = GetBaseExternalEdgesRange(addedExtEdges, addedPeakRange);
         //
-        //    Console.WriteLine(GetType() + ".ReplacePeakExternalEdges: " + peak + " removedRange: " + removedRange + " addedPeakRange: " + addedPeakRange);
+        //    Log.WriteLine(GetType() + ".ReplacePeakExternalEdges: " + peak + " removedRange: " + removedRange + " addedPeakRange: " + addedPeakRange);
         //    if (removedRange.GetIndexCount() < extEdgeCount)
         //    {
         //        int addedCount = addedEdgeInfo.extEdgeCount = ArrayUtils.CutRange(addedExtEdges, addedPeakRange, addedExtEdges);
@@ -79,7 +79,7 @@ namespace Triangulation
         {
             if (extEdgeCount < 4)
             {
-                Console.WriteLine(GetType() + ".JoinLastTwoExtEdges: extEdgeCount: " + extEdgeCount);
+                Log.WriteLine(GetType() + ".JoinLastTwoExtEdges: extEdgeCount: " + extEdgeCount);
                 extPeak = default;
                 return false;
             }
@@ -407,16 +407,16 @@ namespace Triangulation
         //    extEdgeCount = totalCount;
         //    RefreshExternalEdgesNextPrev();
         //
-        //    //Console.WriteLine(GetType() + ".InsertExternalEdges");
+        //    //Log.WriteLine(GetType() + ".InsertExternalEdges");
         //    //Log.PrintEdges(extEdges, extEdgeCount, "final extEdges");
         //}
 
         //private int InsertExternalEdges(EdgeEntry[] addedExtEdges, IndexRange addedRange, IndexRange removedRange, int totalCount, bool tryInvert)
         //{
-        //    Console.WriteLine(GetType() + ".InsertExternalEdges: removedRange: " + removedRange + " addedRange: " + addedRange);
-        //    //Console.WriteLine(GetType() + ".InsertExternalEdges");
+        //    Log.WriteLine(GetType() + ".InsertExternalEdges: removedRange: " + removedRange + " addedRange: " + addedRange);
+        //    //Log.WriteLine(GetType() + ".InsertExternalEdges");
         //    //Log.PrintEdges(extEdges, extEdgeCount, "extEdges");
-        //    //Console.WriteLine(GetType() + ".InsertExternalEdges");
+        //    //Log.WriteLine(GetType() + ".InsertExternalEdges");
         //    //Log.PrintEdges(addedExtEdges, addedExtEdgeCount, "addedExtEdges");
         //
         //    int addedCount = addedRange.GetIndexCount();
@@ -432,7 +432,7 @@ namespace Triangulation
         //        var addedBegEdge = addedExtEdges[addedRange.Beg];
         //        if (!validPrevEdge.SharesVertex(addedBegEdge))
         //        {
-        //            //Console.WriteLine(GetType() + ".InsertExternalEdges: INVERT ADDED EDGES ORDER: " + validPrev + " " + validPrevEdge);
+        //            //Log.WriteLine(GetType() + ".InsertExternalEdges: INVERT ADDED EDGES ORDER: " + validPrev + " " + validPrevEdge);
         //            //Log.PrintEdges(addedExtEdges, addedCount);
         //            ArrayUtils.InvertOrder(addedExtEdges, addedRange.Beg, addedRange.End);
         //            //Log.PrintEdges(addedExtEdges, addedCount, "***");
@@ -478,7 +478,7 @@ namespace Triangulation
                     edgeIndex = GetExternalEdgeIndex(edge);
                     if (edgeIndex >= 0)
                     {
-                        Console.WriteLine(GetType() + ".GetFirstExternalEdge: " + edge + " " + triangleRef);
+                        Log.WriteLine(GetType() + ".GetFirstExternalEdge: " + edge + " " + triangleRef);
                         triangle = triangleRef;
                         return true;
                     }

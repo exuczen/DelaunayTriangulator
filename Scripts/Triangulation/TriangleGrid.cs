@@ -63,7 +63,7 @@ namespace Triangulation
             int cellsCount = xCount * yCount;
             cells = new TriangleCell[cellsCount];
 
-            Console.WriteLine(GetType() + ": " + xCount + "x" + yCount + " " + cellSize + " " + (Math.Min(cellSize.x, cellSize.y) / Math.Max(cellSize.x, cellSize.y)).ToString("f4"));
+            Log.WriteLine(GetType() + ": " + xCount + "x" + yCount + " " + cellSize + " " + (Math.Min(cellSize.x, cellSize.y) / Math.Max(cellSize.x, cellSize.y)).ToString("f4"));
 
             for (int i = 0; i < cellsCount; i++)
             {
@@ -103,7 +103,7 @@ namespace Triangulation
                     {
                         if (triangle.ContainsPoint(point, points))
                         {
-                            Console.WriteLine(GetType() + ".IsPointInsideTriangle: " + triangle);
+                            Log.WriteLine(GetType() + ".IsPointInsideTriangle: " + triangle);
                             return true;
                         }
                     }
@@ -202,7 +202,7 @@ namespace Triangulation
                     if (GetCellOverlap(x, y, cc, out int cellIndex))
                     {
                         cells[cellIndex].AddTriangle(triangle.Key);
-                        //Console.WriteLine(GetType() + ".AddTriangle: " + cells[cellIndex]);
+                        //Log.WriteLine(GetType() + ".AddTriangle: " + cells[cellIndex]);
                         cellIndices.Add(cellIndex);
                     }
                 }
@@ -341,7 +341,7 @@ namespace Triangulation
                 ref var triangle = ref GetTriangleRef(key, out int triangleIndex);
                 if (triangleIndex < 0)
                 {
-                    Console.WriteLine(GetType() + ".SetCellFilled: " + Triangle.GetTriangleFromKey(key, pointsLength));
+                    Log.WriteLine(GetType() + ".SetCellFilled: " + Triangle.GetTriangleFromKey(key, pointsLength));
                 }
                 triangle.CircumCircle.Filled = filled;
             }
@@ -408,7 +408,7 @@ namespace Triangulation
             ForEachCell((x, y, cell) => {
                 if (cell.TrianglesCount > 0)
                 {
-                    Console.WriteLine(string.Format("TriangleCell: {0}x{1}:{2}", x, y, cell.TrianglesCount));
+                    Log.WriteLine(string.Format("TriangleCell: {0}x{1}:{2}", x, y, cell.TrianglesCount));
                 }
             });
         }

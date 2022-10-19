@@ -103,7 +103,7 @@ namespace Triangulation
         protected void InvokeTriangulateAction(Action triangulate)
         {
             //Debug.WriteLine("UpdateTriangulation " + triangulate);
-            //Console.WriteLine("UpdateTriangulation " + triangulate + " " + addedOnly);
+            //Log.WriteLine("UpdateTriangulation " + triangulate + " " + addedOnly);
 
             var stopwatch = InvokeActionWithStopwatch(triangulate);
 
