@@ -31,7 +31,7 @@ namespace Triangulation
             bool result = edgeInfo.ForEachInnerEdge((edgeKey, edgeData) => {
                 if (IsInnerEdgeNonDelaunay(GetEdgeFromKey(edgeKey), edgeData))
                 {
-                    Log.WriteLine(GetType() + ".Validate: IsInnerEdgeNonDelaunay: " + edgeKey + ", " + edgeData + Log.KIND_OF_FAKAP);
+                    Log.WriteError(GetType() + ".Validate: IsInnerEdgeNonDelaunay: " + edgeKey + ", " + edgeData + Log.KIND_OF_FAKAP);
                     return false;
                 }
                 return true;

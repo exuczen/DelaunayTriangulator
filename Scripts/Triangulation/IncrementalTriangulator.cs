@@ -305,7 +305,7 @@ namespace Triangulation
                     bool isPointExternal = baseEdgeInfo.IsPointExternal(i);
                     if (!isPointExternal && !triangle.HasVertex(i) && triangle.CircumCircle.ContainsPoint(point, 1f) && !unusedPointIndices.Contains(i))
                     {
-                        Log.WriteLine(GetType() + ".ValidateTriangulation: point " + i + " of triangle " + GetFirstTriangleWithVertex(i) + " inside triangle: " + triangle + " isPointExternal: " + isPointExternal);
+                        Log.WriteError(GetType() + ".ValidateTriangulation: point " + i + " of triangle " + GetFirstTriangleWithVertex(i) + " inside triangle: " + triangle + " isPointExternal: " + isPointExternal);
                         //baseEdgeInfo.PrintExternalEdges("ValidateTriangulation: ");
                         circleOverlapResult = true;
                     }
