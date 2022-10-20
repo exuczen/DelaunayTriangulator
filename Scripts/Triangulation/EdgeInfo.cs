@@ -115,6 +115,10 @@ namespace Triangulation
 
         public void ForEachExternalPeak(Action<EdgeEntry, EdgeEntry> action)
         {
+            if (extEdgeCount <= 0)
+            {
+                return;
+            }
             for (int i = 1; i < extEdgeCount; i++)
             {
                 action(extEdges[i - 1], extEdges[i]);
