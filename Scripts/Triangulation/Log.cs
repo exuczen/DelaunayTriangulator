@@ -11,6 +11,15 @@ namespace Triangulation
     {
         public const string KIND_OF_FAKAP = " !!! KIND OF FAKAP !!!";
 
+        public static void WriteWarning(string value)
+        {
+#if UNITY
+            UnityEngine.Debug.LogWarning(value);
+#else
+            Console.Error.WriteLine("WARNING: {0}", value);
+#endif
+        }
+
         public static void WriteError(string value)
         {
 #if UNITY

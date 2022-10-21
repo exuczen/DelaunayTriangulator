@@ -116,8 +116,12 @@ namespace Triangulation
                 indices[cellIndex] = pointIndex;
                 setPoint(new Vector2(cellXYI.x * cellSize.x, cellXYI.y * cellSize.y));
                 result = true;
+                //Log.WriteLine(GetType() + ".TryAddPoint: " + cellXYI + ", " + savedIndex + " " + result + " " + point);
             }
-            //Log.WriteLine(GetType() + ".TryAddPoint: " + cellXYI + ", " + savedIndex + " " + result);
+            else
+            {
+                Log.WriteWarning(GetType() + ".TryAddPoint: " + cellXYI + ", " + savedIndex + " " + result + " " + point);
+            }
             return result;
         }
 

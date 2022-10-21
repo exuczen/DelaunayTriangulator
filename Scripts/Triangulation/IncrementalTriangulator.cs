@@ -48,6 +48,8 @@ namespace Triangulation
 
         public override bool Triangulate()
         {
+            baseEdgeInfo.Clear();
+
             if (base.Triangulate())
             {
                 AddTrianglesToBaseTriangles(triangles, trianglesCount, Color.FloralWhite, false);
