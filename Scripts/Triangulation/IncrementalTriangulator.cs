@@ -1,9 +1,4 @@
 ﻿//#define DEBUG_DEGENERATE_TRIANGLES
-#define VALIDATE_TRIANGULATION
-#if VALIDATE_TRIANGULATION
-#define VALIDATE_EDGES
-#define VALIDATE_POINTS
-#endif
 
 using System;
 using System.Collections.Generic;
@@ -19,6 +14,9 @@ namespace Triangulation
         public EdgeInfo EdgeInfo => baseEdgeInfo;
         public List<int> CellPointsIndices => cellPointsIndices;
         public Polygon CellPolygon => cellPolygon;
+
+        public bool PointsValidation = false;
+        public bool EdgesValidation = false;
 
         private readonly List<int> cellPointsIndices = new List<int>();
         private readonly List<int> cellTrianglesIndices = new List<int>();
@@ -57,12 +55,33 @@ namespace Triangulation
                 baseEdgeInfo.FindExternalEdges(pointsCount, ExceptionThrower);
 
                 //baseEdgeInfo.PrintPointsExternal(pointsCount);
-#if VALIDATE_TRIANGULATION
-                ValidateTriangulation();
-#endif
+
+                ValidateTriangulation(false, PointsValidation);
+
                 return true;
             }
             return false;
+        }
+
+        public void Initialize(Vector2 gridSize, bool triangulate, int triangleGridDivs, int pointGridDivsMlp)
+        {
+            if (baseTriangleSet == null)
+            {
+                throw new Exception("baseTriangleSet == null");
+            }
+            triangleGrid = new TriangleGrid(baseTriangleSet, gridSize, triangleGridDivs);
+
+            cellPolygon.Tolerance = triangleGrid.CellTolerance;
+
+            pointGrid = new PointGrid(gridSize, triangleGrid.XYCount * pointGridDivsMlp);
+
+#if DEBUG_DEGENERATE_TRIANGLES
+            Triangle.SetMinAngle(15f);
+#endif
+            if (triangulate)
+            {
+                Triangulate();
+            }
         }
 
         public bool TryAddPoint(Vector2 point, out int pointIndex)
@@ -78,27 +97,6 @@ namespace Triangulation
                 pointIndex = savedIndex;
                 return false;
             }
-        }
-
-        public void Initialize(Vector2 gridSize, bool triangulate, int triangleGridDivs, int pointGridDivsMlp)
-        {
-            if (baseTriangleSet == null)
-            {
-                throw new Exception("baseTriangleSet == null");
-            }
-            triangleGrid = new TriangleGrid(baseTriangleSet, gridSize, triangleGridDivs);
-
-            cellPolygon.Tolerance = triangleGrid.CellTolerance;
-
-            pointGrid = new PointGrid(gridSize, triangleGrid.XYCount * pointGridDivsMlp);
-
-            if (triangulate)
-            {
-                Triangulate();
-            }
-#if DEBUG_DEGENERATE_TRIANGLES
-            Triangle.SetMinAngle(15f);
-#endif
         }
 
         public bool TryRemovePointFromTriangulation(Vector2 point, out int pointIndex)
@@ -129,10 +127,8 @@ namespace Triangulation
                 {
                     ClearLastPointData();
                     ProcessClearPoint(pointIndex, cell);
+                    ValidateTriangulation(EdgesValidation, PointsValidation);
                 }
-#if VALIDATE_TRIANGULATION
-                ValidateTriangulation();
-#endif
             }
         }
 
@@ -207,9 +203,8 @@ namespace Triangulation
                 }
                 //PrintTriangles();
                 //baseEdgeInfo.PrintPointsExternal(pointsCount);
-#if VALIDATE_TRIANGULATION
-                ValidateTriangulation();
-#endif
+
+                ValidateTriangulation(EdgesValidation, PointsValidation);
             }
             else
             {
@@ -290,33 +285,35 @@ namespace Triangulation
             return Triangle.None;
         }
 
-        private bool ValidateTriangulation()
+        private bool ValidateTriangulation(bool validateEdges, bool validatePoints)
         {
-            bool edgeFlipperResult = true;
-            bool circleOverlapResult = false;
-#if VALIDATE_EDGES
-            edgeFlipperResult = baseTriangleSet.EdgeFlipper.Validate();
-#endif
-#if VALIDATE_POINTS
-            for (int i = 0; i < pointsCount; i++)
+            if (!validateEdges && !validatePoints)
             {
-                var point = points[i];
-                ForEachTriangleInCell(point, (triangle, triangleIndex) => {
-                    bool isPointExternal = baseEdgeInfo.IsPointExternal(i);
-                    if (!isPointExternal && !triangle.HasVertex(i) && triangle.CircumCircle.ContainsPoint(point, 1f) && !unusedPointIndices.Contains(i))
-                    {
-                        Log.WriteError(GetType() + ".ValidateTriangulation: point " + i + " of triangle " + GetFirstTriangleWithVertex(i) + " inside triangle: " + triangle + " isPointExternal: " + isPointExternal);
-                        //baseEdgeInfo.PrintExternalEdges("ValidateTriangulation: ");
-                        circleOverlapResult = true;
-                    }
-                });
-                if (circleOverlapResult)
+                return true;
+            }
+            bool edgesValid = !validateEdges || baseTriangleSet.EdgeFlipper.Validate();
+            bool circleOverlapsPoint = false;
+            if (validatePoints)
+            {
+                for (int i = 0; i < pointsCount; i++)
                 {
-                    break;
+                    var point = points[i];
+                    ForEachTriangleInCell(point, (triangle, triangleIndex) => {
+                        bool isPointExternal = baseEdgeInfo.IsPointExternal(i);
+                        if (!isPointExternal && !triangle.HasVertex(i) && triangle.CircumCircle.ContainsPoint(point, 1f) && !unusedPointIndices.Contains(i))
+                        {
+                            Log.WriteError(GetType() + ".ValidateTriangulation: point " + i + " of triangle " + GetFirstTriangleWithVertex(i) + " inside triangle: " + triangle + " isPointExternal: " + isPointExternal);
+                            //baseEdgeInfo.PrintExternalEdges("ValidateTriangulation: ");
+                            circleOverlapsPoint = true;
+                        }
+                    });
+                    if (circleOverlapsPoint)
+                    {
+                        break;
+                    }
                 }
             }
-#endif
-            bool result = edgeFlipperResult && !circleOverlapResult;
+            bool result = edgesValid && !circleOverlapsPoint;
             if (!result)
             {
                 ExceptionThrower.ThrowException("!ValidateTriangulation");
