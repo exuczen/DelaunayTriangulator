@@ -47,15 +47,10 @@ namespace Triangulation
             this.y = y;
         }
 
-        //public static implicit operator PointF(Vector2 v)
-        //{
-        //    return new PointF(v.x, v.y);
-        //}
-
-        //public static implicit operator Vector2(PointF p)
-        //{
-        //    return new Vector2(p.X, p.Y);
-        //}
+        public static implicit operator Vector2(Vector2Int v)
+        {
+            return new Vector2(v.x, v.y);
+        }
 
         public static float AngleDeg(Vector2 v1, Vector2 v2)
         {
