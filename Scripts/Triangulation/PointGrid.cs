@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define THROW_POINT_OUT_OF_BOUNDS_EXCEPTION
+
+using System;
 using System.Collections.Generic;
 
 namespace Triangulation
@@ -27,6 +29,9 @@ namespace Triangulation
 
             cellSize = new Vector2(size.x / xCount, size.y / yCount);
             cellHalfSize = cellSize * 0.5f;
+
+            xCount++;
+            yCount++;
 
             indices = new int[xCount * yCount];
 
@@ -112,7 +117,7 @@ namespace Triangulation
                 setPoint(new Vector2(cellXYI.x * cellSize.x, cellXYI.y * cellSize.y));
                 result = true;
             }
-            //Log.WriteLine(GetType() + ".TryAddPoint: " + cellXY + " " + pointIndex + ", " + savedIndex + " " + result);
+            //Log.WriteLine(GetType() + ".TryAddPoint: " + cellXYI + ", " + savedIndex + " " + result);
             return result;
         }
 
@@ -121,9 +126,21 @@ namespace Triangulation
             int x = (int)((point.x + cellHalfSize.x) / cellSize.x);
             int y = (int)((point.y + cellHalfSize.y) / cellSize.y);
             bool inBounds = x >= 0 && x < xCount && y >= 0 && y < yCount;
+#if THROW_POINT_OUT_OF_BOUNDS_EXCEPTION
+            if (inBounds)
+            {
+                cellXYI = new Vector3Int(x, y, cellIndex = x + y * xCount);
+                return true;
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException("GetCellIndex: " + point + " for size: " + size);
+            }
+#else
             cellIndex = inBounds ? x + y * xCount : -1;
             cellXYI = new Vector3Int(x, y, cellIndex);
             return inBounds;
+#endif
         }
     }
 }

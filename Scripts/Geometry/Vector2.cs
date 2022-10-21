@@ -6,6 +6,7 @@ namespace Triangulation
     {
         public const float Epsilon = 1E-05F;
 
+        public static readonly Vector2 Zero = new Vector2(0f, 0f);
         public static readonly Vector2 One = new Vector2(1f, 1f);
         public static readonly Vector2 Up = new Vector2(0f, 1f);
         public static readonly Vector2 Right = new Vector2(1f, 0f);
