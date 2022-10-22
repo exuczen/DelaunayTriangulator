@@ -46,13 +46,22 @@ namespace Triangulation
             }
         }
 
-        public void SetPoints(Vector2[] points, int pointsCount)
+        public int SetPoints(Vector2[] points, int pointsCount)
         {
             Clear();
+            int count = 0;
+            int offset = pointsCount;
             for (int i = 0; i < pointsCount; i++)
             {
-                TryAddPoint(i, points, out _);
+                if (TryAddPoint(i, points, out int cellIndex))
+                {
+                    indices[cellIndex] = count;
+                    points[offset + count] = points[i];
+                    count++;
+                }
             }
+            Array.Copy(points, offset, points, 0, count);
+            return count;
         }
 
         public void SetPoints(List<Vector2> points)
@@ -76,16 +85,6 @@ namespace Triangulation
             }
         }
 
-        public bool TryAddPoint(int pointIndex, Vector2[] points, out int savedIndex)
-        {
-            return TryAddPoint(pointIndex, points[pointIndex], point => points[pointIndex] = point, out savedIndex);
-        }
-
-        public bool TryAddPoint(int pointIndex, List<Vector2> points, out int savedIndex)
-        {
-            return TryAddPoint(pointIndex, points[pointIndex], point => points[pointIndex] = point, out savedIndex);
-        }
-
         public bool CanAddPoint(Vector2 point, out Vector3Int cellXYI, out int savedIndex)
         {
             bool onGrid = GetCellIndex(point, out int cellIndex, out cellXYI);
@@ -107,20 +106,30 @@ namespace Triangulation
             return result;
         }
 
-        private bool TryAddPoint(int pointIndex, Vector2 point, Action<Vector2> setPoint, out int savedIndex)
+        private bool TryAddPoint(int pointIndex, Vector2[] points, out int cellIndex)
         {
-            bool result = false;
-            if (CanAddPoint(point, out var cellXYI, out savedIndex))
+            return TryAddPoint(pointIndex, points[pointIndex], point => points[pointIndex] = point, out cellIndex);
+        }
+
+        private bool TryAddPoint(int pointIndex, List<Vector2> points, out int cellIndex)
+        {
+            return TryAddPoint(pointIndex, points[pointIndex], point => points[pointIndex] = point, out cellIndex);
+        }
+
+        private bool TryAddPoint(int pointIndex, Vector2 point, Action<Vector2> setPoint, out int cellIndex)
+        {
+            bool result = CanAddPoint(point, out var cellXYI, out int savedIndex);
+            if (result)
             {
-                int cellIndex = cellXYI.z;
+                cellIndex = cellXYI.z;
                 indices[cellIndex] = pointIndex;
                 setPoint(new Vector2(cellXYI.x * cellSize.x, cellXYI.y * cellSize.y));
-                result = true;
                 //Log.WriteLine(GetType() + ".TryAddPoint: " + cellXYI + ", " + savedIndex + " " + result + " " + point);
             }
             else
             {
-                Log.WriteWarning(GetType() + ".TryAddPoint: " + cellXYI + ", " + savedIndex + " " + result + " " + point);
+                cellIndex = -1;
+                //Log.WriteWarning(GetType() + ".TryAddPoint: " + cellXYI + ", " + savedIndex + " " + result + " " + point);
             }
             return result;
         }

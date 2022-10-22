@@ -230,7 +230,7 @@ namespace Triangulation
 
         protected override void SetSortedPoints()
         {
-            pointGrid.SetPoints(points, pointsCount);
+            pointsCount = pointGrid.SetPoints(points, pointsCount);
         }
 
         protected override void SetSortedPoints(List<Vector2> pointsList)
