@@ -801,6 +801,7 @@ namespace Triangulation
                 }
             }
 
+            string errorMessage = null;
             void printExternalEdges()
             {
                 PrintExternalEdges("JoinSortExternalEdges 2");
@@ -808,13 +809,17 @@ namespace Triangulation
             }
             if (extEdgeRanges.Count > 1)
             {
-                printExternalEdges();
-                exceptionThrower.ThrowException(new NotImplementedException("JoinSortExternalEdges: RANGES COUNT: " + extEdgeRanges.Count));
+                errorMessage = "JoinSortExternalEdges: RANGES COUNT: " + extEdgeRanges.Count;
             }
             else if (!extEdges[0].SharesVertex(extEdges[extEdgeCount - 1]))
             {
+                errorMessage = "JoinSortExternalEdges: OPEN LOOP";
+            }
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                Log.WriteError(errorMessage);
                 printExternalEdges();
-                exceptionThrower.ThrowException(new NotImplementedException("JoinSortExternalEdges: OPEN LOOP"));
+                exceptionThrower.ThrowException(new NotImplementedException(errorMessage));
             }
             //printExternalEdges();
         }

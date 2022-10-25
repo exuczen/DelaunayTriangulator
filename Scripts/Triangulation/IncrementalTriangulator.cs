@@ -295,12 +295,14 @@ namespace Triangulation
             bool circleOverlapsPoint = false;
             if (validatePoints)
             {
+                float circleRadiusOffset = 0.01f * pointGrid.CellSize.y;
+
                 for (int i = 0; i < pointsCount; i++)
                 {
                     var point = points[i];
                     ForEachTriangleInCell(point, (triangle, triangleIndex) => {
                         bool isPointExternal = baseEdgeInfo.IsPointExternal(i);
-                        if (!isPointExternal && !triangle.HasVertex(i) && triangle.CircumCircle.ContainsPoint(point, 1f) && !unusedPointIndices.Contains(i))
+                        if (!isPointExternal && !triangle.HasVertex(i) && triangle.CircumCircle.ContainsPoint(point, circleRadiusOffset) && !unusedPointIndices.Contains(i))
                         {
                             Log.WriteError(GetType() + ".ValidateTriangulation: point " + i + " of triangle " + GetFirstTriangleWithVertex(i) + " inside triangle: " + triangle + " isPointExternal: " + isPointExternal);
                             //baseEdgeInfo.PrintExternalEdges("ValidateTriangulation: ");
