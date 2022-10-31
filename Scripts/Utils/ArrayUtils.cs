@@ -24,9 +24,7 @@ namespace Triangulation
 
         public static void Swap<T>(T[] array, int a, int b)
         {
-            T temp = array[a];
-            array[a] = array[b];
-            array[b] = temp;
+            (array[b], array[a]) = (array[a], array[b]);
         }
 
         public static void InvertOrder<T>(T[] array, int count)

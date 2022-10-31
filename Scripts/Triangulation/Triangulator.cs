@@ -406,9 +406,7 @@ namespace Triangulation
         {
             if (edgeB > edgeA)
             {
-                int temp = edgeA;
-                edgeA = edgeB;
-                edgeB = temp;
+                (edgeB, edgeA) = (edgeA, edgeB);
             }
             return edgeA * points.Length + edgeB;
         }

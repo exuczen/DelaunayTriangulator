@@ -166,9 +166,7 @@ namespace Triangulation
 
         public void SwapNextPrev()
         {
-            int temp = Next;
-            Next = Prev;
-            Prev = temp;
+            (Prev, Next) = (Next, Prev);
         }
 
         public bool HasVertex(int index)
