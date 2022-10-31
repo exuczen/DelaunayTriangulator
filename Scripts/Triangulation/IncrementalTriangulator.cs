@@ -7,8 +7,6 @@ namespace Triangulation
 {
     public class IncrementalTriangulator : Triangulator
     {
-        public IExceptionThrower ExceptionThrower { get; set; }
-
         public TriangleGrid TriangleGrid => triangleGrid;
         public PointGrid PointGrid => pointGrid;
         public EdgeInfo EdgeInfo => baseEdgeInfo;
@@ -17,6 +15,8 @@ namespace Triangulation
 
         public bool PointsValidation = false;
         public bool EdgesValidation = false;
+
+        private readonly IExceptionThrower exceptionThrower = null;
 
         private readonly List<int> cellPointsIndices = new List<int>();
         private readonly List<int> cellTrianglesIndices = new List<int>();
@@ -37,13 +37,14 @@ namespace Triangulation
         private TriangleGrid triangleGrid = null;
         private PointGrid pointGrid = null;
 
-        public IncrementalTriangulator(int pointsCapacity, float tolerance, bool internalOnly) : base(pointsCapacity, tolerance)
+        public IncrementalTriangulator(int pointsCapacity, float tolerance, bool internalOnly, IExceptionThrower exceptionThrower) : base(pointsCapacity, tolerance)
         {
-            baseTriangleSet = new TriangleSet(triangles, points);
+            baseTriangleSet = new TriangleSet(triangles, points, exceptionThrower);
             baseEdgeInfo = baseTriangleSet.EdgeInfo;
             addedTriangles = new Triangle[triangles.Length];
-            addedEdgeInfo = new EdgeInfo(triangles.Length << 1, null, points);
+            addedEdgeInfo = new EdgeInfo(triangles.Length << 1, null, points, exceptionThrower);
             this.internalOnly = internalOnly;
+            this.exceptionThrower = exceptionThrower;
         }
 
         public override bool Triangulate()
@@ -52,7 +53,7 @@ namespace Triangulation
             {
                 AddTrianglesToBaseTriangles(triangles, trianglesCount, Color.FloralWhite, false);
 
-                baseEdgeInfo.FindExternalEdges(pointsCount, ExceptionThrower);
+                baseEdgeInfo.FindExternalEdges(pointsCount);
 
                 //baseEdgeInfo.PrintPointsExternal(pointsCount);
 
@@ -318,7 +319,7 @@ namespace Triangulation
             bool result = edgesValid && !circleOverlapsPoint;
             if (!result)
             {
-                ExceptionThrower.ThrowException("!ValidateTriangulation");
+                exceptionThrower.ThrowException("!ValidateTriangulation");
             }
             return result;
         }
@@ -360,7 +361,7 @@ namespace Triangulation
 
             if (findExternalEdges)
             {
-                baseEdgeInfo.FindExternalEdges(pointsCount, ExceptionThrower);
+                baseEdgeInfo.FindExternalEdges(pointsCount);
             }
         }
 
@@ -369,7 +370,7 @@ namespace Triangulation
             findExternalEdges = false;
             updateTriangleDicts = false;
 
-            addedEdgeInfo.JoinSortExternalEdges(ExceptionThrower);
+            addedEdgeInfo.JoinSortExternalEdges(exceptionThrower);
 
             addedEdgeInfo.PrintExternalEdges("AddTrianglesOnClearPoint");
 

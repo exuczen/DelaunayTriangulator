@@ -9,6 +9,8 @@ namespace Triangulation
         public EdgeEntry[] ExtEdges => extEdges;
         public EdgeEntry[] AddedExtEdges => addedExtEdges;
 
+        protected readonly IExceptionThrower exceptionThrower = null;
+
         protected readonly Dictionary<int, int> edgeCounterDict = new Dictionary<int, int>();
         protected readonly Dictionary<int, long> extEdgeTriangleDict = new Dictionary<int, long>();
         protected readonly Dictionary<int, InnerEdgeData> innerEdgeTriangleDict = new Dictionary<int, InnerEdgeData>();
@@ -30,13 +32,14 @@ namespace Triangulation
 
         protected int extEdgeCount = 0;
 
-        public EdgeInfo(int edgeCapacity, TriangleSet triangleSet, Vector2[] points)
+        public EdgeInfo(int edgeCapacity, TriangleSet triangleSet, Vector2[] points, IExceptionThrower exceptionThrower)
         {
             extEdges = new EdgeEntry[edgeCapacity];
             addedExtEdges = new EdgeEntry[1024];
 
             this.triangleSet = triangleSet;
             this.points = points;
+            this.exceptionThrower = exceptionThrower;
 
             pointsExternal = new bool[points.Length];
         }
@@ -200,7 +203,16 @@ namespace Triangulation
             {
                 if (IsEdgeInternal(edgeBuffer[i], out int edgeKey))
                 {
-                    throw new Exception("AddEdgesToCounterDict: IsEdgeInternal: " + edgeBuffer[i]);
+                    string message = GetType() + ".AddEdgesToCounterDict: IsEdgeInternal: " + edgeBuffer[i];
+                    if (exceptionThrower != null)
+                    {
+                        Log.WriteError(message);
+                        exceptionThrower.ThrowException(message);
+                    }
+                    else
+                    {
+                        throw new Exception(message);
+                    }
                 }
                 edgeKeyBuffer[i] = edgeKey;
             }
@@ -548,7 +560,7 @@ namespace Triangulation
             }
         }
 
-        public void FindExternalEdges(int pointsCount, IExceptionThrower exceptionThrower)
+        public void FindExternalEdges(int pointsCount)
         {
             Log.WriteLine(GetType() + ".FindExternalEdges: ");
 

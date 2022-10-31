@@ -20,15 +20,15 @@ namespace Triangulation
         private readonly int pointsLength = 0;
         private readonly int[] indexBuffer = new int[3];
 
-        public TriangleSet(Triangle[] triangles, Vector2[] points)
+        public TriangleSet(Triangle[] triangles, Vector2[] points, IExceptionThrower exceptionThrower)
         {
             this.triangles = triangles;
-            edgeInfo = new EdgeInfo(triangles.Length << 1, this, points);
+            edgeInfo = new EdgeInfo(triangles.Length << 1, this, points, exceptionThrower);
             edgeFlipper = new EdgeFlipper(this, points);
             pointsLength = points.Length;
         }
 
-        public TriangleSet(int trianglesCapacity, Vector2[] points) : this(new Triangle[trianglesCapacity], points)
+        public TriangleSet(int trianglesCapacity, Vector2[] points, IExceptionThrower exceptionThrower) : this(new Triangle[trianglesCapacity], points, exceptionThrower)
         {
         }
 

@@ -13,11 +13,10 @@ namespace Triangulation
         public IncrementalTriangulatorController(IParticles particles, IExceptionThrower exceptionThrower) : base(particles, false)
         {
 #if TRIANGULATION_INTERNAL
-            base.triangulator = triangulator = new IncrementalTriangulator(particles.Capacity, Vector2.Epsilon, true);
+            base.triangulator = triangulator = new IncrementalTriangulator(particles.Capacity, Vector2.Epsilon, true, exceptionThrower);
 #else
-            base.triangulator = triangulator = new IncrementalTriangulator(particles.Capacity, Vector2.Epsilon, false);
+            base.triangulator = triangulator = new IncrementalTriangulator(particles.Capacity, Vector2.Epsilon, false, exceptionThrower);
 #endif
-            triangulator.ExceptionThrower = exceptionThrower;
         }
 
         public void Initialize(Vector2 viewSize, int triangleGridDivs = TriangleGrid.MinDivsCount, int pointGridDivsMlp = 5)
