@@ -14,7 +14,9 @@ namespace Triangulation
         protected readonly Vector2[] points = null;
         protected readonly Triangle[] completedTriangles = null;
         protected readonly Dictionary<int, EdgeEntry> edgeDict = new Dictionary<int, EdgeEntry>();
+        protected readonly Dictionary<int, int> edgeCounterDict = new Dictionary<int, int>();
         protected readonly List<int> unusedPointIndices = new List<int>();
+        protected readonly List<Triangle> ccTriangles = new List<Triangle>();
 
         protected readonly float tolerance = 0f;
 
@@ -27,6 +29,10 @@ namespace Triangulation
         protected int completedTrianglesCount = 0;
 
         private readonly List<int> usedPointIndices = new List<int>();
+
+        protected readonly EdgeEntry[] edgeBuffer = new EdgeEntry[3];
+        protected readonly int[] edgeKeyBuffer = new int[3];
+        protected readonly int[] indexBuffer = new int[3];
 
         public Triangulator(int pointsCapacity, float tolerance)
         {
@@ -106,6 +112,8 @@ namespace Triangulation
             completedTrianglesCount = 0;
             trianglesCount = 0;
             supertriangle = Triangle.None;
+
+            edgeCounterDict.Clear();
         }
 
         protected virtual void ClearPoints()
@@ -170,10 +178,13 @@ namespace Triangulation
                 var point = points[i];
                 if (point.Equals(prevPoint, tolerance))
                 {
+                    Log.WriteError(GetType() + ".Triangulate: point.Equals(prevPoint, tolerance): " + i);
                     continue;
                 }
-                ProcessPoint(i, xySorted);
-
+                if (!ProcessPoint(i, xySorted))
+                {
+                    return false;
+                }
                 prevPoint = point;
             }
 
@@ -204,17 +215,20 @@ namespace Triangulation
             return pointsComparer;
         }
 
-        private void ProcessPoint(int pointIndex, bool xySorted)
+        private bool ProcessPoint(int pointIndex, bool xySorted)
         {
+            ccTriangles.Clear();
             var point = points[pointIndex];
+            int triangleEnd = trianglesCount - 1;
 
-            for (int j = trianglesCount - 1; j >= 0; j--)
+            for (int j = triangleEnd; j >= 0; j--)
             {
                 var triangle = triangles[j];
                 var cc = triangle.CircumCircle;
 
                 if (cc.ContainsPoint(point, out var dr, out var sqrDr))
                 {
+                    ccTriangles.Add(triangle);
                     ReplaceTriangleWithEdges(j);
                 }
                 else
@@ -235,7 +249,68 @@ namespace Triangulation
                     }
                 }
             }
-            ReplaceEdgesWithTriangles(pointIndex);
+            return ReplaceEdgesWithTriangles(pointIndex);
+        }
+
+        protected void ForEachEdge(Triangle triangle, Action<int, EdgeEntry> action)
+        {
+            triangle.GetEdges(edgeBuffer);
+            for (int i = 0; i < 3; i++)
+            {
+                action(GetEdgeKey(edgeBuffer[i]), edgeBuffer[i]);
+            }
+        }
+
+        private void RemoveEdgesFromCounterDict(Triangle triangle)
+        {
+            triangle.GetIndices(indexBuffer);
+            ForEachEdge(triangle, (edgeKey, edge) => {
+                if (edgeCounterDict.ContainsKey(edgeKey))
+                {
+                    if (--edgeCounterDict[edgeKey] <= 0)
+                    {
+                        edgeCounterDict.Remove(edgeKey);
+                    }
+                }
+            });
+        }
+
+        private bool AddEdgesToCounterDict(Triangle triangle)
+        {
+            triangle.GetEdges(edgeBuffer);
+            for (int i = 0; i < 3; i++)
+            {
+                if (IsEdgeInternal(edgeBuffer[i], out int edgeKey))
+                {
+                    string message = GetType() + ".AddEdgesToCounterDict: IsEdgeInternal: " + edgeBuffer[i];
+                    Log.WriteError(message);
+                    return false;
+                }
+                edgeKeyBuffer[i] = edgeKey;
+            }
+            for (int i = 0; i < 3; i++)
+            {
+                int edgeKey = edgeKeyBuffer[i];
+                if (edgeCounterDict.ContainsKey(edgeKey))
+                {
+                    edgeCounterDict[edgeKey]++;
+                }
+                else
+                {
+                    edgeCounterDict.Add(edgeKey, 1);
+                }
+            }
+            return true;
+        }
+
+        private bool IsEdgeInternal(int edgeKey)
+        {
+            return edgeCounterDict.TryGetValue(edgeKey, out int edgeCount) && edgeCount == 2;
+        }
+
+        private bool IsEdgeInternal(EdgeEntry edge, out int edgeKey)
+        {
+            return IsEdgeInternal(edgeKey = GetEdgeKey(edge));
         }
 
         private void RemoveUnusedPoints()
@@ -298,7 +373,7 @@ namespace Triangulation
                 for (int l = usedPointIndices[lastUsedIndex] + 1; l < pointsCount; l++)
                 {
                     unusedPointIndices.Add(l);
-                    Log.WriteLine(GetType() + ".FindUnusedPoints: " + l);
+                    //Log.WriteLine(GetType() + ".FindUnusedPoints: " + l);
                 }
                 usedPointIndices.Clear();
             }
@@ -366,17 +441,34 @@ namespace Triangulation
             RemoveTriangleAt(triangleIndex);
         }
 
-        private void ReplaceEdgesWithTriangles(int pointIndex)
+        private bool ReplaceEdgesWithTriangles(int pointIndex)
         {
+            int trianglesCountPrev = trianglesCount;
+
             foreach (var kvp in edgeDict)
             {
                 var edge = kvp.Value;
                 if (edge.Count == 1)
                 {
-                    AddTriangle(edge.A, edge.B, pointIndex);
+                    if (!AddTriangle(edge.A, edge.B, pointIndex))
+                    {
+                        Log.WriteError("ReplaceEdgesWithTriangles: pointIndex: " + pointIndex);
+                        Log.PrintList(ccTriangles, "ReplaceEdgesWithTriangles: ccTriangles:");
+                        edgeDict.Clear();
+                        trianglesCount = trianglesCountPrev;
+                        for (int i = 0; i < ccTriangles.Count; i++)
+                        {
+                            var ccTriangle = ccTriangles[i];
+                            ccTriangle.FillColor = Color.Red;
+                            triangles[trianglesCount++] = ccTriangle;
+                        }
+                        ccTriangles.Clear();
+                        return false;
+                    }
                 }
             }
             edgeDict.Clear();
+            return true;
         }
 
         protected void ForEachEdgeInDict(Action<int, EdgeEntry> action)
@@ -436,15 +528,22 @@ namespace Triangulation
             supertriangle = new Triangle(0, 1, 2);
         }
 
-        private void AddTriangle(int a, int b, int c)
+        private bool AddTriangle(int a, int b, int c)
         {
-            triangles[trianglesCount++] = new Triangle(a, b, c, points);
+            var triangle = new Triangle(a, b, c, points);
+            if (AddEdgesToCounterDict(triangle))
+            {
+                triangles[trianglesCount++] = triangle;
+                return true;
+            }
+            return false;
         }
 
         private void RemoveTriangleAt(int index)
         {
             if (index >= 0 && index < trianglesCount)
             {
+                RemoveEdgesFromCounterDict(triangles[index]);
                 triangles[index] = triangles[--trianglesCount];
             }
         }

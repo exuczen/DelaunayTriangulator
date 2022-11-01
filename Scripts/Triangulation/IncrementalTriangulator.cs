@@ -29,7 +29,6 @@ namespace Triangulation
         private readonly Triangle[] addedTriangles = null;
         private readonly EdgeInfo addedEdgeInfo = null;
 
-        private readonly int[] indexBuffer = new int[3];
         private readonly bool internalOnly = false;
 
         private int addedTrianglesCount = 0;
