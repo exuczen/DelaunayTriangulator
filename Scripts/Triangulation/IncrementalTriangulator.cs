@@ -61,6 +61,10 @@ namespace Triangulation
 
                 return true;
             }
+            else if (pointsCount >= 3)
+            {
+                exceptionThrower.ThrowException("BASE TRIANGULATION FAILED");
+            }
             return false;
         }
 

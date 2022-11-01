@@ -562,7 +562,7 @@ namespace Triangulation
 
         public void FindExternalEdges(int pointsCount)
         {
-            Log.WriteLine(GetType() + ".FindExternalEdges: ");
+            //Log.WriteLine(GetType() + ".FindExternalEdges: ");
 
             extEdgeCount = 0;
 

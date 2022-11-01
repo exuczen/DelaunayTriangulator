@@ -8,6 +8,7 @@
         public static readonly Color FloralWhite = new Color(0xFFFFFAF0);
         public static readonly Color LightGreen = new Color(0xFF90EE90);
         public static readonly Color White = new Color(0xFFFFFFFF);
+        public static readonly Color Red = new Color(0xFFFF0000);
 
         public int argb;
 
