@@ -301,17 +301,19 @@ namespace Triangulation
             bool circleOverlapsPoint = false;
             if (validatePoints)
             {
-                float circleRadiusOffset = -circleTolerance;
+                //float circleSqrOffset = 0f;
+                float circleSqrOffset = -2f * circleTolerance;
 
                 for (int i = 0; i < pointsCount; i++)
                 {
                     var point = points[i];
                     ForEachTriangleInCell(point, (triangle, triangleIndex) => {
                         bool isPointExternal = baseEdgeInfo.IsPointExternal(i);
-                        if (!isPointExternal && !triangle.HasVertex(i) && triangle.CircumCircle.ContainsPoint(point, circleRadiusOffset) && !unusedPointIndices.Contains(i))
+                        if (!isPointExternal && !triangle.HasVertex(i) && triangle.CircumCircle.ContainsPoint(point, circleSqrOffset, out float circleSqrDelta) && !unusedPointIndices.Contains(i))
                         {
-                            Log.WriteError(GetType() + ".ValidateTriangulation: point " + i + " of triangle " + GetFirstTriangleWithVertex(i) + " inside triangle: " + triangle + " isPointExternal: " + isPointExternal);
+                            Log.WriteError(GetType() + ".ValidateTriangulation: point " + i + " inside triangle: " + triangle + " | isPointExternal: " + isPointExternal + " | circleSqrDelta: " + circleSqrDelta);
                             //baseEdgeInfo.PrintExternalEdges("ValidateTriangulation: ");
+                            triangles[triangleIndex].CircumCircle.Filled = true;
                             circleOverlapsPoint = true;
                         }
                     });
