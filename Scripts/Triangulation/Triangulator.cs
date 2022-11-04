@@ -19,6 +19,7 @@ namespace Triangulation
         protected readonly List<Triangle> ccTriangles = new List<Triangle>();
 
         protected readonly float tolerance = 0f;
+        protected float circleTolerance = 0f;
 
         protected Bounds2 bounds = default;
         protected Triangle supertriangle = Triangle.None;
@@ -36,7 +37,8 @@ namespace Triangulation
 
         public Triangulator(int pointsCapacity, float tolerance)
         {
-            this.tolerance = tolerance > 0f ? tolerance : Vector2.Epsilon; // Ensure tolerance is valid
+            this.tolerance = tolerance > 0f ? tolerance : Vector2.Epsilon;
+            circleTolerance = this.tolerance;
 
             points = new Vector2[pointsCapacity];
 
@@ -226,7 +228,7 @@ namespace Triangulation
                 var triangle = triangles[j];
                 var cc = triangle.CircumCircle;
 
-                if (cc.ContainsPoint(point, out var dr, out var sqrDr))
+                if (cc.ContainsPoint(point, out var dr, out var sqrDr, circleTolerance))
                 {
                     ccTriangles.Add(triangle);
                     ReplaceTriangleWithEdges(j);
@@ -445,6 +447,10 @@ namespace Triangulation
         {
             int trianglesCountPrev = trianglesCount;
 
+            string triangleToString(Triangle t)
+            {
+                return t + " " + t.CircumCircle.ContainsPoint(points[pointIndex], circleTolerance, out float sqrDelta).ToString() + " sqrDelta: " + sqrDelta;
+            }
             foreach (var kvp in edgeDict)
             {
                 var edge = kvp.Value;
@@ -459,10 +465,12 @@ namespace Triangulation
                         for (int i = 0; i < ccTriangles.Count; i++)
                         {
                             var ccTriangle = ccTriangles[i];
+                            ccTriangle.CircumCircle.Filled = true;
                             ccTriangle.FillColor = Color.Red;
                             triangles[trianglesCount++] = ccTriangle;
                         }
                         ccTriangles.Clear();
+                        Log.PrintTriangles(triangles, trianglesCount, triangleToString, "ReplaceEdgesWithTriangles: ");
                         return false;
                     }
                 }

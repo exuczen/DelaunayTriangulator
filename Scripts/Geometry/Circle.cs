@@ -27,17 +27,26 @@ namespace Triangulation
             SizeValid = Radius < MaxRadius;
         }
 
-        public bool ContainsPoint(Vector2 point, float sqrOffset = 0f)
+        public bool ContainsPoint(Vector2 point, float sqrOffset)
         {
             return ContainsPoint(point, out _, out _, sqrOffset);
         }
 
-        public bool ContainsPoint(Vector2 point, out Vector2 dr, out Vector2 sqrDr, float sqrOffset = 0f)
+        public bool ContainsPoint(Vector2 point, out Vector2 dr, out Vector2 sqrDr, float sqrOffset)
         {
             dr = point - Center;
             sqrDr.x = dr.x * dr.x;
             sqrDr.y = dr.y * dr.y;
-            return sqrDr.x + sqrDr.y <= SqrRadius - sqrOffset;
+            return sqrDr.x + sqrDr.y <= SqrRadius + sqrOffset;
+        }
+
+        public bool ContainsPoint(Vector2 point, float sqrOffset, out float sqrDelta)
+        {
+            var dr = point - Center;
+            float sqrDx = dr.x * dr.x;
+            float sqrDy = dr.y * dr.y;
+            sqrDelta = SqrRadius - (sqrDx + sqrDy);
+            return sqrDelta + sqrOffset >= 0f;
         }
 
         public override string ToString()

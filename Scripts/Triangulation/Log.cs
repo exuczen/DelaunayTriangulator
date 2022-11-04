@@ -4,12 +4,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Triangulation
 {
     public static class Log
     {
         public const string KIND_OF_FAKAP = " !!! KIND OF FAKAP !!!";
+
+        public static readonly StringBuilder StringBuilder = new StringBuilder();
+
+        public static void Write(string value)
+        {
+#if UNITY
+            UnityEngine.Debug.Log(value);
+#else
+            Console.Write(value);
+#endif
+        }
 
         public static void WriteWarning(string value)
         {
@@ -72,6 +84,23 @@ namespace Triangulation
             {
                 WriteLine("PrintPoints: " + i + " " + points[i]);
             }
+        }
+
+        public static string TrianglesToString(Triangle[] triangles, int triangleCount, Func<Triangle, string> toString, string prefix = null)
+        {
+            StringBuilder.Append("TrianglesToString: " + triangleCount + " : " + prefix + " \n");
+            for (int i = 0; i < triangleCount; i++)
+            {
+                StringBuilder.Append(i + " " + toString(triangles[i]) + "\n");
+            }
+            var text = StringBuilder.ToString();
+            StringBuilder.Clear();
+            return text;
+        }
+
+        public static void PrintTriangles(Triangle[] triangles, int triangleCount, Func<Triangle, string> toString, string prefix = null)
+        {
+            WriteLine(TrianglesToString(triangles, triangleCount, toString, prefix));
         }
 
         public static void PrintTriangles(Triangle[] triangles, int triangleCount, string prefix = null)

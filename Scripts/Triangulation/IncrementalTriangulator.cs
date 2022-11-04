@@ -79,6 +79,8 @@ namespace Triangulation
 
             pointGrid = new PointGrid(gridSize, triangleGrid.XYCount * pointGridDivsMlp);
 
+            circleTolerance = 0.01f * pointGrid.CellSizeMin;
+
 #if DEBUG_DEGENERATE_TRIANGLES
             Triangle.SetMinAngle(15f);
 #endif
@@ -176,7 +178,7 @@ namespace Triangulation
                     cellPointsIndices.Add(pointIndex);
 
                     ForEachTriangleInCell(cell, (triangle, triangleIndex) => {
-                        if (triangle.CircumCircle.ContainsPoint(point))
+                        if (triangle.CircumCircle.ContainsPoint(point, circleTolerance))
                         {
                             AddCellTriangleToProcess(triangleIndex);
 
@@ -299,7 +301,7 @@ namespace Triangulation
             bool circleOverlapsPoint = false;
             if (validatePoints)
             {
-                float circleRadiusOffset = 0.01f * pointGrid.CellSize.y;
+                float circleRadiusOffset = -circleTolerance;
 
                 for (int i = 0; i < pointsCount; i++)
                 {

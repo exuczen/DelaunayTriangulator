@@ -92,14 +92,14 @@ namespace Triangulation
             ForEachCell((i, cell) => SetCellFilled(cell, false));
         }
 
-        public bool IsPointInsideTriangle(Vector2 point, Vector2[] points)
+        public bool IsPointInsideTriangle(Vector2 point, Vector2[] points, float circleTolerance)
         {
             if (GetCell(point, out var cell))
             {
                 foreach (long triangleKey in cell.TriangleKeys)
                 {
                     ref var triangle = ref GetTriangleRef(triangleKey, out _);
-                    if (triangle.CircumCircle.ContainsPoint(point))
+                    if (triangle.CircumCircle.ContainsPoint(point, circleTolerance))
                     {
                         if (triangle.ContainsPoint(point, points))
                         {
