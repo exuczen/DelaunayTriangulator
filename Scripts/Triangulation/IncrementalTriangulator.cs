@@ -234,9 +234,9 @@ namespace Triangulation
             base.ClearPoints();
         }
 
-        protected override void SetSortedPoints()
+        protected override void SetSortedPoints(out Bounds2 bounds)
         {
-            pointsCount = pointGrid.SetPoints(points, pointsCount);
+            pointsCount = pointGrid.SetPoints(points, pointsCount, out bounds);
         }
 
         protected override void SetSortedPoints(List<Vector2> pointsList)

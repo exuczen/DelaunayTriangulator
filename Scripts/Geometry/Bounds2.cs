@@ -27,7 +27,7 @@ namespace Triangulation
                 throw new InvalidOperationException("Array cannot be empty");
 
             var min = getPoint(0);
-            var max = getPoint(0);
+            var max = min;
 
             for (int i = 1; i < count; ++i)
             {
@@ -68,6 +68,11 @@ namespace Triangulation
         {
             return point.x >= min.x && point.x <= max.x
                 && point.y >= min.y && point.y <= max.y;
+        }
+
+        public string ToString(string format)
+        {
+            return string.Format("({0}, {1})", min.ToString(format), max.ToString(format));
         }
 
         public override string ToString()

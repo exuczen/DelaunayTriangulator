@@ -104,7 +104,7 @@ namespace Triangulation
             bounds = Bounds2.GetBounds(points, pointsCount);
             Array.Sort(points, 0, pointsCount, GetPointsComparer(bounds, out bool xySorted));
 
-            SetSortedPoints();
+            SetSortedPoints(out bounds);
 
             return Triangulate(bounds, xySorted);
         }
@@ -150,7 +150,7 @@ namespace Triangulation
             }
         }
 
-        protected virtual void SetSortedPoints() { }
+        protected virtual void SetSortedPoints(out Bounds2 bounds) { bounds = this.bounds; }
 
         protected virtual void SetSortedPoints(List<Vector2> pointsList)
         {
@@ -173,7 +173,7 @@ namespace Triangulation
             }
             AddSuperTriangle(bounds);
 
-            Vector2 prevPoint = new Vector2(float.MaxValue, float.MaxValue);
+            var prevPoint = points[pointsCount - 1];
 
             for (int i = 0; i < pointsCount; i++)
             {
@@ -458,7 +458,7 @@ namespace Triangulation
                 {
                     if (!AddTriangle(edge.A, edge.B, pointIndex))
                     {
-                        Log.WriteError("ReplaceEdgesWithTriangles: pointIndex: " + pointIndex);
+                        Log.WriteError("ReplaceEdgesWithTriangles: pointIndex: " + pointIndex + " pointsCount: " + pointsCount);
                         Log.PrintList(ccTriangles, "ReplaceEdgesWithTriangles: ccTriangles:");
                         edgeDict.Clear();
                         trianglesCount = trianglesCountPrev;
@@ -518,13 +518,17 @@ namespace Triangulation
 
         private void AddSuperTriangle(Bounds2 bounds)
         {
-            Vector2 size = bounds.Size;
-            float dmax = (size.x > size.y) ? size.x : size.y;
-            Vector2 mid = (bounds.max + bounds.min) * 0.5f;
+            var center = bounds.Center;
+            var halfSize = 0.5f * bounds.Size;
 
-            supertriangleVerts[0] = new Vector2(mid.x - 2f * dmax, mid.y - dmax);
-            supertriangleVerts[1] = new Vector2(mid.x, mid.y + 2f * dmax);
-            supertriangleVerts[2] = new Vector2(mid.x + 2f * dmax, mid.y - dmax);
+            //Log.WriteLine(GetType() + ".AddSuperTriangle: center: " + center + " halfSize: " + halfSize + " bounds: " + bounds.ToString("f4"));
+
+            float r = halfSize.Length * 1.5f;
+            float a = MathF.Sqrt(3f) * r;
+
+            supertriangleVerts[0] = center + new Vector2(-a, -r);
+            supertriangleVerts[1] = center + new Vector2(0f, 2f * r);
+            supertriangleVerts[2] = center + new Vector2(+a, -r);
 
             for (int i = 0; i < 3; i++)
             {

@@ -7,6 +7,8 @@ namespace Triangulation
     {
         public const int MinDivsCount = 16;
 
+        public float SizeMin => Math.Min(size.x, size.y);
+        public float CellSizeMin => Math.Min(cellSize.x, cellSize.y);
         public float CellTolerance => cellTolerance;
         public Vector2 CellSize => cellSize;
         public Vector2 Size => size;

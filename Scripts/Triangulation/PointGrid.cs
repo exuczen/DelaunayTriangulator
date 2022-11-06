@@ -47,20 +47,27 @@ namespace Triangulation
             }
         }
 
-        public int SetPoints(Vector2[] points, int pointsCount)
+        public int SetPoints(Vector2[] points, int pointsCount, out Bounds2 bounds)
         {
             Clear();
             int count = 0;
             int offset = pointsCount;
+            var min = new Vector2(float.MaxValue, float.MaxValue);
+            var max = new Vector2(float.MinValue, float.MinValue);
+
             for (int i = 0; i < pointsCount; i++)
             {
                 if (TryAddPoint(i, points, out int cellIndex))
                 {
                     indices[cellIndex] = count;
-                    points[offset + count] = points[i];
+                    var point = points[i];
+                    points[offset + count] = point;
+                    min = Vector2.Min(min, point);
+                    max = Vector2.Max(max, point);
                     count++;
                 }
             }
+            bounds = new Bounds2(min, max);
             Array.Copy(points, offset, points, 0, count);
             return count;
         }

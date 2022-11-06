@@ -72,6 +72,16 @@ namespace Triangulation
             }
         }
 
+        public static Vector2 Min(Vector2 v1, Vector2 v2)
+        {
+            return new Vector2(MathF.Min(v1.x, v2.x), MathF.Min(v1.y, v2.y));
+        }
+
+        public static Vector2 Max(Vector2 v1, Vector2 v2)
+        {
+            return new Vector2(MathF.Max(v1.x, v2.x), MathF.Max(v1.y, v2.y));
+        }
+
         public static float SqrDistance(Vector2 v1, Vector2 v2)
         {
             return (v2 - v1).SqrLength;
@@ -136,6 +146,11 @@ namespace Triangulation
         public bool Equals(Vector2 v, float tolerance)
         {
             return Math.Abs(v.x - x) < tolerance && Math.Abs(v.y - y) < tolerance;
+        }
+
+        public string ToString(string format)
+        {
+            return string.Format("({0}, {1})", x.ToString(format), y.ToString(format));
         }
 
         public override string ToString()
