@@ -238,11 +238,11 @@ namespace Triangulation
                     bool completed;
                     if (xySorted)
                     {
-                        completed = dr.x > 0f && sqrDr.x > cc.SqrRadius;
+                        completed = dr.x > 0f && sqrDr.x > cc.SqrRadius + circleTolerance;
                     }
                     else
                     {
-                        completed = dr.y > 0f && sqrDr.y > cc.SqrRadius;
+                        completed = dr.y > 0f && sqrDr.y > cc.SqrRadius + circleTolerance;
                     }
                     if (completed)
                     {
