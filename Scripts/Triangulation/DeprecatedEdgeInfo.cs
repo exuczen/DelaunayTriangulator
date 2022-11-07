@@ -206,7 +206,7 @@ namespace Triangulation
         //            var pointRay = point - sharedVertex;
         //            var edgeVec = edge.GetVector(points, sharedIndex == edge.B);
         //            float dotRayEdge = Vector2.Dot(pointRay, edgeVec);
-        //            return Math.Sign(dotRayEdge) < 0;
+        //            return MathF.Sign(dotRayEdge) < 0;
         //        }
         //        edgeIndex = edge.Next;
         //    }

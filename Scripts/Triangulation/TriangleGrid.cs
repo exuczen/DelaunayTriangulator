@@ -7,8 +7,8 @@ namespace Triangulation
     {
         public const int MinDivsCount = 16;
 
-        public float SizeMin => Math.Min(size.x, size.y);
-        public float CellSizeMin => Math.Min(cellSize.x, cellSize.y);
+        public float SizeMin => MathF.Min(size.x, size.y);
+        public float CellSizeMin => MathF.Min(cellSize.x, cellSize.y);
         public float CellTolerance => cellTolerance;
         public Vector2 CellSize => cellSize;
         public Vector2 Size => size;
@@ -60,12 +60,12 @@ namespace Triangulation
                 cellSize.y = size.y / yCount;
                 cellHalfSize.y = 0.5f * cellSize.y;
             }
-            cellTolerance = Math.Min(cellSize.x, cellSize.y) * 0.01f;
+            cellTolerance = MathF.Min(cellSize.x, cellSize.y) * 0.01f;
 
             int cellsCount = xCount * yCount;
             cells = new TriangleCell[cellsCount];
 
-            Log.WriteLine(GetType() + ": " + xCount + "x" + yCount + " " + cellSize + " " + (Math.Min(cellSize.x, cellSize.y) / Math.Max(cellSize.x, cellSize.y)).ToString("f4"));
+            Log.WriteLine(GetType() + ": " + xCount + "x" + yCount + " " + cellSize + " " + (MathF.Min(cellSize.x, cellSize.y) / MathF.Max(cellSize.x, cellSize.y)).ToString("f4"));
 
             for (int i = 0; i < cellsCount; i++)
             {
@@ -389,7 +389,7 @@ namespace Triangulation
             if (!overlap)
             {
                 var dr = ccCenter - cellCenter;
-                var n = new Vector2(Math.Sign(dr.x), Math.Sign(dr.y));
+                var n = new Vector2(MathF.Sign(dr.x), MathF.Sign(dr.y));
                 var cellVert = cellCenter + n * cellHalfSize;
                 float sqrL = (cellVert - ccCenter).SqrLength;
                 overlap = sqrL <= cc.SqrRadius + cellTolerance;

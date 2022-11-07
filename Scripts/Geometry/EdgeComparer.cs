@@ -9,11 +9,11 @@ namespace Triangulation
         {
             if (edge1.A != edge2.A)
             {
-                return Math.Sign(edge2.A - edge1.A);
+                return MathF.Sign(edge2.A - edge1.A);
             }
             if (edge1.B != edge2.B)
             {
-                return Math.Sign(edge2.B - edge1.B);
+                return MathF.Sign(edge2.B - edge1.B);
             }
             return 0;
         }

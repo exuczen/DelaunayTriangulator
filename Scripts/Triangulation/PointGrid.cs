@@ -9,7 +9,7 @@ namespace Triangulation
     {
         public int YCount => yCount;
         public int XCount => xCount;
-        public float CellSizeMin => Math.Min(cellSize.x, cellSize.y);
+        public float CellSizeMin => MathF.Min(cellSize.x, cellSize.y);
         public Vector2 CellSize => cellSize;
         public Vector2 Size => size;
         public int[] Indices => indices;

@@ -19,16 +19,16 @@ namespace Triangulation
         {
             float f = va.y - vb.y;
 
-            if (Math.Abs(f) > tolerance)
+            if (MathF.Abs(f) > tolerance)
             {
-                return Math.Sign(f);
+                return MathF.Sign(f);
             }
 
             f = va.x - vb.x;
 
-            if (Math.Abs(f) > tolerance)
+            if (MathF.Abs(f) > tolerance)
             {
-                return Math.Sign(f);
+                return MathF.Sign(f);
             }
 
             return 0;

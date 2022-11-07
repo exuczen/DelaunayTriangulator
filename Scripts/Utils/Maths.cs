@@ -4,12 +4,12 @@ namespace Triangulation
 {
     public static class Maths
     {
-        public static readonly float Sin1Deg = (float)Math.Sin(Deg2Rad);
-        public static readonly float Cos1Deg = (float)Math.Cos(Deg2Rad);
-        public static readonly float Cos2Deg = (float)Math.Cos(2f * Deg2Rad);
+        public static readonly float Sin1Deg = MathF.Sin(Deg2Rad);
+        public static readonly float Cos1Deg = MathF.Cos(Deg2Rad);
+        public static readonly float Cos2Deg = MathF.Cos(2f * Deg2Rad);
 
-        public const float Rad2Deg = 180f / (float)Math.PI;
-        public const float Deg2Rad = (float)Math.PI / 180f;
+        public const float Rad2Deg = 180f / MathF.PI;
+        public const float Deg2Rad = MathF.PI / 180f;
 
         #region Prime numbers
 
@@ -41,7 +41,7 @@ namespace Triangulation
             {
                 if ((i & 1) != 0)
                 {
-                    int limit = (int)Math.Sqrt(i);
+                    int limit = (int)MathF.Sqrt(i);
                     for (int divisor = 3; divisor <= limit; divisor += 2)
                     {
                         if ((i % divisor) == 0)
@@ -63,7 +63,7 @@ namespace Triangulation
 
         public static float Clamp(float x, float min, float max)
         {
-            return Math.Min(max, Math.Max(x, min));
+            return MathF.Min(max, MathF.Max(x, min));
         }
 
         public static int Clamp(int x, int min, int max)

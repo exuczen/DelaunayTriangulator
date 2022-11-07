@@ -1227,8 +1227,8 @@ namespace Triangulation
             var edge = extEdge.GetVector(points);
             var oppVert = extTriangle.GetOppositeVertex(extEdge, points, out _);
             var edgeVertA = points[extEdge.A];
-            int sign1 = Math.Sign(Vector2.Cross(point - edgeVertA, edge));
-            int sign2 = Math.Sign(Vector2.Cross(oppVert - edgeVertA, edge));
+            int sign1 = MathF.Sign(Vector2.Cross(point - edgeVertA, edge));
+            int sign2 = MathF.Sign(Vector2.Cross(oppVert - edgeVertA, edge));
             if (sign2 == 0)
             {
                 throw new Exception("IsPointOppositeToExternalEdge: signs: " + sign1 + ", " + sign2 + " for edge: " + extEdge);
@@ -1253,9 +1253,9 @@ namespace Triangulation
             var pointRay = addedPoint - points[sharedIndex];
             var edgePeak = new EdgePeak(extEdge, nextEdge, points);
             int sign1 = edgePeak.AngleSign;
-            int sign2 = Math.Sign(Vector2.Cross(edgePeak.EdgeVecB, pointRay));
+            int sign2 = MathF.Sign(Vector2.Cross(edgePeak.EdgeVecB, pointRay));
             //float crossNextEdgePointRay = Vector2.Cross(edgePeak.EdgeVecB.Normalize(), pointRay.Normalize());
-            //int sign2 = Math.Abs(crossNextEdgePointRay) < Vector2.Epsilon ? 0 : Math.Sign(crossNextEdgePointRay);
+            //int sign2 = MathF.Abs(crossNextEdgePointRay) < Vector2.Epsilon ? 0 : MathF.Sign(crossNextEdgePointRay);
             //Log.WriteLine(GetType() + ".IsTerminalExtEdgeValid: signs: " + sign1 + ", " + sign2 + " for edges: " + extEdge + " " + nextEdge);
             return sign2 == 0 || sign1 == sign2;
         }

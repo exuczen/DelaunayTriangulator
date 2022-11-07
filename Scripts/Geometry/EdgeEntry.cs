@@ -117,9 +117,9 @@ namespace Triangulation
             float cosAngleB = Vector2.Dot(pointRayB, -edge);
             float cosAngleC = Vector2.Dot(-pointRayA, -pointRayB);
 
-            bool degenerateAngleA = Math.Abs(cosAngleA) > Triangle.CosMinAngle;
-            bool degenerateAngleB = Math.Abs(cosAngleB) > Triangle.CosMinAngle;
-            bool degenerateAngleC = Math.Abs(cosAngleC) > Triangle.CosMinAngle;
+            bool degenerateAngleA = MathF.Abs(cosAngleA) > Triangle.CosMinAngle;
+            bool degenerateAngleB = MathF.Abs(cosAngleB) > Triangle.CosMinAngle;
+            bool degenerateAngleC = MathF.Abs(cosAngleC) > Triangle.CosMinAngle;
             bool onEdge = inRange && ((degenerateAngleA && degenerateAngleB) || (cosAngleC < -Triangle.CosMinAngle));
 
             if (setLastPointData)

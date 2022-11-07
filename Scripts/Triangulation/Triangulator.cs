@@ -524,7 +524,7 @@ namespace Triangulation
             //Log.WriteLine(GetType() + ".AddSuperTriangle: center: " + center + " halfSize: " + halfSize + " bounds: " + bounds.ToString("f4"));
 
             float r = halfSize.Length * 1.5f;
-            float a = (float)Math.Sqrt(3f) * r;
+            float a = MathF.Sqrt(3f) * r;
 
             supertriangleVerts[0] = center + new Vector2(-a, -r);
             supertriangleVerts[1] = center + new Vector2(0f, 2f * r);

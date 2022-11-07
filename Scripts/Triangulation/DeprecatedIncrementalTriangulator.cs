@@ -79,10 +79,10 @@ namespace Triangulation
         //    for (int i = 1; i < cellPointsIndices.Count; i++)
         //    {
         //        var point = points[cellPointsIndices[i]];
-        //        min.x = Math.Min(min.x, point.x);
-        //        min.y = Math.Min(min.y, point.y);
-        //        max.x = Math.Max(max.x, point.x);
-        //        max.y = Math.Max(max.y, point.y);
+        //        min.x = MathF.Min(min.x, point.x);
+        //        min.y = MathF.Min(min.y, point.y);
+        //        max.x = MathF.Max(max.x, point.x);
+        //        max.y = MathF.Max(max.y, point.y);
         //    }
         //    return new Bounds2(min, max);
         //}
@@ -97,16 +97,16 @@ namespace Triangulation
         //        {
         //            float f = points[a].x - points[b].x;
         //
-        //            if (Math.Abs(f) > tolerance)
+        //            if (MathF.Abs(f) > tolerance)
         //            {
-        //                return Math.Sign(f);
+        //                return MathF.Sign(f);
         //            }
         //
         //            f = points[a].y - points[b].y;
         //
-        //            if (Math.Abs(f) > tolerance)
+        //            if (MathF.Abs(f) > tolerance)
         //            {
-        //                return Math.Sign(f);
+        //                return MathF.Sign(f);
         //            }
         //
         //            return 0;
@@ -119,16 +119,16 @@ namespace Triangulation
         //        {
         //            float f = points[a].y - points[b].y;
         //
-        //            if (Math.Abs(f) > tolerance)
+        //            if (MathF.Abs(f) > tolerance)
         //            {
-        //                return Math.Sign(f);
+        //                return MathF.Sign(f);
         //            }
         //
         //            f = points[a].x - points[b].x;
         //
-        //            if (Math.Abs(f) > tolerance)
+        //            if (MathF.Abs(f) > tolerance)
         //            {
-        //                return Math.Sign(f);
+        //                return MathF.Sign(f);
         //            }
         //
         //            return 0;

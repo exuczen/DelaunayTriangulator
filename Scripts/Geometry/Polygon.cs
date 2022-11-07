@@ -595,7 +595,7 @@ namespace Triangulation
 
         private void SetInnerAngleSign(float angleSum)
         {
-            if (Math.Abs(angleSum - (PeakCount - 2) * 180f) > 1f)
+            if (MathF.Abs(angleSum - (PeakCount - 2) * 180f) > 1f)
             {
                 angleSum = 0f;
                 for (int i = 0; i < PeakCount; i++)
@@ -604,7 +604,7 @@ namespace Triangulation
                     angleSum += peak.InvertAngle();
                     edgePeaks[i] = peak;
                 }
-                if (Math.Abs(angleSum - (PeakCount - 2) * 180f) > 1f)
+                if (MathF.Abs(angleSum - (PeakCount - 2) * 180f) > 1f)
                 {
                     throw new Exception("SetupPeakAngles: angleSum: " + angleSum);
                 }

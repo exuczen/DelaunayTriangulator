@@ -81,7 +81,7 @@ namespace Triangulation
 
         private void AddCornerVertices(Vector2 viewSize, bool triangulate)
         {
-            float halfSize = Math.Max(viewSize.x, viewSize.y) * 0.75f;
+            float halfSize = MathF.Max(viewSize.x, viewSize.y) * 0.75f;
             float centerX = viewSize.x * 0.5f;
             float centerY = viewSize.y * 0.5f;
 

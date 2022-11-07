@@ -68,8 +68,8 @@ namespace Triangulation
             }
             for (int i = 0; i < 3; i++)
             {
-                float absCosAngle = Math.Abs(Vector2.Dot(-edgeBuffer[i], edgeBuffer[(i + 1) % 3]));
-                //Log.WriteLine("Triangle.IsDegenerate: angle: " + (Math.Acos(absCosAngle) * SPMath.Rad2Deg));
+                float absCosAngle = MathF.Abs(Vector2.Dot(-edgeBuffer[i], edgeBuffer[(i + 1) % 3]));
+                //Log.WriteLine("Triangle.IsDegenerate: angle: " + (MathF.Acos(absCosAngle) * SPMathF.Rad2Deg));
                 if (absCosAngle > CosMinAngle)
                 {
                     return true;
@@ -80,7 +80,7 @@ namespace Triangulation
 
         public static void SetMinAngle(float angleInDeg)
         {
-            CosMinAngle = (float)Math.Cos(angleInDeg * Maths.Deg2Rad);
+            CosMinAngle = MathF.Cos(angleInDeg * Maths.Deg2Rad);
         }
 
         public static Triangle GetTriangleFromKey(long key, long pointsLength)
@@ -171,7 +171,7 @@ namespace Triangulation
             }
             for (int i = 0; i < 3; i++)
             {
-                sign = Math.Sign(crossBuffer[i]);
+                sign = MathF.Sign(crossBuffer[i]);
                 if (log)
                 {
                     Log.WriteLine(GetType() + ".ContainsPoint: " + crossBuffer[i] + " " + sign);
@@ -198,7 +198,7 @@ namespace Triangulation
 
         public float GetArea(Vector2[] points)
         {
-            return 0.5f * Math.Abs(Vector2.Cross(points[A] - points[C], points[B] - points[C]));
+            return 0.5f * MathF.Abs(Vector2.Cross(points[A] - points[C], points[B] - points[C]));
         }
 
         public float GetOppositeAngleDeg(EdgeEntry edge, Vector2[] points)
@@ -417,12 +417,12 @@ namespace Triangulation
 
             /* If the points of the triangle are collinear, then just find the
              * extremes and use the midpoint as the center of the circumcircle. */
-            if (Math.Abs(G) < Tolerance)
+            if (MathF.Abs(G) < Tolerance)
             {
-                minx = Math.Min(Math.Min(a.x, b.x), c.x);
-                miny = Math.Min(Math.Min(a.y, b.y), c.y);
-                dx = (Math.Max(Math.Max(a.x, b.x), c.x) - minx) * 0.5f;
-                dy = (Math.Max(Math.Max(a.y, b.y), c.y) - miny) * 0.5f;
+                minx = MathF.Min(MathF.Min(a.x, b.x), c.x);
+                miny = MathF.Min(MathF.Min(a.y, b.y), c.y);
+                dx = (MathF.Max(MathF.Max(a.x, b.x), c.x) - minx) * 0.5f;
+                dy = (MathF.Max(MathF.Max(a.y, b.y), c.y) - miny) * 0.5f;
 
                 cX = minx + dx;
                 cY = miny + dy;

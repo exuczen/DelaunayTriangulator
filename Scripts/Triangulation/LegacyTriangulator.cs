@@ -225,7 +225,7 @@ namespace Triangulation
 
                 //Log.WriteLine(GetType() + "." + points[pointIndex] + " " + pointsYX[sortedIndex]);
 
-                if (pointIndex != 0 && Math.Abs(point.x - prevPoint.x) < tolerance && Math.Abs(point.y - prevPoint.y) < tolerance)
+                if (pointIndex != 0 && MathF.Abs(point.x - prevPoint.x) < tolerance && MathF.Abs(point.y - prevPoint.y) < tolerance)
                 {
                     continue; // Ignore current point if equals to previous point. We check equality using tolerance.
                 }

@@ -18,7 +18,7 @@ namespace Triangulation
         {
             Center = center;
             SqrRadius = sqrRadius;
-            Radius = (float)Math.Sqrt(SqrRadius);
+            Radius = MathF.Sqrt(SqrRadius);
             Bounds = new Bounds2() {
                 min = center - Radius * Vector2.One,
                 max = center + Radius * Vector2.One,

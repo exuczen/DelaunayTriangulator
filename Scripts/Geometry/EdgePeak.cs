@@ -37,7 +37,7 @@ namespace Triangulation
             EdgeVecA = edge1.GetVector(points, PeakVertex == edge1.B); // PeakVertex to VertexA vector
             EdgeVecB = edge2.GetVector(points, PeakVertex == edge2.B); // PeakVertex to VertexB vector
             float cross = Vector2.Cross(EdgeVecB, EdgeVecA);
-            AngleSign = Math.Sign(cross);
+            AngleSign = MathF.Sign(cross);
         }
 
         public EdgePeak Invalidate()
