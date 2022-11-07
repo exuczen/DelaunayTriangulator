@@ -19,7 +19,7 @@ namespace Triangulation
 #if UNITY
             UnityEngine.Debug.Log(value);
 #else
-            Console.Write(value);
+            System.Diagnostics.Debug.Write(value);
 #endif
         }
 
@@ -28,7 +28,7 @@ namespace Triangulation
 #if UNITY
             UnityEngine.Debug.LogWarning(value);
 #else
-            Console.Error.WriteLine("WARNING: {0}", value);
+            System.Diagnostics.Debug.WriteLine("WARNING: {0}", value);
 #endif
         }
 
@@ -37,7 +37,7 @@ namespace Triangulation
 #if UNITY
             UnityEngine.Debug.LogError(value);
 #else
-            Console.Error.WriteLine(value);
+            System.Diagnostics.Debug.Fail(value);
 #endif
         }
 
@@ -46,7 +46,7 @@ namespace Triangulation
 #if UNITY
             UnityEngine.Debug.Log(value);
 #else
-            Console.WriteLine(value);
+            System.Diagnostics.Debug.WriteLine(value);
 #endif
         }
 
@@ -55,7 +55,7 @@ namespace Triangulation
 #if UNITY
             UnityEngine.Debug.LogFormat(format, args);
 #else
-            Console.WriteLine(format, args);
+            System.Diagnostics.Debug.WriteLine(format, args);
 #endif
         }
 
