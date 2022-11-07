@@ -74,12 +74,12 @@ namespace Triangulation
 
         public static Vector2 Min(Vector2 v1, Vector2 v2)
         {
-            return new Vector2(MathF.Min(v1.x, v2.x), MathF.Min(v1.y, v2.y));
+            return new Vector2(Math.Min(v1.x, v2.x), Math.Min(v1.y, v2.y));
         }
 
         public static Vector2 Max(Vector2 v1, Vector2 v2)
         {
-            return new Vector2(MathF.Max(v1.x, v2.x), MathF.Max(v1.y, v2.y));
+            return new Vector2(Math.Max(v1.x, v2.x), Math.Max(v1.y, v2.y));
         }
 
         public static float SqrDistance(Vector2 v1, Vector2 v2)
