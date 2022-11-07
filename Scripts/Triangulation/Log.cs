@@ -1,7 +1,9 @@
 ﻿#if UNITY_EDITOR || UNITY_STANDALONE
 #define UNITY
+using Debug = UnityEngine.Debug;
+#else
+using Debug = System.Diagnostics.Debug;
 #endif
-
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,45 +19,45 @@ namespace Triangulation
         public static void Write(string value)
         {
 #if UNITY
-            UnityEngine.Debug.Log(value);
+            Debug.Log(value);
 #else
-            System.Diagnostics.Debug.Write(value);
+            Debug.Write(value);
 #endif
         }
 
         public static void WriteWarning(string value)
         {
 #if UNITY
-            UnityEngine.Debug.LogWarning(value);
+            Debug.LogWarning(value);
 #else
-            System.Diagnostics.Debug.WriteLine("WARNING: {0}", value);
+            Debug.WriteLine("WARNING: {0}", value);
 #endif
         }
 
         public static void WriteError(string value)
         {
 #if UNITY
-            UnityEngine.Debug.LogError(value);
+            Debug.LogError(value);
 #else
-            System.Diagnostics.Debug.Fail(value);
+            Debug.Fail(value);
 #endif
         }
 
         public static void WriteLine(string value)
         {
 #if UNITY
-            UnityEngine.Debug.Log(value);
+            Debug.Log(value);
 #else
-            System.Diagnostics.Debug.WriteLine(value);
+            Debug.WriteLine(value);
 #endif
         }
 
         public static void WriteLine(string format, params object[] args)
         {
 #if UNITY
-            UnityEngine.Debug.LogFormat(format, args);
+            Debug.LogFormat(format, args);
 #else
-            System.Diagnostics.Debug.WriteLine(format, args);
+            Debug.WriteLine(format, args);
 #endif
         }
 
