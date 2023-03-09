@@ -9,6 +9,7 @@ namespace Triangulation
         public int PointsCount { get => pointsCount; set => pointsCount = value; }
         public Vector2[] Points => points;
         public Triangle[] Triangles => triangles;
+        public List<Triangle> CCTriangles => ccTriangles;
 
         protected Triangle[] triangles = null;
         protected readonly Vector2[] points = null;
@@ -18,7 +19,7 @@ namespace Triangulation
         protected readonly List<int> unusedPointIndices = new List<int>();
         protected readonly List<Triangle> ccTriangles = new List<Triangle>();
 
-        protected readonly float tolerance = 0f;
+        protected readonly float pointTolerance = 0f;
         protected float circleTolerance = 0f;
 
         protected Bounds2 bounds = default;
@@ -37,8 +38,8 @@ namespace Triangulation
 
         public Triangulator(int pointsCapacity, float tolerance)
         {
-            this.tolerance = tolerance > 0f ? tolerance : Vector2.Epsilon;
-            circleTolerance = this.tolerance;
+            pointTolerance = tolerance > 0f ? tolerance : Vector2.Epsilon;
+            circleTolerance = pointTolerance;
 
             points = new Vector2[pointsCapacity];
 
@@ -156,7 +157,7 @@ namespace Triangulation
         {
             for (int i = pointsList.Count - 1; i > 0; i--)
             {
-                if (pointsList[i].Equals(pointsList[i - 1], tolerance))
+                if (pointsList[i].Equals(pointsList[i - 1], pointTolerance))
                 {
                     pointsList.RemoveAt(i);
                 }
@@ -178,7 +179,7 @@ namespace Triangulation
             for (int i = 0; i < pointsCount; i++)
             {
                 var point = points[i];
-                if (point.Equals(prevPoint, tolerance))
+                if (point.Equals(prevPoint, pointTolerance))
                 {
                     Log.WriteError(GetType() + ".Triangulate: point.Equals(prevPoint, tolerance): " + i);
                     continue;
@@ -207,12 +208,12 @@ namespace Triangulation
             if (xySort)
             {
                 // Sort points by X (firstly), Y (secondly)
-                pointsComparer = new PointsXYComparer(tolerance);
+                pointsComparer = new PointsXYComparer(pointTolerance);
             }
             else // yxSorted
             {
                 // Sort points by Y (firstly), X (secondly)
-                pointsComparer = new PointsYXComparer(tolerance);
+                pointsComparer = new PointsYXComparer(pointTolerance);
             }
             return pointsComparer;
         }
@@ -469,7 +470,6 @@ namespace Triangulation
                             ccTriangle.FillColor = Color.Red;
                             triangles[trianglesCount++] = ccTriangle;
                         }
-                        ccTriangles.Clear();
                         Log.PrintTriangles(triangles, trianglesCount, triangleToString, "ReplaceEdgesWithTriangles: ");
                         return false;
                     }

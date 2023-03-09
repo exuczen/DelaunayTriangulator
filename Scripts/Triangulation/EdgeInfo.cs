@@ -207,7 +207,7 @@ namespace Triangulation
                     if (exceptionThrower != null)
                     {
                         Log.WriteError(message);
-                        exceptionThrower.ThrowException(message);
+                        exceptionThrower.ThrowException(message, ErrorCode.InternalEdgeExists);
                     }
                     else
                     {

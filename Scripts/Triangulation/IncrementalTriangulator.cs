@@ -62,7 +62,7 @@ namespace Triangulation
             }
             else if (pointsCount >= 3)
             {
-                exceptionThrower.ThrowException("BASE TRIANGULATION FAILED");
+                exceptionThrower.ThrowException("BASE TRIANGULATION FAILED", ErrorCode.BaseTriangulationFailed);
             }
             return false;
         }
@@ -80,6 +80,8 @@ namespace Triangulation
             pointGrid = new PointGrid(gridSize, triangleGrid.XYCount * pointGridDivsMlp);
 
             circleTolerance = 0.01f * pointGrid.CellSizeMin;
+
+            //Log.WriteLine(GetType() + ".Initialize: circleTolerance: " + circleTolerance);
 
 #if DEBUG_DEGENERATE_TRIANGLES
             Triangle.SetMinAngle(15f);
@@ -326,7 +328,7 @@ namespace Triangulation
             bool result = edgesValid && !circleOverlapsPoint;
             if (!result)
             {
-                exceptionThrower.ThrowException("!ValidateTriangulation");
+                exceptionThrower.ThrowException("!ValidateTriangulation", ErrorCode.InvalidTriangulation);
             }
             return result;
         }
