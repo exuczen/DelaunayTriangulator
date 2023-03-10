@@ -10,6 +10,7 @@ namespace Triangulation
         public Vector2[] Points => points;
         public Triangle[] Triangles => triangles;
         public List<Triangle> CCTriangles => ccTriangles;
+        public Triangle SuperTriangle => supertriangle;
 
         protected readonly IExceptionThrower exceptionThrower = null;
 
@@ -26,7 +27,6 @@ namespace Triangulation
 
         protected Bounds2 bounds = default;
         protected Triangle supertriangle = Triangle.None;
-        protected Vector2[] supertriangleVerts = new Vector2[3];
 
         protected int pointsCount = 0;
         protected int trianglesCount = 0;
@@ -531,18 +531,13 @@ namespace Triangulation
             float r = halfSize.Length * 1.5f;
             float a = MathF.Sqrt(3f) * r;
 
-            supertriangleVerts[0] = center + new Vector2(-a, -r);
-            supertriangleVerts[1] = center + new Vector2(0f, 2f * r);
-            supertriangleVerts[2] = center + new Vector2(+a, -r);
-
-            for (int i = 0; i < 3; i++)
-            {
-                points[pointsCount + i] = supertriangleVerts[i];
-            }
+            points[pointsCount + 0] = center + new Vector2(-a, -r);
+            points[pointsCount + 1] = center + new Vector2(0f, 2f * r);
+            points[pointsCount + 2] = center + new Vector2(+a, -r);
 
             AddTriangle(pointsCount + 0, pointsCount + 1, pointsCount + 2);
 
-            supertriangle = new Triangle(0, 1, 2);
+            supertriangle = triangles[trianglesCount - 1];
         }
 
         private bool AddTriangle(int a, int b, int c)

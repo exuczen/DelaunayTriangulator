@@ -573,6 +573,8 @@ namespace Triangulation
         {
             ClearAddedTriangles();
 
+            supertriangle = Triangle.None;
+
             baseEdgeInfo.ClearLastPointData();
 
             cellPointsIndices.Clear();
