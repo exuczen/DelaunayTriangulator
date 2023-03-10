@@ -16,8 +16,6 @@ namespace Triangulation
         public bool PointsValidation = false;
         public bool EdgesValidation = false;
 
-        private readonly IExceptionThrower exceptionThrower = null;
-
         private readonly List<int> cellPointsIndices = new List<int>();
         private readonly List<int> cellTrianglesIndices = new List<int>();
         private readonly Polygon cellPolygon = new Polygon(true);
@@ -36,14 +34,13 @@ namespace Triangulation
         private TriangleGrid triangleGrid = null;
         private PointGrid pointGrid = null;
 
-        public IncrementalTriangulator(int pointsCapacity, float tolerance, bool internalOnly, IExceptionThrower exceptionThrower) : base(pointsCapacity, tolerance)
+        public IncrementalTriangulator(int pointsCapacity, float tolerance, bool internalOnly, IExceptionThrower exceptionThrower) : base(pointsCapacity, tolerance, exceptionThrower)
         {
             baseTriangleSet = new TriangleSet(triangles, points, exceptionThrower);
             baseEdgeInfo = baseTriangleSet.EdgeInfo;
             addedTriangles = new Triangle[triangles.Length];
             addedEdgeInfo = new EdgeInfo(triangles.Length << 1, null, points, exceptionThrower);
             this.internalOnly = internalOnly;
-            this.exceptionThrower = exceptionThrower;
         }
 
         public override bool Triangulate()
@@ -60,10 +57,9 @@ namespace Triangulation
 
                 return true;
             }
-            else if (pointsCount >= 3)
-            {
-                exceptionThrower.ThrowException("BASE TRIANGULATION FAILED", ErrorCode.BaseTriangulationFailed);
-            }
+            //else if (pointsCount >= 3)
+            //{
+            //}
             return false;
         }
 

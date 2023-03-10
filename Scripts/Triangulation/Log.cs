@@ -10,14 +10,6 @@ using System.Text;
 
 namespace Triangulation
 {
-    public enum ErrorCode
-    {
-        None,
-        BaseTriangulationFailed,
-        InvalidTriangulation,
-        InternalEdgeExists,
-    }
-
     public static class Log
     {
         public const string KIND_OF_FAKAP = " !!! KIND OF FAKAP !!!";

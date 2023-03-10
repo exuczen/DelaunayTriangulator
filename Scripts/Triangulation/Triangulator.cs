@@ -11,6 +11,8 @@ namespace Triangulation
         public Triangle[] Triangles => triangles;
         public List<Triangle> CCTriangles => ccTriangles;
 
+        protected readonly IExceptionThrower exceptionThrower = null;
+
         protected Triangle[] triangles = null;
         protected readonly Vector2[] points = null;
         protected readonly Triangle[] completedTriangles = null;
@@ -36,7 +38,7 @@ namespace Triangulation
         protected readonly int[] edgeKeyBuffer = new int[3];
         protected readonly int[] indexBuffer = new int[3];
 
-        public Triangulator(int pointsCapacity, float tolerance)
+        public Triangulator(int pointsCapacity, float tolerance, IExceptionThrower exceptionThrower)
         {
             pointTolerance = tolerance > 0f ? tolerance : Vector2.Epsilon;
             circleTolerance = pointTolerance;
@@ -47,6 +49,8 @@ namespace Triangulation
             int trianglesCapacity = pointsCapacity << 1;
             triangles = new Triangle[trianglesCapacity];
             completedTriangles = new Triangle[trianglesCapacity];
+
+            this.exceptionThrower = exceptionThrower;
         }
 
         public Vector2 GetPoint(int i)
@@ -471,6 +475,7 @@ namespace Triangulation
                             triangles[trianglesCount++] = ccTriangle;
                         }
                         Log.PrintTriangles(triangles, trianglesCount, triangleToString, "ReplaceEdgesWithTriangles: ");
+                        exceptionThrower.ThrowException("BASE TRIANGULATION FAILED", ErrorCode.BaseTriangulationFailed, pointIndex);
                         return false;
                     }
                 }

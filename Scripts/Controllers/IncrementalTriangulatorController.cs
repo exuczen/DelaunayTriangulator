@@ -10,7 +10,7 @@ namespace Triangulation
 
         protected new IncrementalTriangulator triangulator = null;
 
-        public IncrementalTriangulatorController(IParticles particles, IExceptionThrower exceptionThrower) : base(particles, false)
+        public IncrementalTriangulatorController(IParticles particles, IExceptionThrower exceptionThrower) : base(particles, false, exceptionThrower)
         {
 #if TRIANGULATION_INTERNAL
             base.triangulator = triangulator = new IncrementalTriangulator(particles.Capacity, Vector2.Epsilon, true, exceptionThrower);
