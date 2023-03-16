@@ -1,16 +1,23 @@
-﻿using System;
+﻿#define SUPERTRIANGLES_CIRCLE
+
+using System;
 using System.Collections.Generic;
 
 namespace Triangulation
 {
     public class Triangulator
     {
+#if SUPERTRIANGLES_CIRCLE
+        private const int SuperTriangleCount = 16;
+#else
+        private const int SuperTriangleCount = 1;
+#endif
         public int TrianglesCount => trianglesCount;
         public int PointsCount { get => pointsCount; set => pointsCount = value; }
         public Vector2[] Points => points;
         public Triangle[] Triangles => triangles;
         public List<Triangle> CCTriangles => ccTriangles;
-        public Triangle SuperTriangle => supertriangle;
+        public Triangle[] SuperTriangles => supertriangles;
 
         protected readonly IExceptionThrower exceptionThrower = null;
 
@@ -26,7 +33,7 @@ namespace Triangulation
         protected float circleTolerance = 0f;
 
         protected Bounds2 bounds = default;
-        protected Triangle supertriangle = Triangle.None;
+        protected Triangle[] supertriangles = new Triangle[SuperTriangleCount];
 
         protected int pointsCount = 0;
         protected int trianglesCount = 0;
@@ -37,6 +44,8 @@ namespace Triangulation
         protected readonly EdgeEntry[] edgeBuffer = new EdgeEntry[3];
         protected readonly int[] edgeKeyBuffer = new int[3];
         protected readonly int[] indexBuffer = new int[3];
+
+        private int centerPointIndex = -1;
 
         public Triangulator(int pointsCapacity, float tolerance, IExceptionThrower exceptionThrower)
         {
@@ -116,9 +125,9 @@ namespace Triangulation
 
         protected virtual void ClearTriangles()
         {
+            ClearSuperTriangles();
             completedTrianglesCount = 0;
             trianglesCount = 0;
-            supertriangle = Triangle.None;
 
             edgeCounterDict.Clear();
         }
@@ -127,6 +136,7 @@ namespace Triangulation
         {
             unusedPointIndices.Clear();
             pointsCount = 0;
+            centerPointIndex = -1;
         }
 
         protected virtual void ClearPoint(int pointIndex, bool addToUnused = true)
@@ -170,17 +180,56 @@ namespace Triangulation
             pointsList.CopyTo(points, 0);
         }
 
+        protected void ClearSuperTriangles()
+        {
+            if (supertriangles[0].A < 0)
+            {
+                return;
+            }
+            for (int i = 0; i < SuperTriangleCount; i++)
+            {
+                supertriangles[i] = Triangle.None;
+            }
+        }
+
         private bool Triangulate(Bounds2 bounds, bool xySorted)
         {
             if (pointsCount < 3)
             {
                 return false;
             }
+#if SUPERTRIANGLES_CIRCLE
+            AddSuperTrianglesCircle(bounds);
+#else
             AddSuperTriangle(bounds);
+#endif
+            bool result;
 
-            var prevPoint = points[pointsCount - 1];
+            if (centerPointIndex >= 0)
+            {
+                result = ProcessPoints(0, centerPointIndex - 1, xySorted);
+                result = result && ProcessPoints(centerPointIndex + 1, pointsCount - 1, xySorted);
+            }
+            else
+            {
+                result = ProcessPoints(0, pointsCount - 1, xySorted);
+            }
+            if (result)
+            {
+                FindValidTriangles(IsTriangleValid);
 
-            for (int i = 0; i < pointsCount; i++)
+                FindUnusedPoints();
+
+                ClearUnusedPoints();
+            }
+            return result;
+        }
+
+        private bool ProcessPoints(int beg, int end, bool xySorted)
+        {
+            var prevPoint = points[beg > 0 ? beg - 1 : pointsCount - 1];
+
+            for (int i = beg; i <= end; i++)
             {
                 var point = points[i];
                 if (point.Equals(prevPoint, pointTolerance))
@@ -194,12 +243,6 @@ namespace Triangulation
                 }
                 prevPoint = point;
             }
-
-            FindValidTriangles(IsTriangleValid);
-
-            FindUnusedPoints();
-
-            ClearUnusedPoints();
 
             return true;
         }
@@ -423,6 +466,8 @@ namespace Triangulation
                 }
             }
             completedTrianglesCount = 0;
+
+            //Log.WriteLine(GetType() + ".FindValidTriangles: " + completedTrianglesCount + " " + trianglesCount);
         }
 
         private bool IsTriangleValid(Triangle triangle)
@@ -461,7 +506,7 @@ namespace Triangulation
                 var edge = kvp.Value;
                 if (edge.Count == 1)
                 {
-                    if (!AddTriangle(edge.A, edge.B, pointIndex))
+                    if (!AddTriangle(edge.A, edge.B, pointIndex, out _))
                     {
                         Log.WriteError("ReplaceEdgesWithTriangles: pointIndex: " + pointIndex + " pointsCount: " + pointsCount);
                         Log.PrintList(ccTriangles, "ReplaceEdgesWithTriangles: ccTriangles:");
@@ -535,20 +580,56 @@ namespace Triangulation
             points[pointsCount + 1] = center + new Vector2(0f, 2f * r);
             points[pointsCount + 2] = center + new Vector2(+a, -r);
 
-            AddTriangle(pointsCount + 0, pointsCount + 1, pointsCount + 2);
+            AddTriangle(pointsCount + 0, pointsCount + 1, pointsCount + 2, out int triangleIndex);
 
-            supertriangle = triangles[trianglesCount - 1];
+            supertriangles[0] = triangles[triangleIndex];
         }
 
-        private bool AddTriangle(int a, int b, int c)
+        private void AddSuperTrianglesCircle(Bounds2 bounds)
+        {
+            centerPointIndex = Maths.GetClosestPointIndex(bounds.Center, points, pointsCount);
+            var center = points[centerPointIndex];
+            var halfSize = 0.5f * bounds.Size;
+
+            //Log.WriteLine(GetType() + ".AddSuperTriangle: center: " + center + " halfSize: " + halfSize + " bounds: " + bounds.ToString("f4"));
+
+            float r = halfSize.Length * 3f;
+
+            float dalfa = 2f * MathF.PI / SuperTriangleCount;
+
+            for (int i = 0; i < SuperTriangleCount; i++)
+            {
+                float alfa = i * dalfa;
+                float x = center.x + r * MathF.Sin(alfa);
+                float y = center.y + r * MathF.Cos(alfa);
+                points[pointsCount + i] = new Vector2(x, y);
+            }
+            int triangleIndex;
+            for (int i = 0; i < SuperTriangleCount - 1; i++)
+            {
+                AddTriangle(centerPointIndex, pointsCount + i, pointsCount + i + 1, out triangleIndex);
+                supertriangles[i] = triangles[triangleIndex];
+            }
+            AddTriangle(centerPointIndex, pointsCount + SuperTriangleCount - 1, pointsCount, out triangleIndex);
+            supertriangles[SuperTriangleCount - 1] = triangles[triangleIndex];
+
+            //Log.PrintTriangles(supertriangles, SuperTriangleCount);
+            //Log.PrintPoints(points, pointsCount + SuperTriangleCount + 1);
+        }
+
+        private bool AddTriangle(int a, int b, int c, out int triangleIndex)
         {
             var triangle = new Triangle(a, b, c, points);
             if (AddEdgesToCounterDict(triangle))
             {
-                triangles[trianglesCount++] = triangle;
+                triangles[triangleIndex = trianglesCount++] = triangle;
                 return true;
             }
-            return false;
+            else
+            {
+                triangleIndex = -1;
+                return false;
+            }
         }
 
         private void RemoveTriangleAt(int index)
