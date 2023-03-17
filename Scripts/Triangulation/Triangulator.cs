@@ -8,9 +8,9 @@ namespace Triangulation
     public class Triangulator
     {
 #if SUPERTRIANGLES_CIRCLE
-        private const int SuperTriangleCount = 16;
+        private const int SuperTrianglesLength = 16;
 #else
-        private const int SuperTriangleCount = 1;
+        private const int SuperTrianglesLength = 1;
 #endif
         public int TrianglesCount => trianglesCount;
         public int PointsCount { get => pointsCount; set => pointsCount = value; }
@@ -37,7 +37,7 @@ namespace Triangulation
         protected float circleTolerance = 0f;
 
         protected Bounds2 bounds = default;
-        protected Triangle[] supertriangles = new Triangle[SuperTriangleCount];
+        protected Triangle[] supertriangles = new Triangle[SuperTrianglesLength];
 
         protected int pointsCount = 0;
         protected int trianglesCount = 0;
@@ -186,7 +186,7 @@ namespace Triangulation
             {
                 return;
             }
-            for (int i = 0; i < SuperTriangleCount; i++)
+            for (int i = 0; i < SuperTrianglesLength; i++)
             {
                 supertriangles[i] = Triangle.None;
             }
@@ -633,9 +633,9 @@ namespace Triangulation
 
             float r = halfSize.Length * 3f;
 
-            float dalfa = 2f * MathF.PI / SuperTriangleCount;
+            float dalfa = 2f * MathF.PI / SuperTrianglesLength;
 
-            for (int i = 0; i < SuperTriangleCount; i++)
+            for (int i = 0; i < SuperTrianglesLength; i++)
             {
                 float alfa = i * dalfa;
                 float x = center.x + r * MathF.Sin(alfa);
@@ -643,13 +643,13 @@ namespace Triangulation
                 points[pointsCount + i] = new Vector2(x, y);
             }
             int triangleIndex;
-            for (int i = 0; i < SuperTriangleCount - 1; i++)
+            for (int i = 0; i < SuperTrianglesLength - 1; i++)
             {
                 AddTriangle(centerPointIndex, pointsCount + i, pointsCount + i + 1, out triangleIndex);
                 supertriangles[i] = triangles[triangleIndex];
             }
-            AddTriangle(centerPointIndex, pointsCount + SuperTriangleCount - 1, pointsCount, out triangleIndex);
-            supertriangles[SuperTriangleCount - 1] = triangles[triangleIndex];
+            AddTriangle(centerPointIndex, pointsCount + SuperTrianglesLength - 1, pointsCount, out triangleIndex);
+            supertriangles[SuperTrianglesLength - 1] = triangles[triangleIndex];
 
             //Log.PrintTriangles(supertriangles, SuperTriangleCount);
             //Log.PrintPoints(points, pointsCount + SuperTriangleCount + 1);
