@@ -29,6 +29,10 @@ namespace Triangulation
         protected readonly List<int> unusedPointIndices = new List<int>();
         protected readonly List<Triangle> ccTriangles = new List<Triangle>();
 
+        protected readonly EdgeEntry[] edgeBuffer = new EdgeEntry[3];
+        protected readonly int[] edgeKeyBuffer = new int[3];
+        protected readonly int[] indexBuffer = new int[3];
+
         protected readonly float pointTolerance = 0f;
         protected float circleTolerance = 0f;
 
@@ -40,10 +44,6 @@ namespace Triangulation
         protected int completedTrianglesCount = 0;
 
         private readonly List<int> usedPointIndices = new List<int>();
-
-        protected readonly EdgeEntry[] edgeBuffer = new EdgeEntry[3];
-        protected readonly int[] edgeKeyBuffer = new int[3];
-        protected readonly int[] indexBuffer = new int[3];
 
         private int centerPointIndex = -1;
 
