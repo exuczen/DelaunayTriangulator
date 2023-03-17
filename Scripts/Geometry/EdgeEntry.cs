@@ -23,12 +23,12 @@ namespace Triangulation
 
         public static int GetLastElementCount(EdgeEntry[] edges)
         {
-            return edges[edges.Length - 1].Count;
+            return edges[^1].Count;
         }
 
         public static void SetLastElementCount(EdgeEntry[] edges, int count)
         {
-            edges[edges.Length - 1].Count = count;
+            edges[^1].Count = count;
         }
 
         public static void RefreshSortedEdgesNextPrev(EdgeEntry[] edges, int count, int startIndex = 0)

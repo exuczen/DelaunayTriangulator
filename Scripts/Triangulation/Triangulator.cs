@@ -239,6 +239,7 @@ namespace Triangulation
                 }
                 if (!ProcessPoint(i, xySorted))
                 {
+                    ThrowCCTrianglesException(i);
                     return false;
                 }
                 prevPoint = point;
@@ -299,7 +300,41 @@ namespace Triangulation
                     }
                 }
             }
+            DiscardSeparatedCCTriangles();
+
             return ReplaceEdgesWithTriangles(pointIndex);
+        }
+
+        private void DiscardSeparatedCCTriangles()
+        {
+            if (ccTriangles.Count > 1)
+            {
+                for (int i = ccTriangles.Count - 1; i >= 0; i--)
+                {
+                    bool separated = true;
+                    var triangle = ccTriangles[i];
+                    triangle.GetEdges(edgeBuffer);
+                    for (int j = 0; j < 3; j++)
+                    {
+                        int edgeKey = edgeKeyBuffer[j] = GetEdgeKey(edgeBuffer[j]);
+                        if (edgeDict[edgeKey].Count != 1)
+                        {
+                            separated = false;
+                            break;
+                        }
+                    }
+                    if (separated)
+                    {
+                        Log.WriteWarning("DiscardSeparatedCCTriangles: " + triangle);
+                        for (int j = 0; j < 3; j++)
+                        {
+                            edgeDict.Remove(edgeKeyBuffer[j]);
+                        }
+                        ccTriangles.RemoveAt(i);
+                        AddTriangle(triangle, out _);
+                    }
+                }
+            }
         }
 
         protected void ForEachEdge(Triangle triangle, Action<int, EdgeEntry> action)
@@ -497,10 +532,6 @@ namespace Triangulation
         {
             int trianglesCountPrev = trianglesCount;
 
-            string triangleToString(Triangle t)
-            {
-                return t + " " + t.CircumCircle.ContainsPoint(points[pointIndex], circleTolerance, out float sqrDelta).ToString() + " sqrDelta: " + sqrDelta;
-            }
             foreach (var kvp in edgeDict)
             {
                 var edge = kvp.Value;
@@ -512,21 +543,29 @@ namespace Triangulation
                         Log.PrintList(ccTriangles, "ReplaceEdgesWithTriangles: ccTriangles:");
                         edgeDict.Clear();
                         trianglesCount = trianglesCountPrev;
-                        for (int i = 0; i < ccTriangles.Count; i++)
-                        {
-                            var ccTriangle = ccTriangles[i];
-                            ccTriangle.CircumCircle.Filled = true;
-                            ccTriangle.FillColor = Color.Red;
-                            triangles[trianglesCount++] = ccTriangle;
-                        }
-                        Log.PrintTriangles(triangles, trianglesCount, triangleToString, "ReplaceEdgesWithTriangles: ");
-                        exceptionThrower.ThrowException("BASE TRIANGULATION FAILED", ErrorCode.BaseTriangulationFailed, pointIndex);
                         return false;
                     }
                 }
             }
             edgeDict.Clear();
             return true;
+        }
+
+        private void ThrowCCTrianglesException(int pointIndex)
+        {
+            string triangleToString(Triangle t)
+            {
+                return t + " " + t.CircumCircle.ContainsPoint(points[pointIndex], circleTolerance, out float sqrDelta).ToString() + " sqrDelta: " + sqrDelta;
+            }
+            for (int i = 0; i < ccTriangles.Count; i++)
+            {
+                var ccTriangle = ccTriangles[i];
+                ccTriangle.CircumCircle.Filled = true;
+                ccTriangle.FillColor = Color.Red;
+                triangles[trianglesCount++] = ccTriangle;
+            }
+            Log.PrintTriangles(triangles, trianglesCount, triangleToString, "ReplaceEdgesWithTriangles: ");
+            exceptionThrower.ThrowException("BASE TRIANGULATION FAILED", ErrorCode.BaseTriangulationFailed, pointIndex);
         }
 
         protected void ForEachEdgeInDict(Action<int, EdgeEntry> action)
@@ -581,7 +620,6 @@ namespace Triangulation
             points[pointsCount + 2] = center + new Vector2(+a, -r);
 
             AddTriangle(pointsCount + 0, pointsCount + 1, pointsCount + 2, out int triangleIndex);
-
             supertriangles[0] = triangles[triangleIndex];
         }
 
@@ -619,7 +657,11 @@ namespace Triangulation
 
         private bool AddTriangle(int a, int b, int c, out int triangleIndex)
         {
-            var triangle = new Triangle(a, b, c, points);
+            return AddTriangle(new Triangle(a, b, c, points), out triangleIndex);
+        }
+
+        private bool AddTriangle(Triangle triangle, out int triangleIndex)
+        {
             if (AddEdgesToCounterDict(triangle))
             {
                 triangles[triangleIndex = trianglesCount++] = triangle;
