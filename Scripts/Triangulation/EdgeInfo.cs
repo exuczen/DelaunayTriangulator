@@ -175,6 +175,16 @@ namespace Triangulation
             return true;
         }
 
+        public void ForEachTrianglePair(Action<Vector2, Vector2> action)
+        {
+            foreach (var kvp in innerEdgeTriangleDict)
+            {
+                ref var t1 = ref GetTriangleRef(kvp.Value.Triangle1Key, out _);
+                ref var t2 = ref GetTriangleRef(kvp.Value.Triangle2Key, out _);
+                action(t1.CircumCircle.Center, t2.CircumCircle.Center);
+            }
+        }
+
         public void SetInnerEdgeData(int edgeKey, InnerEdgeData edgeData)
         {
             innerEdgeTriangleDict[edgeKey] = edgeData;

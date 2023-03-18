@@ -4,7 +4,7 @@ namespace Triangulation
 {
     public struct Triangle
     {
-        public const float Tolerance = 0.00001f;
+        public const float CircumCircleTolerance = 0.00001f;
 
         public static readonly Triangle None = new Triangle(-1, -1, -1);
 
@@ -417,7 +417,7 @@ namespace Triangulation
 
             /* If the points of the triangle are collinear, then just find the
              * extremes and use the midpoint as the center of the circumcircle. */
-            if (MathF.Abs(G) < Tolerance)
+            if (MathF.Abs(G) < CircumCircleTolerance)
             {
                 minx = MathF.Min(MathF.Min(a.x, b.x), c.x);
                 miny = MathF.Min(MathF.Min(a.y, b.y), c.y);
