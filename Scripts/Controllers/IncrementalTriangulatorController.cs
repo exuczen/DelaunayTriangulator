@@ -1,7 +1,4 @@
-﻿//#define TRIANGULATION_INTERNAL
-//#define BASE_TRIANGULATION_ONLY
-
-using System;
+﻿using System;
 
 namespace Triangulation
 {
@@ -14,23 +11,16 @@ namespace Triangulation
         public IncrementalTriangulatorController(IParticles particles, IExceptionThrower exceptionThrower) : base(particles, false, exceptionThrower)
         {
             base.triangulator = triangulator = new IncrementalTriangulator(particles.Capacity, Vector2.Epsilon, exceptionThrower);
-#if TRIANGULATION_INTERNAL
-            triangulator.InternalOnly = true;
-#endif
-#if BASE_TRIANGULATION_ONLY
-            triangulator.BaseOnly = true;
-#endif
         }
 
         public void Initialize(Vector2 viewSize, int triangleGridDivs = TriangleGrid.MinDivsCount, int pointGridDivsMlp = 5)
         {
             triangulator.Initialize(viewSize, true, triangleGridDivs, pointGridDivsMlp);
-#if TRIANGULATION_INTERNAL
-            if (triangulator.PointsCount == 0)
+
+            if (triangulator.InternalOnly && triangulator.PointsCount == 0)
             {
                 AddCornerVertices(viewSize, true);
             }
-#endif
         }
 
         public override void UpdateTriangulation(TriangulationType type, Vector2 point)
@@ -57,9 +47,10 @@ namespace Triangulation
 
         protected override void OnClear(Vector2 viewSize)
         {
-#if TRIANGULATION_INTERNAL
-            AddCornerVertices(viewSize, true);
-#endif
+            if (triangulator.InternalOnly)
+            {
+                AddCornerVertices(viewSize, true);
+            }
         }
 
         protected override void AddParticle(Vector2 point)
