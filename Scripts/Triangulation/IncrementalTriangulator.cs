@@ -13,6 +13,8 @@ namespace Triangulation
         public List<int> CellPointsIndices => cellPointsIndices;
         public Polygon CellPolygon => cellPolygon;
 
+        public bool BaseOnly = false;
+        public bool InternalOnly = false;
         public bool PointsValidation = false;
         public bool EdgesValidation = false;
 
@@ -27,39 +29,35 @@ namespace Triangulation
         private readonly Triangle[] addedTriangles = null;
         private readonly EdgeInfo addedEdgeInfo = null;
 
-        private readonly bool internalOnly = false;
-
         private int addedTrianglesCount = 0;
 
         private TriangleGrid triangleGrid = null;
         private PointGrid pointGrid = null;
 
-        public IncrementalTriangulator(int pointsCapacity, float tolerance, bool internalOnly, IExceptionThrower exceptionThrower) : base(pointsCapacity, tolerance, exceptionThrower)
+        public IncrementalTriangulator(int pointsCapacity, float tolerance, IExceptionThrower exceptionThrower) : base(pointsCapacity, tolerance, exceptionThrower)
         {
             baseTriangleSet = new TriangleSet(triangles, points, exceptionThrower);
             baseEdgeInfo = baseTriangleSet.EdgeInfo;
             addedTriangles = new Triangle[triangles.Length];
             addedEdgeInfo = new EdgeInfo(triangles.Length << 1, null, points, exceptionThrower);
-            this.internalOnly = internalOnly;
         }
 
         public override bool Triangulate()
         {
             if (base.Triangulate())
             {
-                AddTrianglesToBaseTriangles(triangles, trianglesCount, Color.FloralWhite, false);
+                if (!BaseOnly)
+                {
+                    AddTrianglesToBaseTriangles(triangles, trianglesCount, Color.FloralWhite, false);
 
-                baseEdgeInfo.FindExternalEdges(pointsCount);
+                    baseEdgeInfo.FindExternalEdges(pointsCount);
 
-                //baseEdgeInfo.PrintPointsExternal(pointsCount);
-
+                    //baseEdgeInfo.PrintPointsExternal(pointsCount);
+                }
                 ValidateTriangulation(false, PointsValidation);
 
                 return true;
             }
-            //else if (pointsCount >= 3)
-            //{
-            //}
             return false;
         }
 
@@ -190,9 +188,9 @@ namespace Triangulation
                     Log.WriteLine(GetType() + ".AddPointToTriangulation: " + pointIndex + " isInTriangle: " + isInTriangle + " cellTrianglesIndices.Count: " + cellTrianglesIndices.Count + " cellPointsIndices.Count: " + cellPointsIndices.Count);
                     if (!isInTriangle)
                     {
-                        if (internalOnly)
+                        if (InternalOnly)
                         {
-                            throw new Exception(GetType() + ".AddPoints: internalOnly && !isInTriangle");
+                            throw new Exception(GetType() + ".AddPoints: InternalOnly && !isInTriangle");
                         }
                         result = ProcessExternalPoint(cellXY, pointIndex);
                     }

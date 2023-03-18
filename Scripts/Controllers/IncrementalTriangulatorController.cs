@@ -1,4 +1,5 @@
 ﻿//#define TRIANGULATION_INTERNAL
+//#define BASE_TRIANGULATION_ONLY
 
 using System;
 
@@ -12,10 +13,12 @@ namespace Triangulation
 
         public IncrementalTriangulatorController(IParticles particles, IExceptionThrower exceptionThrower) : base(particles, false, exceptionThrower)
         {
+            base.triangulator = triangulator = new IncrementalTriangulator(particles.Capacity, Vector2.Epsilon, exceptionThrower);
 #if TRIANGULATION_INTERNAL
-            base.triangulator = triangulator = new IncrementalTriangulator(particles.Capacity, Vector2.Epsilon, true, exceptionThrower);
-#else
-            base.triangulator = triangulator = new IncrementalTriangulator(particles.Capacity, Vector2.Epsilon, false, exceptionThrower);
+            triangulator.InternalOnly = true;
+#endif
+#if BASE_TRIANGULATION_ONLY
+            triangulator.BaseOnly = true;
 #endif
         }
 
