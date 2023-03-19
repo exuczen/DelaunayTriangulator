@@ -9,7 +9,7 @@ namespace Triangulation
     {
         public TriangleGrid TriangleGrid => triangleGrid;
         public PointGrid PointGrid => pointGrid;
-        public EdgeInfo EdgeInfo => baseEdgeInfo;
+        public EdgeInfo EdgeInfo => edgeInfo;
         public List<int> CellPointsIndices => cellPointsIndices;
         public Polygon CellPolygon => cellPolygon;
 
@@ -35,7 +35,7 @@ namespace Triangulation
 
         public IncrementalTriangulator(int pointsCapacity, float tolerance, IExceptionThrower exceptionThrower) : base(pointsCapacity, tolerance, exceptionThrower)
         {
-            baseEdgeFlipper = new EdgeFlipper(baseTriangleSet, baseEdgeInfo, points);
+            baseEdgeFlipper = new EdgeFlipper(triangleSet, edgeInfo, points);
             addedTriangles = new Triangle[triangles.Length];
             addedEdgeInfo = new EdgeInfo(points, exceptionThrower);
         }
@@ -48,9 +48,9 @@ namespace Triangulation
                 {
                     AddBaseTrianglesToTriangleSet(triangles, trianglesCount, Color.FloralWhite);
 
-                    baseEdgeInfo.FindExternalEdges(pointsCount);
+                    edgeInfo.FindExternalEdges(pointsCount);
 
-                    //baseEdgeInfo.PrintPointsExternal(pointsCount);
+                    //edgeInfo.PrintPointsExternal(pointsCount);
                 }
                 ValidateTriangulation(false, PointsValidation);
 
@@ -61,11 +61,11 @@ namespace Triangulation
 
         public void Initialize(Vector2 gridSize, bool triangulate, int triangleGridDivs, int pointGridDivsMlp)
         {
-            if (baseTriangleSet == null)
+            if (triangleSet == null)
             {
                 throw new Exception("baseTriangleSet == null");
             }
-            triangleGrid = new TriangleGrid(baseTriangleSet, gridSize, triangleGridDivs);
+            triangleGrid = new TriangleGrid(triangleSet, gridSize, triangleGridDivs);
 
             cellPolygon.Tolerance = triangleGrid.CellTolerance;
 
@@ -202,7 +202,7 @@ namespace Triangulation
                     }
                 }
                 //PrintTriangles();
-                //baseEdgeInfo.PrintPointsExternal(pointsCount);
+                //edgeInfo.PrintPointsExternal(pointsCount);
 
                 ValidateTriangulation(EdgesValidation, PointsValidation);
             }
@@ -216,8 +216,8 @@ namespace Triangulation
 
         protected override void ClearTriangles()
         {
-            baseTriangleSet.Clear();
-            baseEdgeInfo.Clear();
+            triangleSet.Clear();
+            edgeInfo.Clear();
             triangleGrid.Clear();
             ClearLastPointData();
             base.ClearTriangles();
@@ -303,11 +303,11 @@ namespace Triangulation
                 {
                     var point = points[i];
                     ForEachTriangleInCell(point, (triangle, triangleIndex) => {
-                        bool isPointExternal = baseEdgeInfo.IsPointExternal(i);
+                        bool isPointExternal = edgeInfo.IsPointExternal(i);
                         if (!isPointExternal && !triangle.HasVertex(i) && triangle.CircumCircle.ContainsPoint(point, circleSqrOffset, out float circleSqrDelta) && !unusedPointIndices.Contains(i))
                         {
                             Log.WriteError(GetType() + ".ValidateTriangulation: point " + i + " inside triangle: " + triangle + " | isPointExternal: " + isPointExternal + " | circleSqrDelta: " + circleSqrDelta);
-                            //baseEdgeInfo.PrintExternalEdges("ValidateTriangulation: ");
+                            //edgeInfo.PrintExternalEdges("ValidateTriangulation: ");
                             triangles[triangleIndex].CircumCircle.Filled = true;
                             circleOverlapsPoint = true;
                         }
@@ -339,7 +339,7 @@ namespace Triangulation
                 Log.WriteLine(GetType() + ".ProcessClearPoint: cellTrianglesIndices.Count == 0 for pointIndex: " + pointIndex);
                 return;
             }
-            bool isPointExternal = baseEdgeInfo.IsPointExternal(pointIndex);
+            bool isPointExternal = edgeInfo.IsPointExternal(pointIndex);
 
             Log.WriteLine(GetType() + ".ProcessClearPoint: " + pointIndex + " isPointExternal: " + isPointExternal);
 
@@ -351,7 +351,7 @@ namespace Triangulation
 
             if (updateTriangleDicts)
             {
-                baseEdgeInfo.UpdateTriangleDicts(addedEdgeInfo);
+                edgeInfo.UpdateTriangleDicts(addedEdgeInfo);
             }
             ClearPoints(pointsToClear);
 
@@ -363,7 +363,7 @@ namespace Triangulation
 
             if (findExternalEdges)
             {
-                baseEdgeInfo.FindExternalEdges(pointsCount);
+                edgeInfo.FindExternalEdges(pointsCount);
             }
         }
 
@@ -378,7 +378,7 @@ namespace Triangulation
 
             cellPolygon.SetFromExternalEdges(addedEdgeInfo, points);
 
-            if (baseEdgeInfo.IsPointExternal(pointIndex))
+            if (edgeInfo.IsPointExternal(pointIndex))
             {
                 //addedEdgeInfo.Clear();
                 //return;
@@ -389,11 +389,11 @@ namespace Triangulation
 
                 if (!canClipPeak && cellPolygon.PeakCount > 3)
                 {
-                    var peakExtEdgesRange = addedEdgeInfo.GetPeakExternalEdgesRange(peak, baseEdgeInfo, pointsToClear);
+                    var peakExtEdgesRange = addedEdgeInfo.GetPeakExternalEdgesRange(peak, edgeInfo, pointsToClear);
 
                     addedTrianglesCount = cellPolygon.TriangulateFromConcavePeaks(peakExtEdgesRange, addedTriangles, points, addedEdgeInfo);
 
-                    baseEdgeInfo.ReplacePeakExternalEdges(peakExtEdgesRange, addedEdgeInfo);
+                    edgeInfo.ReplacePeakExternalEdges(peakExtEdgesRange, addedEdgeInfo);
 
                     updateTriangleDicts = true;
                 }
@@ -405,7 +405,7 @@ namespace Triangulation
 
                         cellPolygon.Triangulate(addedTriangles, ref addedTrianglesCount, points);
                     }
-                    baseEdgeInfo.ClipPeakExternalEdges(peak, pointsToClear);
+                    edgeInfo.ClipPeakExternalEdges(peak, pointsToClear);
 
                     updateTriangleDicts = addedTrianglesCount == 0;
                 }
@@ -442,18 +442,18 @@ namespace Triangulation
 
             bool cellPredicate(TriangleCell c)
             {
-                return triangleGrid.GetFirstExternalEdgeInCell(c, baseEdgeInfo, out firstExtEdge, out _);
+                return triangleGrid.GetFirstExternalEdgeInCell(c, edgeInfo, out firstExtEdge, out _);
             }
             if (triangleGrid.FindClosestCellWithPredicate(cellXY.x, cellXY.y, out var cell, cellPredicate))
             {
-                if (baseEdgeInfo.GetOppositeExternalEdgesRange(addedPointIndex, firstExtEdge, out IndexRange extEdgesRange, out bool pointOnExtEdge))
+                if (edgeInfo.GetOppositeExternalEdgesRange(addedPointIndex, firstExtEdge, out IndexRange extEdgesRange, out bool pointOnExtEdge))
                 {
                     if (AddExternalPointTriangles(addedPointIndex, ref extEdgesRange, out EdgePeak loopPeak, out bool processInternal))
                     {
                         AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Color.FloralWhite, true);
 
-                        baseEdgeInfo.ClearTrianglesPointsExternal(addedTriangles, addedTrianglesCount);
-                        baseEdgeInfo.InsertExternalEdges(loopPeak, extEdgesRange);
+                        edgeInfo.ClearTrianglesPointsExternal(addedTriangles, addedTrianglesCount);
+                        edgeInfo.InsertExternalEdges(loopPeak, extEdgesRange);
 
                         return addedTrianglesCount > 0;
                     }
@@ -504,15 +504,15 @@ namespace Triangulation
             {
                 return;
             }
-            trianglesCount = baseTriangleSet.AddTriangles(addedTriangles, addedTrianglesCount);
+            trianglesCount = triangleSet.AddTriangles(addedTriangles, addedTrianglesCount);
 
-            //edgeCounterDict.Clear();
-            //baseEdgeInfo.AddEdgesToCounterDict(addedTriangles, addedTrianglesCount);
-            baseEdgeInfo.AddEdgesToTriangleDicts(addedTriangles, addedTrianglesCount, innerColor);
+            //edgeInfo.EdgeCounterDict.Clear();
+            //edgeInfo.AddEdgesToCounterDict(addedTriangles, addedTrianglesCount);
+            edgeInfo.AddEdgesToTriangleDicts(addedTriangles, addedTrianglesCount, innerColor);
 
-            //baseEdgeInfo.PrintEdgeCounterDict();
-            //baseEdgeInfo.PrintExtEdgeTriangleDict();
-            //baseEdgeInfo.PrintInnerEdgeTriangleDict();
+            //edgeInfo.PrintEdgeCounterDict();
+            //edgeInfo.PrintExtEdgeTriangleDict();
+            //edgeInfo.PrintInnerEdgeTriangleDict();
 
             triangleGrid.AddTriangles(addedTriangles, addedTrianglesCount);
         }
@@ -523,14 +523,14 @@ namespace Triangulation
             {
                 return;
             }
-            trianglesCount = baseTriangleSet.AddTriangles(addedTriangles, addedTrianglesCount);
+            trianglesCount = triangleSet.AddTriangles(addedTriangles, addedTrianglesCount);
 
-            baseEdgeInfo.AddEdgesToCounterDict(addedTriangles, addedTrianglesCount);
-            baseEdgeInfo.AddEdgesToTriangleDicts(addedTriangles, addedTrianglesCount, innerColor);
+            edgeInfo.AddEdgesToCounterDict(addedTriangles, addedTrianglesCount);
+            edgeInfo.AddEdgesToTriangleDicts(addedTriangles, addedTrianglesCount, innerColor);
 
-            //baseEdgeInfo.PrintEdgeCounterDict();
-            //baseEdgeInfo.PrintExtEdgeTriangleDict();
-            //baseEdgeInfo.PrintInnerEdgeTriangleDict();
+            //edgeInfo.PrintEdgeCounterDict();
+            //edgeInfo.PrintExtEdgeTriangleDict();
+            //edgeInfo.PrintInnerEdgeTriangleDict();
 
             triangleGrid.AddTriangles(addedTriangles, addedTrianglesCount);
 
@@ -544,7 +544,7 @@ namespace Triangulation
         {
             processInternal = false;
             Log.WriteLine(GetType() + ".AddExternalPointTriangles: extEdgesRange: " + extEdgesRange);
-            extEdgesRange = baseEdgeInfo.TrimExternalEdgesRange(extEdgesRange, out bool innerDegenerate);
+            extEdgesRange = edgeInfo.TrimExternalEdgesRange(extEdgesRange, out bool innerDegenerate);
             Log.WriteLine(GetType() + ".AddExternalPointTriangles: extEdgesRange: " + extEdgesRange + " innerDegenerate: " + innerDegenerate);
 
             if (extEdgesRange.FullLength <= 0)
@@ -553,13 +553,13 @@ namespace Triangulation
                 return false;
             }
             // The following call adds duplicates to cellPointsIndices.
-            baseEdgeInfo.ForEachPointInExtEdgesRange(extEdgesRange, pointIndex => cellPointsIndices.Add(pointIndex));
+            edgeInfo.ForEachPointInExtEdgesRange(extEdgesRange, pointIndex => cellPointsIndices.Add(pointIndex));
 
             bool result;
             if (innerDegenerate)
             {
                 Log.WriteLine(GetType() + ".AddExternalPointTriangles: Inner Degenerate Triangle with addedPointIndex: " + addedPointIndex);
-                baseEdgeInfo.LoopCopyExternalEdgesRange(extEdgesRange, addedPointIndex, addedEdgeInfo, out loopPeak);
+                edgeInfo.LoopCopyExternalEdgesRange(extEdgesRange, addedPointIndex, addedEdgeInfo, out loopPeak);
                 cellPolygon.SetFromExternalEdges(addedEdgeInfo, points);
                 cellPolygon.Triangulate(addedTriangles, ref addedTrianglesCount, points);
                 addedEdgeInfo.Clear();
@@ -567,15 +567,15 @@ namespace Triangulation
             }
             else
             {
-                loopPeak = baseEdgeInfo.GetExternalEdgesRangeLoopPeak(addedPointIndex, extEdgesRange);
+                loopPeak = edgeInfo.GetExternalEdgesRangeLoopPeak(addedPointIndex, extEdgesRange);
                 bool addExternalTriangle(EdgeEntry edge) => AddExternalTriangle(edge, addedPointIndex);
-                result = baseEdgeInfo.InvokeForExternalEdgesRange(extEdgesRange, addExternalTriangle, true, out _);
+                result = edgeInfo.InvokeForExternalEdgesRange(extEdgesRange, addExternalTriangle, true, out _);
             }
             if (!result)
             {
                 if (extEdgesRange.GetIndexCount() == 1 && cellTrianglesIndices.Count > 0)
                 {
-                    var extEdge = baseEdgeInfo.GetExternalEdge(extEdgesRange.Beg);
+                    var extEdge = edgeInfo.GetExternalEdge(extEdgesRange.Beg);
                     processInternal = extEdge.LastPointInRange;
                 }
                 ClearAddedTriangles();
@@ -598,7 +598,7 @@ namespace Triangulation
 
             ClearSuperTriangles();
 
-            baseEdgeInfo.ClearLastPointData();
+            edgeInfo.ClearLastPointData();
 
             cellPointsIndices.Clear();
             cellTrianglesIndices.Clear();
@@ -627,7 +627,7 @@ namespace Triangulation
 
                 if (addToCellPoints)
                 {
-                    AddTriangleVertsToCellPoints(baseTriangleSet.Triangles[triangleIndex]);
+                    AddTriangleVertsToCellPoints(triangleSet.Triangles[triangleIndex]);
                 }
                 return true;
             }
@@ -639,7 +639,7 @@ namespace Triangulation
             for (int i = 0; i < cellTrianglesIndices.Count; i++)
             {
                 int triangleIndex = cellTrianglesIndices[i];
-                AddTriangleEdges(baseTriangleSet.Triangles[triangleIndex]);
+                AddTriangleEdges(triangleSet.Triangles[triangleIndex]);
             }
             ForEachEdgeInDict((edgeKey, edge) => {
                 //Log.WriteLine(GetType() + ".AddCellTrianglesEdges: " + edge);
@@ -669,13 +669,13 @@ namespace Triangulation
 
         private void RemoveBaseTriangle(int triangleIndex)
         {
-            triangleGrid.RemoveTriangle(baseTriangleSet.Triangles[triangleIndex]);
-            baseTriangleSet.RemoveTriangle(triangleIndex, ref trianglesCount, baseEdgeInfo);
+            triangleGrid.RemoveTriangle(triangleSet.Triangles[triangleIndex]);
+            triangleSet.RemoveTriangle(triangleIndex, ref trianglesCount, edgeInfo);
         }
 
         private ref Triangle GetBaseTriangleRef(long triangleKey, out int triangleIndex)
         {
-            return ref baseTriangleSet.GetTriangleRef(triangleKey, out triangleIndex);
+            return ref triangleSet.GetTriangleRef(triangleKey, out triangleIndex);
         }
 
         private bool ReplaceEdgesWithTriangles(int pointIndex, int extEdgeIndex = -1)
@@ -687,11 +687,11 @@ namespace Triangulation
             {
                 if (degenerateTriangle.IsValid)
                 {
-                    result = baseEdgeInfo.InsertExternalEdgesWithPointOnEdge(degenerateTriangle, extEdgeIndex);
+                    result = edgeInfo.InsertExternalEdgesWithPointOnEdge(degenerateTriangle, extEdgeIndex);
                 }
                 else
                 {
-                    baseEdgeInfo.SetPointExternal(pointIndex, false);
+                    edgeInfo.SetPointExternal(pointIndex, false);
                 }
             }
             if (!result)
@@ -727,7 +727,7 @@ namespace Triangulation
                 //Log.WriteLine(GetType() + ".AddInternalTriangle: " + addedTriangles[addedTrianglesCount - 1]);
                 return true;
             }
-            else if (edge.LastPointInRange && baseEdgeInfo.IsEdgeExternal(edge))
+            else if (edge.LastPointInRange && edgeInfo.IsEdgeExternal(edge))
             {
                 if (!degenerateTriangle.IsValid)
                 {

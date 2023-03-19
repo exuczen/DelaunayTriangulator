@@ -21,10 +21,10 @@ namespace Triangulation
 
         protected readonly IExceptionThrower exceptionThrower = null;
 
-        protected readonly TriangleSet baseTriangleSet = null;
-        protected readonly EdgeInfo baseEdgeInfo = null;
+        protected readonly TriangleSet triangleSet = null;
+        protected readonly EdgeInfo edgeInfo = null;
 
-        protected Triangle[] triangles = null;
+        protected readonly Triangle[] triangles = null;
         protected readonly Vector2[] points = null;
         protected readonly Triangle[] completedTriangles = null;
         protected readonly Dictionary<int, EdgeEntry> edgeDict = new Dictionary<int, EdgeEntry>();
@@ -63,8 +63,8 @@ namespace Triangulation
 
             this.exceptionThrower = exceptionThrower;
 
-            baseTriangleSet = new TriangleSet(triangles, points);
-            baseEdgeInfo = new EdgeInfo(baseTriangleSet, points, exceptionThrower);
+            triangleSet = new TriangleSet(triangles, points);
+            edgeInfo = new EdgeInfo(triangleSet, points, exceptionThrower);
         }
 
         public Vector2 GetPoint(int i)
@@ -134,7 +134,7 @@ namespace Triangulation
             completedTrianglesCount = 0;
             trianglesCount = 0;
 
-            baseEdgeInfo.EdgeCounterDict.Clear();
+            edgeInfo.EdgeCounterDict.Clear();
         }
 
         protected virtual void ClearPoints()
@@ -321,7 +321,7 @@ namespace Triangulation
                     triangle.GetEdges(edgeBuffer);
                     for (int j = 0; j < 3; j++)
                     {
-                        int edgeKey = edgeKeyBuffer[j] = baseEdgeInfo.GetEdgeKey(edgeBuffer[j]);
+                        int edgeKey = edgeKeyBuffer[j] = edgeInfo.GetEdgeKey(edgeBuffer[j]);
                         if (edgeDict[edgeKey].Count != 1)
                         {
                             separated = false;
@@ -431,7 +431,7 @@ namespace Triangulation
         private void FindValidTriangles(Predicate<Triangle> predicate)
         {
             //Log.WriteLine(GetType() + ".FindValidTriangles: " + completedTrianglesCount + " " + trianglesCount);
-            //baseEdgeInfo.PrintEdgeCounterDict("FindValidTriangles");
+            //edgeInfo.PrintEdgeCounterDict("FindValidTriangles");
 
             Array.Copy(triangles, 0, completedTriangles, completedTrianglesCount, trianglesCount);
             completedTrianglesCount += trianglesCount;
@@ -446,7 +446,7 @@ namespace Triangulation
                 }
                 else
                 {
-                    baseEdgeInfo.RemoveEdgesFromCounterDict(triangle);
+                    edgeInfo.RemoveEdgesFromCounterDict(triangle);
                 }
             }
             completedTrianglesCount = 0;
@@ -527,7 +527,7 @@ namespace Triangulation
 
         private void AddEdge(int edgeA, int edgeB)
         {
-            int edgeKey = baseEdgeInfo.GetEdgeKey(edgeA, edgeB);
+            int edgeKey = edgeInfo.GetEdgeKey(edgeA, edgeB);
             if (edgeDict.ContainsKey(edgeKey))
             {
                 var edge = edgeDict[edgeKey];
@@ -597,7 +597,7 @@ namespace Triangulation
 
         private bool AddTriangle(Triangle triangle, out int triangleIndex)
         {
-            if (baseEdgeInfo.AddEdgesToCounterDict(triangle))
+            if (edgeInfo.AddEdgesToCounterDict(triangle))
             {
                 triangles[triangleIndex = trianglesCount++] = triangle;
                 return true;
@@ -613,7 +613,7 @@ namespace Triangulation
         {
             if (index >= 0 && index < trianglesCount)
             {
-                baseEdgeInfo.RemoveEdgesFromCounterDict(triangles[index]);
+                edgeInfo.RemoveEdgesFromCounterDict(triangles[index]);
                 triangles[index] = triangles[--trianglesCount];
             }
         }
