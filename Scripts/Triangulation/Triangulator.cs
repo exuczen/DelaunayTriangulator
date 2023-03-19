@@ -540,24 +540,7 @@ namespace Triangulation
             }
         }
 
-        private void AddSuperTriangle(Bounds2 bounds)
-        {
-            var center = bounds.Center;
-            var halfSize = 0.5f * bounds.Size;
-
-            //Log.WriteLine(GetType() + ".AddSuperTriangle: center: " + center + " halfSize: " + halfSize + " bounds: " + bounds.ToString("f4"));
-
-            float r = halfSize.Length * 1.5f;
-            float a = MathF.Sqrt(3f) * r;
-
-            points[pointsCount + 0] = center + new Vector2(-a, -r);
-            points[pointsCount + 1] = center + new Vector2(0f, 2f * r);
-            points[pointsCount + 2] = center + new Vector2(+a, -r);
-
-            AddTriangle(pointsCount + 0, pointsCount + 1, pointsCount + 2, out int triangleIndex);
-            supertriangles[0] = triangles[triangleIndex];
-        }
-
+#if SUPERTRIANGLES_CIRCLE
         private void AddSuperTrianglesCircle(Bounds2 bounds)
         {
             centerPointIndex = Maths.GetClosestPointIndex(bounds.Center, points, pointsCount);
@@ -589,6 +572,25 @@ namespace Triangulation
             //Log.PrintTriangles(supertriangles, SuperTriangleCount);
             //Log.PrintPoints(points, pointsCount + SuperTriangleCount + 1);
         }
+#else
+        private void AddSuperTriangle(Bounds2 bounds)
+        {
+            var center = bounds.Center;
+            var halfSize = 0.5f * bounds.Size;
+
+            //Log.WriteLine(GetType() + ".AddSuperTriangle: center: " + center + " halfSize: " + halfSize + " bounds: " + bounds.ToString("f4"));
+
+            float r = halfSize.Length * 1.5f;
+            float a = MathF.Sqrt(3f) * r;
+
+            points[pointsCount + 0] = center + new Vector2(-a, -r);
+            points[pointsCount + 1] = center + new Vector2(0f, 2f * r);
+            points[pointsCount + 2] = center + new Vector2(+a, -r);
+
+            AddTriangle(pointsCount + 0, pointsCount + 1, pointsCount + 2, out int triangleIndex);
+            supertriangles[0] = triangles[triangleIndex];
+        }
+#endif
 
         private bool AddTriangle(int a, int b, int c, out int triangleIndex)
         {
