@@ -49,16 +49,8 @@ namespace Triangulation
 
         public EdgeEntry(int a, int b) : this()
         {
-            if (a > b)
-            {
-                A = a;
-                B = b;
-            }
-            else
-            {
-                A = b;
-                B = a;
-            }
+            (A, B) = a > b ? (a, b) : (b, a);
+
             Count = 1;
             Next = Prev = -1;
         }

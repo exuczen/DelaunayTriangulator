@@ -4,7 +4,7 @@ namespace Triangulation
 {
     public class DeprecatedEdgeInfo : EdgeInfo
     {
-        public DeprecatedEdgeInfo(int edgeCapacity, TriangleSet triangleSet, Vector2[] points, IExceptionThrower exceptionThrower) : base(edgeCapacity, triangleSet, points, exceptionThrower)
+        public DeprecatedEdgeInfo(TriangleSet triangleSet, Vector2[] points, IExceptionThrower exceptionThrower) : base(triangleSet, points, exceptionThrower)
         {
         }
 

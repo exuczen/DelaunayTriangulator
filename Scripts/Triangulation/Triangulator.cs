@@ -1,4 +1,4 @@
-﻿#define SUPERTRIANGLES_CIRCLE
+﻿//#define SUPERTRIANGLES_CIRCLE
 
 using System;
 using System.Collections.Generic;
@@ -21,11 +21,13 @@ namespace Triangulation
 
         protected readonly IExceptionThrower exceptionThrower = null;
 
+        protected readonly TriangleSet baseTriangleSet = null;
+        protected readonly EdgeInfo baseEdgeInfo = null;
+
         protected Triangle[] triangles = null;
         protected readonly Vector2[] points = null;
         protected readonly Triangle[] completedTriangles = null;
         protected readonly Dictionary<int, EdgeEntry> edgeDict = new Dictionary<int, EdgeEntry>();
-        protected readonly Dictionary<int, int> edgeCounterDict = new Dictionary<int, int>();
         protected readonly List<int> unusedPointIndices = new List<int>();
         protected readonly List<Triangle> ccTriangles = new List<Triangle>();
 
@@ -60,6 +62,9 @@ namespace Triangulation
             completedTriangles = new Triangle[trianglesCapacity];
 
             this.exceptionThrower = exceptionThrower;
+
+            baseTriangleSet = new TriangleSet(triangles, points);
+            baseEdgeInfo = new EdgeInfo(baseTriangleSet, points, exceptionThrower);
         }
 
         public Vector2 GetPoint(int i)
@@ -129,7 +134,7 @@ namespace Triangulation
             completedTrianglesCount = 0;
             trianglesCount = 0;
 
-            edgeCounterDict.Clear();
+            baseEdgeInfo.EdgeCounterDict.Clear();
         }
 
         protected virtual void ClearPoints()
@@ -296,7 +301,7 @@ namespace Triangulation
                     if (completed)
                     {
                         completedTriangles[completedTrianglesCount++] = triangle;
-                        RemoveTriangleAt(j);
+                        triangles[j] = triangles[--trianglesCount];
                     }
                 }
             }
@@ -316,7 +321,7 @@ namespace Triangulation
                     triangle.GetEdges(edgeBuffer);
                     for (int j = 0; j < 3; j++)
                     {
-                        int edgeKey = edgeKeyBuffer[j] = GetEdgeKey(edgeBuffer[j]);
+                        int edgeKey = edgeKeyBuffer[j] = baseEdgeInfo.GetEdgeKey(edgeBuffer[j]);
                         if (edgeDict[edgeKey].Count != 1)
                         {
                             separated = false;
@@ -335,67 +340,6 @@ namespace Triangulation
                     }
                 }
             }
-        }
-
-        protected void ForEachEdge(Triangle triangle, Action<int, EdgeEntry> action)
-        {
-            triangle.GetEdges(edgeBuffer);
-            for (int i = 0; i < 3; i++)
-            {
-                action(GetEdgeKey(edgeBuffer[i]), edgeBuffer[i]);
-            }
-        }
-
-        private void RemoveEdgesFromCounterDict(Triangle triangle)
-        {
-            triangle.GetIndices(indexBuffer);
-            ForEachEdge(triangle, (edgeKey, edge) => {
-                if (edgeCounterDict.ContainsKey(edgeKey))
-                {
-                    if (--edgeCounterDict[edgeKey] <= 0)
-                    {
-                        edgeCounterDict.Remove(edgeKey);
-                    }
-                }
-            });
-        }
-
-        private bool AddEdgesToCounterDict(Triangle triangle)
-        {
-            triangle.GetEdges(edgeBuffer);
-            for (int i = 0; i < 3; i++)
-            {
-                if (IsEdgeInternal(edgeBuffer[i], out int edgeKey))
-                {
-                    string message = GetType() + ".AddEdgesToCounterDict: IsEdgeInternal: " + edgeBuffer[i];
-                    Log.WriteError(message);
-                    return false;
-                }
-                edgeKeyBuffer[i] = edgeKey;
-            }
-            for (int i = 0; i < 3; i++)
-            {
-                int edgeKey = edgeKeyBuffer[i];
-                if (edgeCounterDict.ContainsKey(edgeKey))
-                {
-                    edgeCounterDict[edgeKey]++;
-                }
-                else
-                {
-                    edgeCounterDict.Add(edgeKey, 1);
-                }
-            }
-            return true;
-        }
-
-        private bool IsEdgeInternal(int edgeKey)
-        {
-            return edgeCounterDict.TryGetValue(edgeKey, out int edgeCount) && edgeCount == 2;
-        }
-
-        private bool IsEdgeInternal(EdgeEntry edge, out int edgeKey)
-        {
-            return IsEdgeInternal(edgeKey = GetEdgeKey(edge));
         }
 
         private void RemoveUnusedPoints()
@@ -487,6 +431,7 @@ namespace Triangulation
         private void FindValidTriangles(Predicate<Triangle> predicate)
         {
             //Log.WriteLine(GetType() + ".FindValidTriangles: " + completedTrianglesCount + " " + trianglesCount);
+            //baseEdgeInfo.PrintEdgeCounterDict("FindValidTriangles");
 
             Array.Copy(triangles, 0, completedTriangles, completedTrianglesCount, trianglesCount);
             completedTrianglesCount += trianglesCount;
@@ -498,6 +443,10 @@ namespace Triangulation
                 if (predicate(triangle))
                 {
                     triangles[trianglesCount++] = triangle;
+                }
+                else
+                {
+                    baseEdgeInfo.RemoveEdgesFromCounterDict(triangle);
                 }
             }
             completedTrianglesCount = 0;
@@ -578,7 +527,7 @@ namespace Triangulation
 
         private void AddEdge(int edgeA, int edgeB)
         {
-            int edgeKey = GetEdgeKey(edgeA, edgeB);
+            int edgeKey = baseEdgeInfo.GetEdgeKey(edgeA, edgeB);
             if (edgeDict.ContainsKey(edgeKey))
             {
                 var edge = edgeDict[edgeKey];
@@ -589,20 +538,6 @@ namespace Triangulation
             {
                 edgeDict.Add(edgeKey, new EdgeEntry(edgeA, edgeB));
             }
-        }
-
-        private int GetEdgeKey(int edgeA, int edgeB)
-        {
-            if (edgeB > edgeA)
-            {
-                (edgeB, edgeA) = (edgeA, edgeB);
-            }
-            return edgeA * points.Length + edgeB;
-        }
-
-        private int GetEdgeKey(EdgeEntry edge)
-        {
-            return edge.A * points.Length + edge.B;
         }
 
         private void AddSuperTriangle(Bounds2 bounds)
@@ -662,7 +597,7 @@ namespace Triangulation
 
         private bool AddTriangle(Triangle triangle, out int triangleIndex)
         {
-            if (AddEdgesToCounterDict(triangle))
+            if (baseEdgeInfo.AddEdgesToCounterDict(triangle))
             {
                 triangles[triangleIndex = trianglesCount++] = triangle;
                 return true;
@@ -678,7 +613,7 @@ namespace Triangulation
         {
             if (index >= 0 && index < trianglesCount)
             {
-                RemoveEdgesFromCounterDict(triangles[index]);
+                baseEdgeInfo.RemoveEdgesFromCounterDict(triangles[index]);
                 triangles[index] = triangles[--trianglesCount];
             }
         }

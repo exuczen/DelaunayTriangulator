@@ -8,6 +8,7 @@ namespace Triangulation
         public int ExtEdgeCount => extEdgeCount;
         public EdgeEntry[] ExtEdges => extEdges;
         public EdgeEntry[] AddedExtEdges => addedExtEdges;
+        public Dictionary<int, int> EdgeCounterDict => edgeCounterDict;
 
         protected readonly IExceptionThrower exceptionThrower = null;
 
@@ -32,12 +33,16 @@ namespace Triangulation
 
         protected int extEdgeCount = 0;
 
-        public EdgeInfo(int edgeCapacity, TriangleSet triangleSet, Vector2[] points, IExceptionThrower exceptionThrower)
+        public EdgeInfo(TriangleSet triangleSet, Vector2[] points, IExceptionThrower exceptionThrower) : this(points, exceptionThrower)
         {
-            extEdges = new EdgeEntry[edgeCapacity];
+            this.triangleSet = triangleSet;
+        }
+
+        public EdgeInfo(Vector2[] points, IExceptionThrower exceptionThrower)
+        {
+            extEdges = new EdgeEntry[points.Length << 2];
             addedExtEdges = new EdgeEntry[1024];
 
-            this.triangleSet = triangleSet;
             this.points = points;
             this.exceptionThrower = exceptionThrower;
 
@@ -214,15 +219,9 @@ namespace Triangulation
                 if (IsEdgeInternal(edgeBuffer[i], out int edgeKey))
                 {
                     string message = GetType() + ".AddEdgesToCounterDict: IsEdgeInternal: " + edgeBuffer[i];
-                    if (exceptionThrower != null)
-                    {
-                        Log.WriteError(message);
-                        exceptionThrower.ThrowException(message, ErrorCode.InternalEdgeExists);
-                    }
-                    else
-                    {
-                        throw new Exception(message);
-                    }
+                    Log.WriteError(message);
+                    exceptionThrower.ThrowException(message, ErrorCode.InternalEdgeExists);
+                    return false;
                 }
                 edgeKeyBuffer[i] = edgeKey;
             }
@@ -238,7 +237,25 @@ namespace Triangulation
                     edgeCounterDict.Add(edgeKey, 1);
                 }
             }
+            //Log.WriteLine("AddEdgesToCounterDict: " + triangle);
+            //PrintEdgeCounterDict("AddEdgesToCounterDict: ");
             return true;
+        }
+
+        public void RemoveEdgesFromCounterDict(Triangle triangle)
+        {
+            triangle.GetIndices(indexBuffer);
+            ForEachEdge(triangle, (edgeKey, edge) => {
+                if (edgeCounterDict.ContainsKey(edgeKey))
+                {
+                    if (--edgeCounterDict[edgeKey] <= 0)
+                    {
+                        edgeCounterDict.Remove(edgeKey);
+                    }
+                }
+            });
+            //Log.WriteLine("RemoveEdgesFromCounterDict: " + triangle);
+            //PrintEdgeCounterDict("RemoveEdgesFromCounterDict: ");
         }
 
         public void RemoveEdgesFromDicts(Triangle triangle)
@@ -1453,7 +1470,16 @@ namespace Triangulation
             return GetEdgeKey(extEdges[edgeIndex]);
         }
 
-        protected int GetEdgeKey(EdgeEntry edge)
+        public int GetEdgeKey(int edgeA, int edgeB)
+        {
+            if (edgeB > edgeA)
+            {
+                (edgeB, edgeA) = (edgeA, edgeB);
+            }
+            return edgeA * points.Length + edgeB;
+        }
+
+        public int GetEdgeKey(EdgeEntry edge)
         {
             return edge.A * points.Length + edge.B;
         }

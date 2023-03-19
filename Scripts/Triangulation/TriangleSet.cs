@@ -9,33 +9,22 @@ namespace Triangulation
         public int Capacity => triangles.Length;
         public int Count => trianglesDict.Count;
         public Triangle[] Triangles => triangles;
-        public EdgeInfo EdgeInfo => edgeInfo;
-        public EdgeFlipper EdgeFlipper => edgeFlipper;
 
         private readonly Dictionary<long, int> trianglesDict = new Dictionary<long, int>();
         private readonly Triangle[] triangles = null;
-        private readonly EdgeInfo edgeInfo = null;
-        private readonly EdgeFlipper edgeFlipper = null;
 
         private readonly int pointsLength = 0;
         private readonly int[] indexBuffer = new int[3];
 
-        public TriangleSet(Triangle[] triangles, Vector2[] points, IExceptionThrower exceptionThrower)
+        public TriangleSet(Triangle[] triangles, Vector2[] points)
         {
             this.triangles = triangles;
-            edgeInfo = new EdgeInfo(triangles.Length << 1, this, points, exceptionThrower);
-            edgeFlipper = new EdgeFlipper(this, points);
             pointsLength = points.Length;
-        }
-
-        public TriangleSet(int trianglesCapacity, Vector2[] points, IExceptionThrower exceptionThrower) : this(new Triangle[trianglesCapacity], points, exceptionThrower)
-        {
         }
 
         public void Clear()
         {
             trianglesDict.Clear();
-            edgeInfo.Clear();
         }
 
         public bool ContainsTriangle(long triangleKey) => trianglesDict.ContainsKey(triangleKey);
@@ -46,42 +35,7 @@ namespace Triangulation
             return ref triangles[triangleIndex];
         }
 
-        //public void SetTriangles(Triangle[] triangles, int trianglesCount, bool setTriangleKeys)
-        //{
-        //    if (this.triangles != triangles)
-        //    {
-        //        throw new Exception("this.triangles != triangles");
-        //    }
-        //    Clear();
-        //
-        //    if (setTriangleKeys)
-        //    {
-        //        for (int i = 0; i < trianglesCount; i++)
-        //        {
-        //            triangles[i].SetKey(pointsLength, indexBuffer);
-        //            trianglesDict.Add(triangles[i].Key, i);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        for (int i = 0; i < trianglesCount; i++)
-        //        {
-        //            trianglesDict.Add(triangles[i].Key, i);
-        //        }
-        //    }
-        //}
-
-        //public int AddTriangles(TriangleSet triangleSet, Color innerColor)
-        //{
-        //    var addedTriangles = triangleSet.Triangles;
-        //    int addedCount = triangleSet.Count;
-        //
-        //    AddTriangles(addedTriangles, addedCount, innerColor, false);
-        //
-        //    return Count;
-        //}
-
-        public int AddTriangles(Triangle[] addedTriangles, int addedCount, Color innerColor)
+        public int AddTriangles(Triangle[] addedTriangles, int addedCount)
         {
             if (addedTriangles == triangles)
             {
@@ -99,8 +53,6 @@ namespace Triangulation
                     AddTriangle(addedTriangles[i], out _);
                 }
             }
-            AddEdgesToDicts(addedTriangles, addedCount, innerColor);
-
             return Count;
         }
 
@@ -123,22 +75,22 @@ namespace Triangulation
             return triangleIndex >= 0;
         }
 
-        public void RemoveTriangleWithKey(long triangleKey, ref int trianglesCount)
+        public void RemoveTriangleWithKey(long triangleKey, ref int trianglesCount, EdgeInfo edgeInfo)
         {
             if (!ContainsTriangle(triangleKey))
             {
                 throw new Exception("RemoveTriangle: no triangle key in trianglesDict: " + triangleKey);
             }
-            RemoveTriangle(trianglesDict[triangleKey], ref trianglesCount);
+            RemoveTriangle(trianglesDict[triangleKey], ref trianglesCount, edgeInfo);
         }
 
-        public void RemoveTriangle(int triangleIndex, ref int trianglesCount)
+        public void RemoveTriangle(int triangleIndex, ref int trianglesCount, EdgeInfo edgeInfo)
         {
-            RemoveTriangle(triangleIndex);
+            RemoveTriangle(triangleIndex, edgeInfo);
             trianglesCount = Count;
         }
 
-        public void RemoveTriangle(int triangleIndex)
+        public void RemoveTriangle(int triangleIndex, EdgeInfo edgeInfo)
         {
             int trianglesCount = Count;
             if (triangleIndex >= trianglesCount || trianglesCount <= 0 || triangleIndex < 0)
@@ -168,21 +120,6 @@ namespace Triangulation
             {
                 throw new Exception(string.Format("{0} != {1}", trianglesCount, Count));
             }
-        }
-
-        public void FlipEdgesFrom(Dictionary<int, EdgeEntry> edgeDict, TriangleGrid triangleGrid)
-        {
-            edgeFlipper.FlipEdgesFrom(edgeDict, triangleGrid);
-        }
-
-        private void AddEdgesToDicts(Triangle[] triangles, int trianglesCount, Color innerColor)
-        {
-            edgeInfo.AddEdgesToCounterDict(triangles, trianglesCount);
-            edgeInfo.AddEdgesToTriangleDicts(triangles, trianglesCount, innerColor);
-
-            //edgeInfo.PrintEdgeCounterDict();
-            //edgeInfo.PrintExtEdgeTriangleDict();
-            //edgeInfo.PrintInnerEdgeTriangleDict();
         }
     }
 }

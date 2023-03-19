@@ -24,8 +24,7 @@ namespace Triangulation
 
         private readonly List<int> pointsToClear = new List<int>();
 
-        private readonly TriangleSet baseTriangleSet = null;
-        private readonly EdgeInfo baseEdgeInfo = null;
+        private readonly EdgeFlipper baseEdgeFlipper = null;
         private readonly Triangle[] addedTriangles = null;
         private readonly EdgeInfo addedEdgeInfo = null;
 
@@ -36,10 +35,9 @@ namespace Triangulation
 
         public IncrementalTriangulator(int pointsCapacity, float tolerance, IExceptionThrower exceptionThrower) : base(pointsCapacity, tolerance, exceptionThrower)
         {
-            baseTriangleSet = new TriangleSet(triangles, points, exceptionThrower);
-            baseEdgeInfo = baseTriangleSet.EdgeInfo;
+            baseEdgeFlipper = new EdgeFlipper(baseTriangleSet, baseEdgeInfo, points);
             addedTriangles = new Triangle[triangles.Length];
-            addedEdgeInfo = new EdgeInfo(triangles.Length << 1, null, points, exceptionThrower);
+            addedEdgeInfo = new EdgeInfo(points, exceptionThrower);
         }
 
         public override bool Triangulate()
@@ -48,7 +46,7 @@ namespace Triangulation
             {
                 if (!BaseOnly)
                 {
-                    AddTrianglesToBaseTriangles(triangles, trianglesCount, Color.FloralWhite, false);
+                    AddBaseTrianglesToTriangleSet(triangles, trianglesCount, Color.FloralWhite);
 
                     baseEdgeInfo.FindExternalEdges(pointsCount);
 
@@ -219,6 +217,7 @@ namespace Triangulation
         protected override void ClearTriangles()
         {
             baseTriangleSet.Clear();
+            baseEdgeInfo.Clear();
             triangleGrid.Clear();
             ClearLastPointData();
             base.ClearTriangles();
@@ -293,7 +292,7 @@ namespace Triangulation
             {
                 return true;
             }
-            bool edgesValid = !validateEdges || baseTriangleSet.EdgeFlipper.Validate();
+            bool edgesValid = !validateEdges || baseEdgeFlipper.Validate();
             bool circleOverlapsPoint = false;
             if (validatePoints)
             {
@@ -451,7 +450,7 @@ namespace Triangulation
                 {
                     if (AddExternalPointTriangles(addedPointIndex, ref extEdgesRange, out EdgePeak loopPeak, out bool processInternal))
                     {
-                        AddTrianglesToBaseTriangles(addedTriangles, addedTrianglesCount, Color.FloralWhite, true);
+                        AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Color.FloralWhite, true);
 
                         baseEdgeInfo.ClearTrianglesPointsExternal(addedTriangles, addedTrianglesCount);
                         baseEdgeInfo.InsertExternalEdges(loopPeak, extEdgesRange);
@@ -485,7 +484,7 @@ namespace Triangulation
             {
                 AddTriangleEdges(addedTriangles[i]);
             }
-            baseTriangleSet.FlipEdgesFrom(edgeDict, triangleGrid);
+            baseEdgeFlipper.FlipEdgesFrom(edgeDict, triangleGrid);
             edgeDict.Clear();
         }
 
@@ -495,17 +494,43 @@ namespace Triangulation
 
             if (addedTrianglesCount > 0)
             {
-                AddTrianglesToBaseTriangles(addedTriangles, addedTrianglesCount, Color.Azure, true);
+                AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Color.Azure, true);
             }
         }
 
-        private void AddTrianglesToBaseTriangles(Triangle[] addedTriangles, int addedTrianglesCount, Color innerColor, bool flipEdges)
+        private void AddBaseTrianglesToTriangleSet(Triangle[] addedTriangles, int addedTrianglesCount, Color innerColor)
         {
             if (addedTrianglesCount <= 0)
             {
                 return;
             }
-            trianglesCount = baseTriangleSet.AddTriangles(addedTriangles, addedTrianglesCount, innerColor);
+            trianglesCount = baseTriangleSet.AddTriangles(addedTriangles, addedTrianglesCount);
+
+            //edgeCounterDict.Clear();
+            //baseEdgeInfo.AddEdgesToCounterDict(addedTriangles, addedTrianglesCount);
+            baseEdgeInfo.AddEdgesToTriangleDicts(addedTriangles, addedTrianglesCount, innerColor);
+
+            //baseEdgeInfo.PrintEdgeCounterDict();
+            //baseEdgeInfo.PrintExtEdgeTriangleDict();
+            //baseEdgeInfo.PrintInnerEdgeTriangleDict();
+
+            triangleGrid.AddTriangles(addedTriangles, addedTrianglesCount);
+        }
+
+        private void AddTrianglesToTriangleSet(Triangle[] addedTriangles, int addedTrianglesCount, Color innerColor, bool flipEdges)
+        {
+            if (addedTrianglesCount <= 0)
+            {
+                return;
+            }
+            trianglesCount = baseTriangleSet.AddTriangles(addedTriangles, addedTrianglesCount);
+
+            baseEdgeInfo.AddEdgesToCounterDict(addedTriangles, addedTrianglesCount);
+            baseEdgeInfo.AddEdgesToTriangleDicts(addedTriangles, addedTrianglesCount, innerColor);
+
+            //baseEdgeInfo.PrintEdgeCounterDict();
+            //baseEdgeInfo.PrintExtEdgeTriangleDict();
+            //baseEdgeInfo.PrintInnerEdgeTriangleDict();
 
             triangleGrid.AddTriangles(addedTriangles, addedTrianglesCount);
 
@@ -645,7 +670,7 @@ namespace Triangulation
         private void RemoveBaseTriangle(int triangleIndex)
         {
             triangleGrid.RemoveTriangle(baseTriangleSet.Triangles[triangleIndex]);
-            baseTriangleSet.RemoveTriangle(triangleIndex, ref trianglesCount);
+            baseTriangleSet.RemoveTriangle(triangleIndex, ref trianglesCount, baseEdgeInfo);
         }
 
         private ref Triangle GetBaseTriangleRef(long triangleKey, out int triangleIndex)

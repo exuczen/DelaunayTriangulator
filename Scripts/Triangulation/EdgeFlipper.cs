@@ -19,11 +19,11 @@ namespace Triangulation
         private readonly List<long> addedTriangleKeys = new List<long>();
         private readonly List<long> removedTriangleKeys = new List<long>();
 
-        public EdgeFlipper(TriangleSet triangleSet, Vector2[] points)
+        public EdgeFlipper(TriangleSet triangleSet, EdgeInfo edgeInfo, Vector2[] points)
         {
             this.points = points;
             this.triangleSet = triangleSet;
-            edgeInfo = triangleSet.EdgeInfo;
+            this.edgeInfo = edgeInfo;
         }
 
         public bool Validate()
@@ -109,7 +109,7 @@ namespace Triangulation
                     flipTriangles[i] = triangleSet.GetTriangleRef(triangleKeys[i], out int triangleIndex);
                     oppVerts[i] = flipTriangles[i].GetOppositeVertex(edge);
 
-                    triangleSet.RemoveTriangle(triangleIndex);
+                    triangleSet.RemoveTriangle(triangleIndex, edgeInfo);
 
                     long triangleKey = triangleKeys[i];
                     removedTriangleKeys.Add(triangleKey);
