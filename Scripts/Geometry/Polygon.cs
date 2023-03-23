@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define LOGS_ENABLED
+
+using System;
 using System.Collections.Generic;
 
 namespace Triangulation
@@ -57,7 +59,9 @@ namespace Triangulation
             for (int i = 0; i < PeakCount; i++)
             {
                 edgePeaks[i] = edgePeaks[i].Setup(points);
+#if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".SetFromExternalEdges: " + i + " " + edgePeaks[i]);
+#endif
             }
             SortPeaksByAngle();
         }
@@ -66,7 +70,9 @@ namespace Triangulation
         {
             if (PeakCount < 3)
             {
+#if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".Triangulate: PeakCount: " + PeakCount);
+#endif
                 return;
             }
             else if (innerAngleSign == 0)
@@ -77,21 +83,25 @@ namespace Triangulation
             {
                 var peak = GetNextPeakToClip(points, out int peakIndex, out int sortedIndex);
                 triangles[trianglesCount++] = peak.CreateTriangle(points);
-                //Log.WriteLine(GetType() + ".Triangulate: " + triangles[trianglesCount - 1]);
-
+#if LOGS_ENABLED
+                //Log.WriteLine(GetType() + ".Triangulate: " + triangles[trianglesCount - 1]);  
+#endif
                 ClipPeak(peakIndex, sortedIndex, points);
             }
             triangles[trianglesCount++] = edgePeaks[1].CreateTriangle(points);
-            //Log.WriteLine(GetType() + ".Triangulate: " + triangles[trianglesCount - 1]);
-
+#if LOGS_ENABLED
+            //Log.WriteLine(GetType() + ".Triangulate: " + triangles[trianglesCount - 1]);  
             //Log.PrintTriangles(triangles, trianglesCount, GetType() + ".Triangulate");
+#endif
         }
 
         public void ClipPeak(int peakIndex, int sortedIndex, Vector2[] points)
         {
             if (PeakCount < 3)
             {
+#if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".ClipPeak: PeakCount: " + PeakCount);
+#endif
                 return;
             }
             var edgePeak = edgePeaks[peakIndex];
@@ -105,8 +115,9 @@ namespace Triangulation
 
             int peakNext = peakIndex % PeakCount;
             nextPeak = ReplacePeak(peakNext, nextPeak, points);
-
+#if LOGS_ENABLED
             Log.WriteLine(GetType() + ".ClipPeak: " + edgePeak + " prevPeak: " + prevPeak + " nextPeak: " + nextPeak);
+#endif
         }
 
         public bool CanClipPeak(int peakIndex, Vector2[] points, out bool containsConcave)
@@ -123,7 +134,9 @@ namespace Triangulation
                 GetPrevNextPeaksAfterClip(peakIndex, out var prevPeak, out var nextPeak, points);
                 bool prevPeakTriangleDegenerate = prevPeak.MakesDegenerateTriangle(points, edgeBuffer);
                 bool nextPeakTriangleDegenerate = nextPeak.MakesDegenerateTriangle(points, edgeBuffer);
+#if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".CanClipPeak: " + !prevPeakTriangleDegenerate + " " + !nextPeakTriangleDegenerate + " | prevPeak: " + prevPeak + " nextPeak: " + nextPeak);
+#endif
                 return !prevPeakTriangleDegenerate && !nextPeakTriangleDegenerate;
             }
             else
@@ -160,13 +173,17 @@ namespace Triangulation
 
             while (concaveIndex > 0 && (concavePeak = sortedPeaks[concaveIndex--]).Angle > 179f)
             {
-                //Log.WriteLine(GetType() + ".PeakContainsConcave: concavePeak: " + concavePeak);
+#if LOGS_ENABLED
+                //Log.WriteLine(GetType() + ".PeakContainsConcave: concavePeak: " + concavePeak);  
+#endif
                 int concaveVertex = concavePeak.PeakVertex;
                 var concavePoint = points[concaveVertex];
                 bool concaveSeparate = concaveVertex != prevPeakVertex && concaveVertex != nextPeakVertex && concaveVertex != peakVertex;
                 if (concaveSeparate && convexPeak.PeakRect.ContainsPoint(concavePoint, Tolerance))
                 {
-                    //Log.WriteLine(GetType() + ".PeakContainsConcave: " + convexPeak + " PeakRect contains " + concaveVertex + " of " + concavePeak);
+#if LOGS_ENABLED
+                    //Log.WriteLine(GetType() + ".PeakContainsConcave: " + convexPeak + " PeakRect contains " + concaveVertex + " of " + concavePeak);  
+#endif
                     return true;
                 }
             }
@@ -185,14 +202,18 @@ namespace Triangulation
             var concavePeak = sortedPeaks[sortedPeaksCount - 1];
             if (concavePeak.Angle < 180f)
             {
+#if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".TriangulateFromConcavePeak: Last peak is convex: " + concavePeak);
+#endif
                 return 0;
             }
             int trianglesCount = 0;
 
             while (sortedPeaksCount > 2 && concavePeak.Angle >= 180f)
             {
+#if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".TriangulateFromConcavePeak: ---------------- " + concavePeak + " validRange: " + validRange);
+#endif
                 int concaveVertex = concavePeak.PeakVertex;
                 int concavePeakIndex = GetPeakIndex(concaveVertex);
                 int prevTrianglesCount = trianglesCount;
@@ -243,7 +264,9 @@ namespace Triangulation
                     throw new Exception("AddExternalEdgesInConcaveRange: begVertex: " + begVertex + " endVertex: " + endVertex);
                 }
                 addedExtEdges[edgeCount++] = new EdgeEntry(begVertex, endVertex);
+#if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".AddExternalEdgesInConcaveRange: " + addedExtEdges[edgeCount - 1]);
+#endif
             }
             else
             {
@@ -255,12 +278,16 @@ namespace Triangulation
                 if (begVertex >= 0)
                 {
                     addedExtEdges[edgeCount++] = new EdgeEntry(begVertex, ccvVertex);
+#if LOGS_ENABLED
                     Log.WriteLine(GetType() + ".AddExternalEdgesInConcaveRange: " + addedExtEdges[edgeCount - 1]);
+#endif
                 }
                 if (endVertex >= 0)
                 {
                     addedExtEdges[edgeCount++] = new EdgeEntry(ccvVertex, endVertex);
+#if LOGS_ENABLED
                     Log.WriteLine(GetType() + ".AddExternalEdgesInConcaveRange: " + addedExtEdges[edgeCount - 1]);
+#endif
                 }
             }
         }
@@ -274,7 +301,9 @@ namespace Triangulation
             void addEdgesInRange(int beg, int end)
             {
                 ForEachPeakInRange(beg, end, (peak, peakIndex) => {
+#if LOGS_ENABLED
                     Log.WriteLine(GetType() + ".AddExternalEdgesFromConcaveRanges: " + peak.EdgeB + " (peak.EdgeB)");
+#endif
                     addedExtEdges[edgeCount++] = peak.EdgeB;
                 });
             }
@@ -287,9 +316,9 @@ namespace Triangulation
             else
             {
                 concaveRanges.Sort((a, b) => a.w.CompareTo(b.w));
-
+#if LOGS_ENABLED
                 PrintConcaveRanges(concaveRanges, "AddExternalEdgesFromConcaveRanges: " + rangesCount);
-
+#endif
                 var peakRange = concaveRanges[0];
                 int peakBeg = GetConcaveRangeTerminal(peakRange, 0);
 
@@ -299,8 +328,9 @@ namespace Triangulation
                 }
                 if (rangesCount > 1)
                 {
+#if LOGS_ENABLED
                     Log.WriteLine(GetType() + ".AddExternalEdgesFromConcaveRanges: rangesCount: " + rangesCount);
-
+#endif
                     for (int i = 0; i < rangesCount - 1; i++)
                     {
                         peakRange = concaveRanges[i];
@@ -331,7 +361,9 @@ namespace Triangulation
             }
             EdgeEntry.RefreshSortedEdgesNextPrev(addedExtEdges, edgeCount);
             EdgeEntry.SetLastElementCount(addedExtEdges, edgeCount);
+#if LOGS_ENABLED
             Log.PrintEdges(addedExtEdges, edgeCount, "AddExternalEdgesFromConcaveRanges: rangesCount: " + rangesCount);
+#endif
         }
 
         private int GetConcaveRangeTerminal(Vector4Int range, int i)
@@ -370,12 +402,16 @@ namespace Triangulation
         private void InvalidatePeaksRange(IndexRange range)
         {
             ForEachPeakInRange(range, (peak, peakIndex) => {
+#if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".InvalidatePeaksRange: " + peak);
+#endif
                 RemovePeakFromSorted(peak, -1);
                 edgePeaks[peakIndex] = peak.Invalidate();
             });
+#if LOGS_ENABLED
             //Log.PrintEdgePeaks(edgePeaks, "InvalidatePeaksRange: peaks: ");
-            //Log.PrintEdgePeaks(sortedPeaks, "InvalidatePeaksRange: sortedPeaks: ");
+            //Log.PrintEdgePeaks(sortedPeaks, "InvalidatePeaksRange: sortedPeaks: ");  
+#endif
         }
 
         private bool IsConcavePeakTriangleValid(EdgePeak concavePeak, int peakBeg, int peakEnd, Vector2[] points)
@@ -398,7 +434,9 @@ namespace Triangulation
                 edgeBuffer[1] = -edgeBuffer[1];
                 result = !Triangle.IsDegenerate(edgeBuffer, false);
             }
+#if LOGS_ENABLED
             Log.WriteLine(GetType() + ".IsConcavePeakTriangleValid: crossRays: " + crossRays.ToString("f2") + " begVertex: " + begVertex + " endVertex: " + endVertex + " concaveVertex: " + concaveVertex + " valid: " + result);
+#endif
             return result;
         }
 
@@ -411,7 +449,9 @@ namespace Triangulation
                 endPeakIndex = GetNextPeakIndexGetter(forward)(concavePeakIndex);
                 return;
             }
+#if LOGS_ENABLED
             Log.WriteLine(GetType() + ".TriangulateFromConcavePeak: endPeakVertex: " + edgePeaks[endPeakIndex].PeakVertex);
+#endif
             if (forward)
             {
                 peakBeg = concavePeakIndex;
@@ -441,7 +481,9 @@ namespace Triangulation
                 var midPeak = GetNextPeak(range.Beg, out _);
                 if (!midPeak.MakesDegenerateTriangle(points, edgeBuffer))
                 {
+#if LOGS_ENABLED
                     Log.WriteLine(GetType() + ".TriangulatePeakRange: " + midPeak.CreateTriangle(points));
+#endif
                     triangles[trianglesCount++] = midPeak.CreateTriangle(points);
                 }
             }
@@ -484,9 +526,10 @@ namespace Triangulation
             edgePeaks.Add(endPeak);
 
             SortPeaksByAngle();
-
+#if LOGS_ENABLED
             Log.PrintEdgePeaks(edgePeaks, "SetFromPolygonRange: peaks: ");
             Log.PrintEdgePeaks(sortedPeaks, "SetFromPolygonRange: sortedPeaks: ");
+#endif
         }
 
         private int GetMaxAnglePeakFromPeak(int begPeakIndex, bool forward, Vector2[] points)
@@ -544,10 +587,14 @@ namespace Triangulation
                         maxPeakRay = peakRay;
                     }
                 }
-                //Log.WriteLine(GetType() + ".GetMaxAnglePeakFromPeak: PREV EDGE VALIDATION: " + getPrevEdgeVec(peak).Equals(prevPeakPoint - peakPoint), Vector2.Epsilon);
+#if LOGS_ENABLED
+                //Log.WriteLine(GetType() + ".GetMaxAnglePeakFromPeak: PREV EDGE VALIDATION: " + getPrevEdgeVec(peak).Equals(prevPeakPoint - peakPoint), Vector2.Epsilon);  
+#endif
                 //prevPeakPoint = peakPoint;
                 prevPeakRay = peakRay;
+#if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".GetMaxAnglePeakFromPeak: " + begEdge + " ray:(" + begPeak.PeakVertex + " -> " + peak.PeakVertex + ") " + sinAngle.ToString("f4") + " prevEdge: " + getPrevEdge(peak));
+#endif
             }
             ForEachValidPeakFromPeak(getNextPeakIndex(begPeakIndex), forward, action);
 
@@ -590,7 +637,9 @@ namespace Triangulation
             sortedPeaks.Clear();
             sortedPeaks.AddRange(edgePeaks);
             sortedPeaks.Sort((a, b) => a.Angle.CompareTo(b.Angle));
-            //Log.PrintEdgePeaks(sortedPeaks, "SortPeaksByAngle: ");
+#if LOGS_ENABLED
+            //Log.PrintEdgePeaks(sortedPeaks, "SortPeaksByAngle: ");  
+#endif
         }
 
         private void SetInnerAngleSign(float angleSum)
@@ -614,7 +663,9 @@ namespace Triangulation
             {
                 innerAngleSign = 1;
             }
-            //Log.WriteLine(GetType() + ".SetInnerAngleSign: angleSum: " + angleSum);
+#if LOGS_ENABLED
+            //Log.WriteLine(GetType() + ".SetInnerAngleSign: angleSum: " + angleSum);  
+#endif
         }
 
         private void GetPrevNextPeaksAfterClip(int clipPeakIndex, out EdgePeak prevPeak, out EdgePeak nextPeak, Vector2[] points)
@@ -742,7 +793,9 @@ namespace Triangulation
 
             while (convexIndex < peaksCount && (convexPeak = sortedPeaks[convexIndex]).Angle <= 179f)
             {
-                //Log.WriteLine(GetType() + ".GetMinAnglePeakIndex: convexPeak: " + convexPeak + " convexIndex: " + convexIndex);
+#if LOGS_ENABLED
+                //Log.WriteLine(GetType() + ".GetMinAnglePeakIndex: convexPeak: " + convexPeak + " convexIndex: " + convexIndex);  
+#endif
                 if (!PeakContainsConcave(convexPeak, points))
                 {
                     sortedIndex = convexIndex;
@@ -766,6 +819,7 @@ namespace Triangulation
             return s;
         }
 
+#if LOGS_ENABLED
         private void PrintConcaveRange(Vector4Int range)
         {
             Log.WriteLine(GetType() + ".PrintConcaveRange: " + ConcaveRangeToString(range));
@@ -779,5 +833,6 @@ namespace Triangulation
                 PrintConcaveRange(ranges[i]);
             }
         }
+#endif
     }
 }
