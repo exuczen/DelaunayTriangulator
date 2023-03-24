@@ -376,33 +376,33 @@ namespace Triangulation
 
             if (usedPointIndices.Count > 0)
             {
-                for (int l = 0; l < usedPointIndices[0]; l++)
+                for (int j = 0; j < usedPointIndices[0]; j++)
                 {
-                    unusedPointIndices.Add(l);
-                    Log.WriteLine(GetType() + ".FindUnusedPoints: " + l);
+                    unusedPointIndices.Add(j);
+                    Log.WriteLine(GetType() + ".FindUnusedPoints: " + j);
                 }
-                int k = 0;
-                while (k < usedPointIndices.Count - 1)
+                int i = 0;
+                while (i < usedPointIndices.Count - 1)
                 {
-                    while (k < usedPointIndices.Count - 1 && usedPointIndices[k + 1] - usedPointIndices[k] <= 1)
+                    while (i < usedPointIndices.Count - 1 && usedPointIndices[i + 1] - usedPointIndices[i] <= 1)
                     {
-                        k++;
+                        i++;
                     }
-                    if (k < usedPointIndices.Count - 1)
+                    if (i < usedPointIndices.Count - 1)
                     {
-                        for (int l = usedPointIndices[k] + 1; l < usedPointIndices[k + 1]; l++)
+                        for (int j = usedPointIndices[i] + 1; j < usedPointIndices[i + 1]; j++)
                         {
-                            unusedPointIndices.Add(l);
-                            Log.WriteLine(GetType() + ".FindUnusedPoints: " + l);
+                            unusedPointIndices.Add(j);
+                            Log.WriteLine(GetType() + ".FindUnusedPoints: " + j);
                         }
                     }
-                    k++;
+                    i++;
                 }
                 int lastUsedIndex = usedPointIndices.Count - 1;
-                for (int l = usedPointIndices[lastUsedIndex] + 1; l < pointsCount; l++)
+                for (int j = usedPointIndices[lastUsedIndex] + 1; j < pointsCount; j++)
                 {
-                    unusedPointIndices.Add(l);
-                    //Log.WriteLine(GetType() + ".FindUnusedPoints: " + l);
+                    unusedPointIndices.Add(j);
+                    Log.WriteLine(GetType() + ".FindUnusedPoints: " + j);
                 }
                 usedPointIndices.Clear();
             }
