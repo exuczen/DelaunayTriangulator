@@ -9,6 +9,7 @@ namespace Triangulation
         public EdgeEntry[] ExtEdges => extEdges;
         public EdgeEntry[] AddedExtEdges => addedExtEdges;
         public Dictionary<int, int> EdgeCounterDict => edgeCounterDict;
+        public int InnerEdgeCount => innerEdgeTriangleDict.Count;
 
         protected readonly IExceptionThrower exceptionThrower = null;
 
@@ -180,7 +181,18 @@ namespace Triangulation
             return true;
         }
 
-        public void ForEachTrianglePair(Action<Vector2, Vector2> action)
+        public void ForEachInnerEdgeWithCCPair(Action<EdgeEntry, Vector2, Vector2> action)
+        {
+            var edgesData = innerEdgeTriangleDict.Values;
+            foreach (var edgeData in edgesData)
+            {
+                ref var t1 = ref GetTriangleRef(edgeData.Triangle1Key, out _);
+                ref var t2 = ref GetTriangleRef(edgeData.Triangle2Key, out _);
+                action(edgeData.Edge, t1.CircumCircle.Center, t2.CircumCircle.Center);
+            }
+        }
+
+        public void ForEachCircumCirclePair(Action<Vector2, Vector2> action)
         {
             foreach (var kvp in innerEdgeTriangleDict)
             {
@@ -672,7 +684,7 @@ namespace Triangulation
                     }
                     else if (edgeCount == 2)
                     {
-                        AddInnerEdgeToTriangleDict(edgeKey, triangleKey, out long extTriangleKey);
+                        AddInnerEdgeToTriangleDict(edge, edgeKey, triangleKey, out long extTriangleKey);
                         if (extTriangleKey >= 0)
                         {
                             triangleKeyBuffer[extTriangleCount++] = extTriangleKey;
@@ -1421,7 +1433,7 @@ namespace Triangulation
             }
         }
 
-        private void AddInnerEdgeToTriangleDict(int edgeKey, long triangleKey, out long extTriangleKey)
+        private void AddInnerEdgeToTriangleDict(EdgeEntry edge, int edgeKey, long triangleKey, out long extTriangleKey)
         {
             if (innerEdgeTriangleDict.ContainsKey(edgeKey))
             {
@@ -1434,12 +1446,12 @@ namespace Triangulation
             {
                 if (extEdgeTriangleDict.TryGetValue(edgeKey, out extTriangleKey))
                 {
-                    innerEdgeTriangleDict.Add(edgeKey, new InnerEdgeData(triangleKey, extTriangleKey));
+                    innerEdgeTriangleDict.Add(edgeKey, new InnerEdgeData(edge, triangleKey, extTriangleKey));
                     extEdgeTriangleDict.Remove(edgeKey);
                 }
                 else
                 {
-                    innerEdgeTriangleDict.Add(edgeKey, new InnerEdgeData(triangleKey));
+                    innerEdgeTriangleDict.Add(edgeKey, new InnerEdgeData(edge, triangleKey));
                     extTriangleKey = -1;
                 }
             }

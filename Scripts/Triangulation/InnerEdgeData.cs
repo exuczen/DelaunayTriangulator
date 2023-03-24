@@ -4,12 +4,14 @@ namespace Triangulation
 {
     public struct InnerEdgeData
     {
+        public EdgeEntry Edge { private set; get; }
         public long Triangle1Key { private set; get; }
         public long Triangle2Key { private set; get; }
         public bool Checked;
 
-        public InnerEdgeData(long triangle1Key = -1, long triangle2Key = -1)
+        public InnerEdgeData(EdgeEntry edge, long triangle1Key = -1, long triangle2Key = -1)
         {
+            Edge = edge;
             Triangle1Key = triangle1Key;
             Triangle2Key = triangle2Key;
             Checked = false;
