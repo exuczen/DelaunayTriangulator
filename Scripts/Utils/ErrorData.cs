@@ -3,6 +3,8 @@
     public enum ErrorCode
     {
         None,
+        Undefined,
+        Stop,
         BaseTriangulationFailed,
         InvalidTriangulation,
         InternalEdgeExists,

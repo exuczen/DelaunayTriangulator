@@ -93,7 +93,7 @@ namespace Triangulation
             }
             for (int i = 0; i < pointsCount; i++)
             {
-                if (TryAddPoint(i, points, out var xyi))
+                if (TryAddPoint(i, points, out var xyi, out int savedIndex))
                 {
                     indices[xyi.z] = count;
                     addPoint(i);
@@ -104,7 +104,7 @@ namespace Triangulation
                     addPoint(i);
                 }
 #if THROW_POINT_OUT_OF_BOUNDS_EXCEPTION
-                else
+                else if (savedIndex < 0)
                 {
                     throw new ArgumentOutOfRangeException("SetPoints: " + xyi);
                 }
@@ -120,7 +120,7 @@ namespace Triangulation
             Clear();
             for (int i = 0; i < points.Count; i++)
             {
-                if (!TryAddPoint(i, points, out _))
+                if (!TryAddPoint(i, points, out _, out _))
                 {
                     points.RemoveAt(i--);
                 }
@@ -156,19 +156,19 @@ namespace Triangulation
             return result;
         }
 
-        private bool TryAddPoint(int pointIndex, Vector2[] points, out Vector3Int cellXYI)
+        private bool TryAddPoint(int pointIndex, Vector2[] points, out Vector3Int cellXYI, out int savedIndex)
         {
-            return TryAddPoint(pointIndex, points[pointIndex], point => points[pointIndex] = point, out cellXYI);
+            return TryAddPoint(pointIndex, points[pointIndex], point => points[pointIndex] = point, out cellXYI, out savedIndex);
         }
 
-        private bool TryAddPoint(int pointIndex, List<Vector2> points, out Vector3Int cellXYI)
+        private bool TryAddPoint(int pointIndex, List<Vector2> points, out Vector3Int cellXYI, out int savedIndex)
         {
-            return TryAddPoint(pointIndex, points[pointIndex], point => points[pointIndex] = point, out cellXYI);
+            return TryAddPoint(pointIndex, points[pointIndex], point => points[pointIndex] = point, out cellXYI, out savedIndex);
         }
 
-        private bool TryAddPoint(int pointIndex, Vector2 point, Action<Vector2> setPoint, out Vector3Int cellXYI)
+        private bool TryAddPoint(int pointIndex, Vector2 point, Action<Vector2> setPoint, out Vector3Int cellXYI, out int savedIndex)
         {
-            bool result = CanAddPoint(point, out cellXYI, out _, false);
+            bool result = CanAddPoint(point, out cellXYI, out savedIndex, false);
             if (result)
             {
                 int cellIndex = cellXYI.z;
