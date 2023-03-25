@@ -84,9 +84,23 @@ namespace Triangulation
             }
         }
 
+        public bool TryAddOffGridPoint(Vector2 point, out int pointIndex)
+        {
+            if (pointGrid.AddOffGridPointXYI(point))
+            {
+                base.AddPoint(point, out pointIndex);
+                return true;
+            }
+            else
+            {
+                pointIndex = -1;
+                return false;
+            }
+        }
+
         public bool TryAddPoint(Vector2 point, out int pointIndex)
         {
-            if (pointGrid.CanAddPoint(point, out var cellXYI, out int savedIndex))
+            if (pointGrid.CanAddPoint(point, out var cellXYI, out int savedIndex, true))
             {
                 base.AddPoint(point, out pointIndex);
                 pointGrid.AddPoint(pointIndex, points, cellXYI);

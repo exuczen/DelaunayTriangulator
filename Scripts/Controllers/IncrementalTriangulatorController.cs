@@ -47,9 +47,9 @@ namespace Triangulation
 
         protected override void OnClear(Vector2 viewSize)
         {
-            if (triangulator.InternalOnly)
+            if (triangulator.InternalOnly && triangulator.PointsCount == 0)
             {
-                AddCornerVertices(viewSize, true);
+                AddCornerVertices(viewSize, false);
             }
         }
 
@@ -85,15 +85,23 @@ namespace Triangulation
                 for (int j = -1; j <= 1; j++)
                 {
                     float x = centerX + j * halfSize;
-                    base.AddParticle(new Vector2(x, y));
+                    AddOffGridParticle(new Vector2(x, y));
                 }
             }
-            base.AddParticle(new Vector2(centerX - halfSize, centerY));
-            base.AddParticle(new Vector2(centerX + halfSize, centerY));
+            AddOffGridParticle(new Vector2(centerX - halfSize, centerY));
+            AddOffGridParticle(new Vector2(centerX + halfSize, centerY));
 
             if (triangulate)
             {
                 UpdateTriangulation();
+            }
+        }
+
+        private void AddOffGridParticle(Vector2 point)
+        {
+            if (triangulator.TryAddOffGridPoint(point, out int i))
+            {
+                SetParticle(true, i);
             }
         }
     }
