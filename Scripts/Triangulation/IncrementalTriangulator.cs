@@ -48,9 +48,12 @@ namespace Triangulation
                 {
                     AddBaseTrianglesToTriangleSet(triangles, trianglesCount, Color.FloralWhite);
 
-                    edgeInfo.FindExternalEdges(pointsCount);
+                    if (!InternalOnly)
+                    {
+                        edgeInfo.FindExternalEdges(pointsCount);
 
-                    //edgeInfo.PrintPointsExternal(pointsCount);
+                        //edgeInfo.PrintPointsExternal(pointsCount);
+                    }
                 }
                 ValidateTriangulation(false, PointsValidation);
 
@@ -355,7 +358,7 @@ namespace Triangulation
 
             AddCellTrianglesEdges();
 
-            AddTrianglesOnClearPoint(pointIndex, out bool findExternalEdges, out bool updateTriangleDicts);
+            AddTrianglesOnClearPoint(pointIndex, out bool updateTriangleDicts);
 
             ReplaceCellTriangles(addedTriangles, addedTrianglesCount);
 
@@ -370,16 +373,10 @@ namespace Triangulation
                 ClearPoints();
             }
             addedEdgeInfo.Clear();
-
-            if (findExternalEdges)
-            {
-                edgeInfo.FindExternalEdges(pointsCount);
-            }
         }
 
-        private void AddTrianglesOnClearPoint(int pointIndex, out bool findExternalEdges, out bool updateTriangleDicts)
+        private void AddTrianglesOnClearPoint(int pointIndex, out bool updateTriangleDicts)
         {
-            findExternalEdges = false;
             updateTriangleDicts = false;
 
             addedEdgeInfo.JoinSortExternalEdges(exceptionThrower);
