@@ -13,8 +13,9 @@ namespace Triangulation
         public Vector2 CellSize => cellSize;
         public Vector2 Size => size;
         public int[] Indices => indices;
+        public List<Vector3Int> OffGridXYI => offGridXYI;
 
-        private readonly HashSet<Vector3Int> offGridXYI = new();
+        private readonly List<Vector3Int> offGridXYI = new();
         private readonly List<Vector3Int> offGridXYIPool = new();
 
         private readonly int xCount, yCount = 0;
@@ -48,9 +49,9 @@ namespace Triangulation
             offGridXYI.Clear();
         }
 
-        public bool AddOffGridPointXYI(Vector2 point)
+        public bool AddOffGridPointXYI(Vector2 point, out Vector3Int xyi)
         {
-            if (GetCellXYIndex(point, out var xyi, false))
+            if (GetCellXYIndex(point, out xyi, false))
             {
                 throw new ArgumentException("AddOffGridPointXYI: Point is on grid: " + xyi);
             }

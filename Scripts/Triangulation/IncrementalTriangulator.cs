@@ -86,7 +86,7 @@ namespace Triangulation
 
         public bool TryAddOffGridPoint(Vector2 point, out int pointIndex)
         {
-            if (pointGrid.AddOffGridPointXYI(point))
+            if (pointGrid.AddOffGridPointXYI(point, out _))
             {
                 base.AddPoint(point, out pointIndex);
                 return true;
@@ -324,6 +324,7 @@ namespace Triangulation
                             //edgeInfo.PrintExternalEdges("ValidateTriangulation: ");
                             triangles[triangleIndex].CircumCircle.Filled = true;
                             circleOverlapsPoint = true;
+                            exceptionThrower.ThrowException("!ValidateTriangulation", ErrorCode.InvalidTriangulation, i);
                         }
                     });
                     if (circleOverlapsPoint)
@@ -332,12 +333,7 @@ namespace Triangulation
                     }
                 }
             }
-            bool result = edgesValid && !circleOverlapsPoint;
-            if (!result)
-            {
-                exceptionThrower.ThrowException("!ValidateTriangulation", ErrorCode.InvalidTriangulation);
-            }
-            return result;
+            return edgesValid && !circleOverlapsPoint;
         }
 
         private void ProcessClearPoint(int pointIndex, TriangleCell cell)
