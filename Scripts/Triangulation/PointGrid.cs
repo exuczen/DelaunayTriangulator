@@ -13,10 +13,6 @@ namespace Triangulation
         public Vector2 CellSize => cellSize;
         public Vector2 Size => size;
         public int[] Indices => indices;
-        public List<Vector3Int> OffGridXYI => offGridXYI;
-
-        private readonly List<Vector3Int> offGridXYI = new();
-        private readonly List<Vector3Int> offGridXYIPool = new();
 
         private readonly int xCount, yCount = 0;
         private readonly Vector2 cellSize = default;
@@ -46,24 +42,6 @@ namespace Triangulation
         public void Clear()
         {
             ClearIndices();
-            offGridXYI.Clear();
-        }
-
-        public bool AddOffGridPointXYI(Vector2 point, out Vector3Int xyi)
-        {
-            if (GetCellXYIndex(point, out xyi, false))
-            {
-                throw new ArgumentException("AddOffGridPointXYI: Point is on grid: " + xyi);
-            }
-            else if (offGridXYI.Contains(xyi))
-            {
-                throw new ArgumentException("AddOffGridPointXYI: offGridXYI.Contains(xyi): " + xyi);
-            }
-            else
-            {
-                offGridXYI.Add(xyi);
-                return true;
-            }
         }
 
         public int SetPoints(Vector2[] points, int offset, int pointsCount, out Bounds2 bounds)
@@ -76,13 +54,8 @@ namespace Triangulation
             ClearIndices();
 
             int count = 0;
-            int offGridIndex = -1;
-
             var min = points[0];
             var max = min;
-
-            offGridXYIPool.Clear();
-            offGridXYIPool.AddRange(offGridXYI);
 
             void addPoint(int i)
             {
@@ -98,21 +71,10 @@ namespace Triangulation
                     indices[xyi.z] = count;
                     addPoint(i);
                 }
-                else if (xyi.z < 0 && (offGridIndex = offGridXYIPool.IndexOf(xyi)) >= 0)
-                {
-                    offGridXYIPool.RemoveAt(offGridIndex);
-                    addPoint(i);
-                }
-#if THROW_POINT_OUT_OF_BOUNDS_EXCEPTION
-                else if (savedIndex < 0)
-                {
-                    throw new ArgumentOutOfRangeException("SetPoints: " + xyi);
-                }
-#endif
             }
             bounds = new Bounds2(min, max);
             Array.Copy(points, pointsCount, points, offset, count);
-            return count;
+            return offset + count;
         }
 
         public void SetPoints(List<Vector2> points, int offset)
@@ -168,7 +130,7 @@ namespace Triangulation
 
         private bool TryAddPoint(int pointIndex, Vector2 point, Action<Vector2> setPoint, out Vector3Int cellXYI, out int savedIndex)
         {
-            bool result = CanAddPoint(point, out cellXYI, out savedIndex, false);
+            bool result = CanAddPoint(point, out cellXYI, out savedIndex, true);
             if (result)
             {
                 int cellIndex = cellXYI.z;

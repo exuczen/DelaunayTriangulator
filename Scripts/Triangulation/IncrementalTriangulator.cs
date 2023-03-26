@@ -10,9 +10,9 @@ namespace Triangulation
         public EdgeInfo EdgeInfo => edgeInfo;
         public List<int> CellPointsIndices => cellPointsIndices;
         public Polygon CellPolygon => cellPolygon;
+        public bool InternalOnly => Supermanent;
 
         public bool BaseOnly = false;
-        public bool InternalOnly = false;
         public bool PointsValidation = false;
         public bool EdgesValidation = false;
 
@@ -81,20 +81,6 @@ namespace Triangulation
             if (triangulate)
             {
                 Triangulate();
-            }
-        }
-
-        public bool TryAddOffGridPoint(Vector2 point, out int pointIndex)
-        {
-            if (pointGrid.AddOffGridPointXYI(point, out _))
-            {
-                base.AddPoint(point, out pointIndex);
-                return true;
-            }
-            else
-            {
-                pointIndex = -1;
-                return false;
             }
         }
 

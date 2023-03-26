@@ -25,6 +25,8 @@ namespace Triangulation
             }
             get => superTrianglesCount > 1;
         }
+        public bool Supermanent { get; set; } = false;
+
         protected readonly IExceptionThrower exceptionThrower = null;
 
         protected readonly TriangleSet triangleSet = null;
@@ -266,7 +268,7 @@ namespace Triangulation
             {
                 FindValidTriangles(IsTriangleValid);
 
-                if (!SuperCircumference)
+                if (!Supermanent)
                 {
                     FindUnusedPoints();
 
@@ -390,12 +392,9 @@ namespace Triangulation
             usedPointIndices.Clear();
             unusedPointIndices.Clear();
 
-            if (!SuperCircumference)
+            for (int i = 0; i < pointsOffset; i++)
             {
-                for (int i = 0; i < pointsOffset; i++)
-                {
-                    usedPointIndices.Add(i);
-                }
+                usedPointIndices.Add(i);
             }
             int[] indexBuffer = new int[3];
 
@@ -468,7 +467,7 @@ namespace Triangulation
             //Log.WriteLine(GetType() + ".FindValidTriangles: " + completedTrianglesCount + " " + trianglesCount);
             //edgeInfo.PrintEdgeCounterDict("FindValidTriangles");
 
-            if (SuperCircumference)
+            if (Supermanent)
             {
                 Array.Copy(completedTriangles, 0, triangles, trianglesCount, completedTrianglesCount);
                 trianglesCount += completedTrianglesCount;
