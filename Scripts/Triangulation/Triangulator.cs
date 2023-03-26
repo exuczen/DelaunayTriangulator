@@ -11,7 +11,7 @@ namespace Triangulation
         public Triangle[] Triangles => triangles;
         public List<Triangle> CCTriangles => ccTriangles;
         public Triangle[] SuperTriangles => supertriangles;
-        public bool SuperTrianglesCircle
+        public bool SuperCircumference
         {
             set
             {
@@ -53,6 +53,7 @@ namespace Triangulation
 
         private int centerPointIndex = -1;
         private int superTrianglesCount = 1;
+        private Circle superCircumCircle = default;
 
         public Triangulator(int pointsCapacity, float tolerance, IExceptionThrower exceptionThrower)
         {
@@ -70,6 +71,14 @@ namespace Triangulation
 
             triangleSet = new TriangleSet(triangles, points);
             edgeInfo = new EdgeInfo(triangleSet, points, exceptionThrower);
+        }
+
+        public void SetSuperCircumCircle(Vector2 size)
+        {
+            var center = 0.5f * size;
+            float scale = 1.1f;
+            float sqrR = size.SqrLength * scale * scale;
+            superCircumCircle = new Circle(center, sqrR);
         }
 
         public Vector2 GetPoint(int i)
@@ -226,14 +235,8 @@ namespace Triangulation
             {
                 return false;
             }
-            if (SuperTrianglesCircle)
-            {
-                AddSuperTrianglesCircle(bounds);
-            }
-            else
-            {
-                AddSuperTriangle(bounds);
-            }
+            AddSuperTriangles(bounds);
+
             bool result;
 
             if (centerPointIndex >= 0)
@@ -249,7 +252,7 @@ namespace Triangulation
             {
                 FindValidTriangles(IsTriangleValid);
 
-                if (!SuperTrianglesCircle)
+                if (!SuperCircumference)
                 {
                     FindUnusedPoints();
 
@@ -444,7 +447,7 @@ namespace Triangulation
             //Log.WriteLine(GetType() + ".FindValidTriangles: " + completedTrianglesCount + " " + trianglesCount);
             //edgeInfo.PrintEdgeCounterDict("FindValidTriangles");
 
-            if (SuperTrianglesCircle)
+            if (SuperCircumference)
             {
                 Array.Copy(completedTriangles, 0, triangles, trianglesCount, completedTrianglesCount);
                 trianglesCount += completedTrianglesCount;
@@ -559,48 +562,42 @@ namespace Triangulation
             }
         }
 
-        private void AddSuperTrianglesCircle(Bounds2 bounds)
+        private void AddSuperTriangles(Bounds2 bounds)
         {
             if (supertriangles == null || supertriangles.Length != superTrianglesCount)
             {
                 supertriangles = new Triangle[superTrianglesCount];
             }
-            centerPointIndex = Maths.GetClosestPointIndex(bounds.Center, points, pointsCount);
-            var center = points[centerPointIndex];
-            var halfSize = 0.5f * bounds.Size;
-            float r = halfSize.Length * 3f;
-            //Log.WriteLine(GetType() + ".AddSuperTrianglesCircle: center: " + center + " halfSize: " + halfSize + " bounds: " + bounds.ToString("f4"));
+            bool superCircleValid = superCircumCircle.Radius > 0f;
 
-            GeomUtils.AddCirclePoints(points, pointsCount, center, r, superTrianglesCount);
+            var center = superCircleValid ? superCircumCircle.Center : bounds.Center;
+            float r = superCircleValid ? superCircumCircle.Radius : 3f * (0.5f * bounds.Size).Length;
 
-            int triangleIndex;
-            for (int i = 0; i < superTrianglesCount - 1; i++)
+            //Log.WriteLine(GetType() + ".AddSuperTrianglesCircle: center: " + center + " r: " + r + " bounds: " + bounds.ToString("f4"));
+
+            GeomUtils.AddCirclePoints(points, pointsCount, center, r, Math.Max(3, superTrianglesCount));
+
+            if (SuperCircumference)
             {
-                AddTriangle(centerPointIndex, pointsCount + i, pointsCount + i + 1, out triangleIndex);
-                supertriangles[i] = triangles[triangleIndex];
+                centerPointIndex = Maths.GetClosestPointIndex(center, points, pointsCount);
+
+                int triangleIndex;
+                for (int i = 0; i < superTrianglesCount - 1; i++)
+                {
+                    AddTriangle(centerPointIndex, pointsCount + i, pointsCount + i + 1, out triangleIndex);
+                    supertriangles[i] = triangles[triangleIndex];
+                }
+                AddTriangle(centerPointIndex, pointsCount + superTrianglesCount - 1, pointsCount, out triangleIndex);
+                supertriangles[superTrianglesCount - 1] = triangles[triangleIndex];
+
+                //Log.PrintTriangles(supertriangles, SuperTriangleCount);
+                //Log.PrintPoints(points, pointsCount + SuperTriangleCount + 1);
             }
-            AddTriangle(centerPointIndex, pointsCount + superTrianglesCount - 1, pointsCount, out triangleIndex);
-            supertriangles[superTrianglesCount - 1] = triangles[triangleIndex];
-
-            //Log.PrintTriangles(supertriangles, SuperTriangleCount);
-            //Log.PrintPoints(points, pointsCount + SuperTriangleCount + 1);
-        }
-
-        private void AddSuperTriangle(Bounds2 bounds)
-        {
-            if (supertriangles == null || supertriangles.Length != superTrianglesCount)
+            else
             {
-                supertriangles = new Triangle[superTrianglesCount];
+                AddTriangle(pointsCount + 0, pointsCount + 1, pointsCount + 2, out int triangleIndex);
+                supertriangles[0] = triangles[triangleIndex];
             }
-            var center = bounds.Center;
-            var halfSize = 0.5f * bounds.Size;
-            float r = 2.5f * halfSize.Length;
-            //Log.WriteLine(GetType() + ".AddSuperTriangle: center: " + center + " halfSize: " + halfSize + " bounds: " + bounds.ToString("f4"));
-
-            GeomUtils.AddCirclePoints(points, pointsCount, center, r, 3);
-
-            AddTriangle(pointsCount + 0, pointsCount + 1, pointsCount + 2, out int triangleIndex);
-            supertriangles[0] = triangles[triangleIndex];
         }
 
         private bool AddTriangle(int a, int b, int c, out int triangleIndex)

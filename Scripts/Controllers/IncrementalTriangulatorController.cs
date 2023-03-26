@@ -15,7 +15,7 @@ namespace Triangulation
 
         public void Initialize(Vector2 viewSize, int triangleGridDivs = TriangleGrid.MinDivsCount, int pointGridDivsMlp = 5)
         {
-            triangulator.Initialize(viewSize, true, triangleGridDivs, pointGridDivsMlp);
+            triangulator.Initialize(viewSize, triangleGridDivs, pointGridDivsMlp, true);
 
             if (triangulator.InternalOnly && triangulator.PointsCount == 0)
             {

@@ -1,6 +1,4 @@
-﻿//#define DEBUG_DEGENERATE_TRIANGLES
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Triangulation
@@ -62,7 +60,7 @@ namespace Triangulation
             return false;
         }
 
-        public void Initialize(Vector2 gridSize, bool triangulate, int triangleGridDivs, int pointGridDivsMlp)
+        public void Initialize(Vector2 gridSize, int triangleGridDivs, int pointGridDivsMlp, bool triangulate)
         {
             if (triangleSet == null)
             {
@@ -78,9 +76,8 @@ namespace Triangulation
 
             //Log.WriteLine(GetType() + ".Initialize: circleTolerance: " + circleTolerance);
 
-#if DEBUG_DEGENERATE_TRIANGLES
-            Triangle.SetMinAngle(15f);
-#endif
+            SetSuperCircumCircle(gridSize);
+
             if (triangulate)
             {
                 Triangulate();
