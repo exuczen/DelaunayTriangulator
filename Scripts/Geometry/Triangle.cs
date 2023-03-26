@@ -428,8 +428,8 @@ namespace Triangulation
                 cY = miny + dy;
                 sqrR = dx * dx + dy * dy;
 
-                //Log.WriteLine(GetType() + ".ComputeCircumCircle: collinear: " + G + " " + cX + " " + cY + " " + sqrR + " | " + a + " " + b + " " + c);
-                Log.WriteLine(GetType() + ".ComputeCircumCircle: collinear: " + this);
+                //Log.WriteWarning(GetType() + ".ComputeCircumCircle: collinear: " + G + " " + cX + " " + cY + " " + sqrR + " | " + a + " " + b + " " + c);
+                Log.WriteWarning(GetType() + ".ComputeCircumCircle: collinear: " + this);
             }
             else
             {

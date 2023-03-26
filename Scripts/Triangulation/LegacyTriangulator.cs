@@ -127,7 +127,7 @@ namespace Triangulation
 
             // Calculate min and max X and Y coomponents of points
 
-            bounds = Bounds2.GetBounds(points, pointsCount);
+            bounds = Bounds2.GetBounds(points, 0, pointsCount - 1);
 
             // Initialized free triangles
 

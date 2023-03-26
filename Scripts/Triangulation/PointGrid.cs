@@ -66,7 +66,7 @@ namespace Triangulation
             }
         }
 
-        public int SetPoints(Vector2[] points, int pointsCount, out Bounds2 bounds)
+        public int SetPoints(Vector2[] points, int offset, int pointsCount, out Bounds2 bounds)
         {
             if (pointsCount <= 0)
             {
@@ -76,7 +76,6 @@ namespace Triangulation
             ClearIndices();
 
             int count = 0;
-            int offset = pointsCount;
             int offGridIndex = -1;
 
             var min = points[0];
@@ -88,11 +87,11 @@ namespace Triangulation
             void addPoint(int i)
             {
                 var point = points[i];
-                points[offset + count++] = point;
+                points[pointsCount + count++] = point;
                 min = Vector2.Min(min, point);
                 max = Vector2.Max(max, point);
             }
-            for (int i = 0; i < pointsCount; i++)
+            for (int i = offset; i < pointsCount; i++)
             {
                 if (TryAddPoint(i, points, out var xyi, out int savedIndex))
                 {
@@ -112,14 +111,14 @@ namespace Triangulation
 #endif
             }
             bounds = new Bounds2(min, max);
-            Array.Copy(points, offset, points, 0, count);
+            Array.Copy(points, pointsCount, points, offset, count);
             return count;
         }
 
-        public void SetPoints(List<Vector2> points)
+        public void SetPoints(List<Vector2> points, int offset)
         {
             Clear();
-            for (int i = 0; i < points.Count; i++)
+            for (int i = offset; i < points.Count; i++)
             {
                 if (!TryAddPoint(i, points, out _, out _))
                 {

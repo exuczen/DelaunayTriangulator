@@ -245,12 +245,12 @@ namespace Triangulation
 
         protected override void SetSortedPoints(out Bounds2 bounds)
         {
-            pointsCount = pointGrid.SetPoints(points, pointsCount, out bounds);
+            pointsCount = pointGrid.SetPoints(points, pointsOffset, pointsCount, out bounds);
         }
 
         protected override void SetSortedPoints(List<Vector2> pointsList)
         {
-            pointGrid.SetPoints(pointsList);
+            pointGrid.SetPoints(pointsList, pointsOffset);
             pointsCount = pointsList.Count;
             pointsList.CopyTo(points, 0);
         }

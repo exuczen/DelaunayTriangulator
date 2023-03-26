@@ -6,7 +6,8 @@ namespace Triangulation
     public class Triangulator
     {
         public int TrianglesCount => trianglesCount;
-        public int PointsCount { get => pointsCount; set => pointsCount = value; }
+        public int PointsOffset => pointsOffset;
+        public int PointsCount { get => pointsCount; set => pointsCount = Math.Max(pointsOffset, value); }
         public Vector2[] Points => points;
         public Triangle[] Triangles => triangles;
         public List<Triangle> CCTriangles => ccTriangles;
@@ -20,6 +21,7 @@ namespace Triangulation
                 {
                     supertriangles = new Triangle[superTrianglesCount];
                 }
+                pointsOffset = Math.Max(3, superTrianglesCount);
             }
             get => superTrianglesCount > 1;
         }
@@ -46,6 +48,7 @@ namespace Triangulation
         protected Triangle[] supertriangles = null;
 
         protected int pointsCount = 0;
+        protected int pointsOffset = 3;
         protected int trianglesCount = 0;
         protected int completedTrianglesCount = 0;
 
@@ -79,6 +82,17 @@ namespace Triangulation
             float scale = 1.1f;
             float sqrR = size.SqrLength * scale * scale;
             superCircumCircle = new Circle(center, sqrR);
+        }
+
+        public void AddSuperCircumCirclePoints()
+        {
+            if (pointsCount > 0)
+            {
+                throw new Exception("AddSuperCircumCirclePoints: pointsCount: " + pointsCount);
+            }
+            //float r = 3f * (0.5f * bounds.Size).Length;
+            pointsOffset = pointsCount = Math.Max(3, superTrianglesCount);
+            GeomUtils.AddCirclePoints(points, 0, superCircumCircle.Center, superCircumCircle.Radius, pointsCount);
         }
 
         public Vector2 GetPoint(int i)
@@ -117,8 +131,8 @@ namespace Triangulation
             }
             Clear();
 
-            bounds = Bounds2.GetBounds(pointsList);
-            pointsList.Sort(GetPointsComparer(bounds, out bool xySorted));
+            bounds = Bounds2.GetBounds(pointsList, pointsOffset);
+            pointsList.Sort(pointsOffset, pointsList.Count - pointsOffset, GetPointsComparer(bounds, out bool xySorted));
 
             SetSortedPoints(pointsList);
 
@@ -134,8 +148,8 @@ namespace Triangulation
             RemoveUnusedPoints();
             ClearTriangles();
 
-            bounds = Bounds2.GetBounds(points, pointsCount);
-            Array.Sort(points, 0, pointsCount, GetPointsComparer(bounds, out bool xySorted));
+            bounds = Bounds2.GetBounds(points, pointsOffset, pointsCount - 1);
+            Array.Sort(points, pointsOffset, pointsCount - pointsOffset, GetPointsComparer(bounds, out bool xySorted));
 
             SetSortedPoints(out bounds);
 
@@ -188,7 +202,7 @@ namespace Triangulation
 
         protected virtual void SetSortedPoints(List<Vector2> pointsList)
         {
-            for (int i = pointsList.Count - 1; i > 0; i--)
+            for (int i = pointsList.Count - 1; i >= pointsOffset; i--)
             {
                 if (pointsList[i].Equals(pointsList[i - 1], pointTolerance))
                 {
@@ -241,12 +255,12 @@ namespace Triangulation
 
             if (centerPointIndex >= 0)
             {
-                result = ProcessPoints(0, centerPointIndex - 1, xySorted);
+                result = ProcessPoints(pointsOffset, centerPointIndex - 1, xySorted);
                 result = result && ProcessPoints(centerPointIndex + 1, pointsCount - 1, xySorted);
             }
             else
             {
-                result = ProcessPoints(0, pointsCount - 1, xySorted);
+                result = ProcessPoints(pointsOffset, pointsCount - 1, xySorted);
             }
             if (result)
             {
@@ -264,7 +278,7 @@ namespace Triangulation
 
         private bool ProcessPoints(int beg, int end, bool xySorted)
         {
-            var prevPoint = points[beg > 0 ? beg - 1 : pointsCount - 1];
+            var prevPoint = points[beg > pointsOffset ? beg - 1 : pointsCount - 1];
 
             for (int i = beg; i <= end; i++)
             {
@@ -376,6 +390,13 @@ namespace Triangulation
             usedPointIndices.Clear();
             unusedPointIndices.Clear();
 
+            if (!SuperCircumference)
+            {
+                for (int i = 0; i < pointsOffset; i++)
+                {
+                    usedPointIndices.Add(i);
+                }
+            }
             int[] indexBuffer = new int[3];
 
             for (int i = 0; i < trianglesCount; i++)
@@ -451,7 +472,7 @@ namespace Triangulation
             {
                 Array.Copy(completedTriangles, 0, triangles, trianglesCount, completedTrianglesCount);
                 trianglesCount += completedTrianglesCount;
-                pointsCount += superTrianglesCount;
+                completedTrianglesCount = 0;
             }
             else
             {
@@ -478,7 +499,7 @@ namespace Triangulation
 
         private bool IsTriangleValid(Triangle triangle)
         {
-            return triangle.A < pointsCount && triangle.B < pointsCount && triangle.C < pointsCount;
+            return triangle.A >= pointsOffset && triangle.B >= pointsOffset && triangle.C >= pointsOffset;
         }
 
         protected void AddTriangleEdges(Triangle triangle)
@@ -564,30 +585,27 @@ namespace Triangulation
 
         private void AddSuperTriangles(Bounds2 bounds)
         {
+            if (pointsOffset == 0)
+            {
+                throw new NotImplementedException("AddSuperTriangles: pointsOffset == 0");
+            }
             if (supertriangles == null || supertriangles.Length != superTrianglesCount)
             {
                 supertriangles = new Triangle[superTrianglesCount];
             }
-            bool superCircleValid = superCircumCircle.Radius > 0f;
-
-            var center = superCircleValid ? superCircumCircle.Center : bounds.Center;
-            float r = superCircleValid ? superCircumCircle.Radius : 3f * (0.5f * bounds.Size).Length;
-
-            //Log.WriteLine(GetType() + ".AddSuperTrianglesCircle: center: " + center + " r: " + r + " bounds: " + bounds.ToString("f4"));
-
-            GeomUtils.AddCirclePoints(points, pointsCount, center, r, Math.Max(3, superTrianglesCount));
-
             if (SuperCircumference)
             {
-                centerPointIndex = Maths.GetClosestPointIndex(center, points, pointsCount);
+                bool superCircleValid = superCircumCircle.Radius > 0f;
+                var center = superCircleValid ? superCircumCircle.Center : bounds.Center;
+                centerPointIndex = Maths.GetClosestPointIndex(center, points, pointsOffset, pointsCount);
 
                 int triangleIndex;
                 for (int i = 0; i < superTrianglesCount - 1; i++)
                 {
-                    AddTriangle(centerPointIndex, pointsCount + i, pointsCount + i + 1, out triangleIndex);
+                    AddTriangle(centerPointIndex, i, i + 1, out triangleIndex);
                     supertriangles[i] = triangles[triangleIndex];
                 }
-                AddTriangle(centerPointIndex, pointsCount + superTrianglesCount - 1, pointsCount, out triangleIndex);
+                AddTriangle(centerPointIndex, superTrianglesCount - 1, 0, out triangleIndex);
                 supertriangles[superTrianglesCount - 1] = triangles[triangleIndex];
 
                 //Log.PrintTriangles(supertriangles, SuperTriangleCount);
@@ -595,7 +613,7 @@ namespace Triangulation
             }
             else
             {
-                AddTriangle(pointsCount + 0, pointsCount + 1, pointsCount + 2, out int triangleIndex);
+                AddTriangle(0, 1, 2, out int triangleIndex);
                 supertriangles[0] = triangles[triangleIndex];
             }
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Triangulation
 {
@@ -11,25 +12,26 @@ namespace Triangulation
         public Vector2 Size => max - min;
         public Vector2 Center => (min + max) * 0.5f;
 
-        public static Bounds2 GetBounds(List<Vector2> points)
+        public static Bounds2 GetBounds(List<Vector2> points, int offset)
         {
-            return GetBounds(points.Count, i => points[i]);
+            return GetBounds(i => points[i], offset, points.Count - 1);
         }
 
-        public static Bounds2 GetBounds(Vector2[] points, int count)
+        public static Bounds2 GetBounds(Vector2[] points, int beg, int end)
         {
-            return GetBounds(count, i => points[i]);
+            return GetBounds(i => points[i], beg, end);
         }
 
-        private static Bounds2 GetBounds(int count, Func<int, Vector2> getPoint)
+        private static Bounds2 GetBounds(Func<int, Vector2> getPoint, int beg, int end)
         {
-            if (count <= 0)
-                throw new InvalidOperationException("Array cannot be empty");
-
-            var min = getPoint(0);
+            if (beg < 0 || end < 0)
+            {
+                throw new IndexOutOfRangeException();
+            }
+            var min = getPoint(beg);
             var max = min;
 
-            for (int i = 1; i < count; ++i)
+            for (int i = beg + 1; i <= end; ++i)
             {
                 Vector2 v = getPoint(i);
                 if (v.x > max.x)
