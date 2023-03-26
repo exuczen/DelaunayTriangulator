@@ -568,17 +568,11 @@ namespace Triangulation
             centerPointIndex = Maths.GetClosestPointIndex(bounds.Center, points, pointsCount);
             var center = points[centerPointIndex];
             var halfSize = 0.5f * bounds.Size;
-
-            //Log.WriteLine(GetType() + ".AddSuperTriangle: center: " + center + " halfSize: " + halfSize + " bounds: " + bounds.ToString("f4"));
-
             float r = halfSize.Length * 3f;
+            //Log.WriteLine(GetType() + ".AddSuperTrianglesCircle: center: " + center + " halfSize: " + halfSize + " bounds: " + bounds.ToString("f4"));
 
-            float dalfa = 2f * MathF.PI / superTrianglesCount;
+            GeomUtils.AddCirclePoints(points, pointsCount, center, r, superTrianglesCount);
 
-            for (int i = 0; i < superTrianglesCount; i++)
-            {
-                points[pointsCount + i] = GeomUtils.GetPositionOnCircle(i * dalfa, center, r);
-            }
             int triangleIndex;
             for (int i = 0; i < superTrianglesCount - 1; i++)
             {
@@ -600,15 +594,10 @@ namespace Triangulation
             }
             var center = bounds.Center;
             var halfSize = 0.5f * bounds.Size;
-
+            float r = 2.5f * halfSize.Length;
             //Log.WriteLine(GetType() + ".AddSuperTriangle: center: " + center + " halfSize: " + halfSize + " bounds: " + bounds.ToString("f4"));
 
-            float r = halfSize.Length * 1.5f;
-            float a = MathF.Sqrt(3f) * r;
-
-            points[pointsCount + 0] = center + new Vector2(-a, -r);
-            points[pointsCount + 1] = center + new Vector2(0f, 2f * r);
-            points[pointsCount + 2] = center + new Vector2(+a, -r);
+            GeomUtils.AddCirclePoints(points, pointsCount, center, r, 3);
 
             AddTriangle(pointsCount + 0, pointsCount + 1, pointsCount + 2, out int triangleIndex);
             supertriangles[0] = triangles[triangleIndex];

@@ -6,9 +6,19 @@ namespace Triangulation
     {
         public static Vector2 GetPositionOnCircle(float angle, Vector2 center, float r)
         {
-            float x = center.x + r * MathF.Cos(angle);
-            float y = center.y + r * MathF.Sin(angle);
+            float x = center.x + r * MathF.Sin(angle);
+            float y = center.y + r * MathF.Cos(angle);
             return new Vector2(x, y);
+        }
+
+        public static void AddCirclePoints(Vector2[] points, int offset, Vector2 center, float r, int count)
+        {
+            float dalfa = 2f * MathF.PI / count;
+            int index = offset;
+            for (int i = 0; i < count; i++)
+            {
+                points[index++] = GetPositionOnCircle(i * dalfa, center, r);
+            }
         }
     }
 }
