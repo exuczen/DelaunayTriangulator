@@ -61,14 +61,9 @@ namespace Triangulation
 
         #endregion
 
-        public static float Clamp(float x, float min, float max)
+        public static float Lerp(float a, float b, float t)
         {
-            return MathF.Min(max, MathF.Max(x, min));
-        }
-
-        public static int Clamp(int x, int min, int max)
-        {
-            return Math.Min(max, Math.Max(x, min));
+            return a + (b - a) * Math.Clamp(t, 0f, 1f);
         }
 
         public static int GetClosestPowerOf2(int i, bool upper)

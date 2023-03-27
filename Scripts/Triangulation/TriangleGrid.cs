@@ -189,10 +189,10 @@ namespace Triangulation
             var ccBounds = cc.Bounds;
             ccBounds.min -= Vector2.One * cellTolerance;
             ccBounds.max += Vector2.One * cellTolerance;
-            int begX = Maths.Clamp((int)(ccBounds.min.x / cellSize.x), 0, xCount - 1);
-            int endX = Maths.Clamp((int)(ccBounds.max.x / cellSize.x), 0, xCount - 1);
-            int begY = Maths.Clamp((int)(ccBounds.min.y / cellSize.y), 0, yCount - 1);
-            int endY = Maths.Clamp((int)(ccBounds.max.y / cellSize.y), 0, yCount - 1);
+            int begX = Math.Clamp((int)(ccBounds.min.x / cellSize.x), 0, xCount - 1);
+            int endX = Math.Clamp((int)(ccBounds.max.x / cellSize.x), 0, xCount - 1);
+            int begY = Math.Clamp((int)(ccBounds.min.y / cellSize.y), 0, yCount - 1);
+            int endY = Math.Clamp((int)(ccBounds.max.y / cellSize.y), 0, yCount - 1);
 
             var cellIndices = cellIndicesPool.Pop();
             triangleCellsDict.Add(triangle.Key, cellIndices);

@@ -63,7 +63,7 @@ namespace Triangulation
             if (denom > Epsilon)
             {
                 float cosAngle = Dot(v1, v2) / denom;
-                cosAngle = Maths.Clamp(cosAngle, -1f, 1f);
+                cosAngle = Math.Clamp(cosAngle, -1f, 1f);
                 return MathF.Acos(cosAngle);
             }
             else
