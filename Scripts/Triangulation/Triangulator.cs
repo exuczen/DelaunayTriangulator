@@ -21,7 +21,6 @@ namespace Triangulation
                 {
                     supertriangles = new Triangle[superTrianglesCount];
                 }
-                pointsOffset = Math.Max(3, superTrianglesCount);
             }
             get => superTrianglesCount > 1;
         }
@@ -80,10 +79,16 @@ namespace Triangulation
 
         public void SetSuperCircumCircle(Vector2 size)
         {
+            if (pointsOffset <= 0)
+            {
+                throw new ArgumentOutOfRangeException("SetSuperCircumCircle: pointsOffset" + pointsOffset);
+            }
             var center = 0.5f * size;
-            float scale = 1.1f;
-            float sqrR = size.SqrLength * scale * scale;
-            superCircumCircle = new Circle(center, sqrR);
+            float r = center.Length;
+            int n = GetSuperPointsCount(superTrianglesCount);
+            float alfa = MathF.PI / n;
+            float R = 1.2f * r / MathF.Cos(alfa);
+            superCircumCircle = new Circle(center, R * R);
         }
 
         public void AddSuperCircumCirclePoints()
@@ -92,8 +97,8 @@ namespace Triangulation
             {
                 throw new Exception("AddSuperCircumCirclePoints: pointsCount: " + pointsCount);
             }
-            //float r = 3f * (0.5f * bounds.Size).Length;
-            pointsOffset = pointsCount = Math.Max(3, superTrianglesCount);
+            pointsOffset = GetSuperPointsCount(superTrianglesCount);
+            pointsCount = pointsOffset;
             GeomUtils.AddCirclePoints(points, 0, superCircumCircle.Center, superCircumCircle.Radius, pointsCount);
         }
 
@@ -224,6 +229,24 @@ namespace Triangulation
             for (int i = 0; i < superTrianglesCount; i++)
             {
                 supertriangles[i] = Triangle.None;
+            }
+        }
+
+        private int GetSuperPointsCount(int supertrianglesCount)
+        {
+            if (supertrianglesCount <= 0)
+            {
+                return 0;
+            }
+            else if (supertrianglesCount < 3)
+            {
+                // 1 -> 3
+                // 2 -> 4 
+                return supertrianglesCount + 2;
+            }
+            else
+            {
+                return supertrianglesCount;
             }
         }
 
