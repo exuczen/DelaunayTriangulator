@@ -91,7 +91,7 @@ namespace Triangulation
             superCircumCircle = new Circle(center, R * R);
         }
 
-        public void AddSuperCircumCirclePoints()
+        public void AddSuperCircumCirclePoints(float begAngle = 0f)
         {
             if (pointsCount > 0)
             {
@@ -99,7 +99,7 @@ namespace Triangulation
             }
             pointsOffset = GetSuperPointsCount(superTrianglesCount);
             pointsCount = pointsOffset;
-            GeomUtils.AddCirclePoints(points, 0, superCircumCircle.Center, superCircumCircle.Radius, pointsCount);
+            GeomUtils.AddCirclePoints(points, 0, superCircumCircle.Center, superCircumCircle.Radius, pointsCount, begAngle);
         }
 
         public Vector2 GetPoint(int i)
