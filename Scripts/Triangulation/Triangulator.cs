@@ -127,7 +127,7 @@ namespace Triangulation
 
         public bool Triangulate(List<Vector2> pointsList)
         {
-            if (pointsList.Count < 3)
+            if (NotEnoughPoints(pointsList.Count))
             {
                 return false;
             }
@@ -143,7 +143,7 @@ namespace Triangulation
 
         public virtual bool Triangulate()
         {
-            if (pointsCount < 3)
+            if (NotEnoughPoints(pointsCount))
             {
                 return false;
             }
@@ -227,6 +227,11 @@ namespace Triangulation
             }
         }
 
+        private bool NotEnoughPoints(int pointsCount)
+        {
+            return !Supermanent && pointsCount < pointsOffset + 3 || pointsCount < pointsOffset + 1;
+        }
+
         private IComparer<Vector2> GetPointsComparer(Bounds2 bounds, out bool xySort)
         {
             IComparer<Vector2> pointsComparer;
@@ -247,7 +252,7 @@ namespace Triangulation
 
         private bool Triangulate(Bounds2 bounds, bool xySorted)
         {
-            if (pointsCount < 3)
+            if (NotEnoughPoints(pointsCount))
             {
                 return false;
             }
@@ -255,7 +260,7 @@ namespace Triangulation
 
             bool result;
 
-            if (centerPointIndex >= 0)
+            if (centerPointIndex >= pointsOffset)
             {
                 result = ProcessPoints(pointsOffset, centerPointIndex - 1, xySorted);
                 result = result && ProcessPoints(centerPointIndex + 1, pointsCount - 1, xySorted);
@@ -280,7 +285,19 @@ namespace Triangulation
 
         private bool ProcessPoints(int beg, int end, bool xySorted)
         {
-            var prevPoint = points[beg > pointsOffset ? beg - 1 : pointsCount - 1];
+            Vector2 prevPoint;
+            if (pointsOffset == pointsCount - 1)
+            {
+                if (beg != pointsOffset && end != pointsOffset)
+                {
+                    throw new ArgumentOutOfRangeException("ProcessPoints: beg: " + beg + " end: " + end + " pointsOffset: " + pointsOffset + " pointsCount: " + pointsCount);
+                }
+                prevPoint = new Vector2(float.MaxValue, float.MaxValue);
+            }
+            else
+            {
+                prevPoint = points[beg > pointsOffset ? beg - 1 : pointsCount - 1];
+            }
 
             for (int i = beg; i <= end; i++)
             {

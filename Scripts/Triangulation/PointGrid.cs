@@ -66,7 +66,7 @@ namespace Triangulation
             }
             for (int i = offset; i < pointsCount; i++)
             {
-                if (TryAddPoint(i, points, out var xyi, out int savedIndex))
+                if (TryAddPoint(i, points, out var xyi, out _))
                 {
                     indices[xyi.z] = count;
                     addPoint(i);
