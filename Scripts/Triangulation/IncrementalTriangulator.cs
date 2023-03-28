@@ -498,7 +498,9 @@ namespace Triangulation
 
             //edgeInfo.EdgeCounterDict.Clear();
             //edgeInfo.AddEdgesToCounterDict(addedTriangles, addedTrianglesCount);
-            edgeInfo.AddEdgesToTriangleDicts(addedTriangles, addedTrianglesCount, innerColor);
+
+            edgeInfo.AddEdgesToTriangleDicts(addedTriangles, addedTrianglesCount);
+            edgeInfo.SetTrianglesColors(innerColor);
 
             //edgeInfo.PrintEdgeCounterDict();
             //edgeInfo.PrintExtEdgeTriangleDict();

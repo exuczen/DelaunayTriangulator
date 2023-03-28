@@ -118,6 +118,13 @@ namespace Triangulation
             return result;
         }
 
+        public bool IsPointBoundary(int pointIndex)
+        {
+            int x = pointIndex % yCount;
+            int y = pointIndex / yCount;
+            return x == 0 || x == xCount - 1 || y == 0 || y == yCount - 1;
+        }
+
         private bool TryAddPoint(int pointIndex, Vector2[] points, out Vector3Int cellXYI, out int savedIndex)
         {
             return TryAddPoint(pointIndex, points[pointIndex], point => points[pointIndex] = point, out cellXYI, out savedIndex);

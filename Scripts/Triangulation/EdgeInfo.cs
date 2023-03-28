@@ -654,6 +654,30 @@ namespace Triangulation
             });
         }
 
+        public void SetTrianglesColors(Color innerColor)
+        {
+            foreach (var kvp in innerEdgeTriangleDict)
+            {
+                var edgeData = kvp.Value;
+                GetTriangleRef(edgeData.Triangle1Key, out _).FillColor = innerColor;
+                GetTriangleRef(edgeData.Triangle2Key, out _).FillColor = innerColor;
+            }
+            foreach (var kvp in extEdgeTriangleDict)
+            {
+                GetTriangleRef(kvp.Value, out _).FillColor = Color.LightGreen;
+            }
+        }
+
+        public void AddEdgesToTriangleDicts(Triangle[] triangles, int trianglesCount)
+        {
+            for (int i = 0; i < trianglesCount; i++)
+            {
+                AddEdgesToTriangleDicts(ref triangles[i]);
+            }
+            //PrintExtEdgeTriangleDict();
+            //PrintInnerEdgeTriangleDict();
+        }
+
         public void AddEdgesToTriangleDicts(Triangle[] triangles, int trianglesCount, Color innerColor)
         {
             for (int i = 0; i < trianglesCount; i++)
@@ -662,6 +686,29 @@ namespace Triangulation
             }
             //PrintExtEdgeTriangleDict();
             //PrintInnerEdgeTriangleDict();
+        }
+
+        public void AddEdgesToTriangleDicts(ref Triangle triangle)
+        {
+            if (triangle.Key < 0)
+            {
+                throw new Exception("AddEdgesToTriangleDicts: " + triangle.Key);
+            }
+            long triangleKey = triangle.Key;
+
+            ForEachEdge(triangle, (edgeKey, edge) => {
+                if (edgeCounterDict.TryGetValue(edgeKey, out int edgeCount))
+                {
+                    if (edgeCount == 1)
+                    {
+                        extEdgeTriangleDict.Add(edgeKey, triangleKey);
+                    }
+                    else if (edgeCount == 2)
+                    {
+                        AddInnerEdgeToTriangleDict(edge, edgeKey, triangleKey, out long extTriangleKey);
+                    }
+                }
+            });
         }
 
         public void AddEdgesToTriangleDicts(ref Triangle triangle, Color innerColor)
