@@ -297,7 +297,8 @@ namespace Triangulation
             if (validatePoints)
             {
                 //float circleSqrOffset = 0f;
-                float circleSqrOffset = -2f * circleTolerance;
+                //float circleSqrOffset = -2f * circleTolerance;
+                float circleSqrOffset = -0.1f * pointGrid.CellSizeMin;
 
                 for (int i = 0; i < pointsCount; i++)
                 {
