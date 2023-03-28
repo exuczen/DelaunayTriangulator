@@ -77,14 +77,14 @@ namespace Triangulation
             edgeInfo = new EdgeInfo(triangleSet, points, exceptionThrower);
         }
 
-        public void SetSuperCircumCircle(Vector2 size)
+        public void SetSuperCircumCircle(Bounds2 bounds)
         {
             if (pointsOffset <= 0)
             {
                 throw new ArgumentOutOfRangeException("SetSuperCircumCircle: pointsOffset" + pointsOffset);
             }
-            var center = 0.5f * size;
-            float r = center.Length;
+            var center = bounds.Center;
+            float r = (0.5f * bounds.Size).Length;
             int n = GetSuperPointsCount(superTrianglesCount);
             float alfa = MathF.PI / n;
             float R = 1.2f * r / MathF.Cos(alfa);

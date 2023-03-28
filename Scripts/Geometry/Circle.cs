@@ -24,7 +24,7 @@ namespace Triangulation
                 max = center + Radius * Vector2.One,
             };
             Filled = false;
-            SizeValid = Radius < MaxRadius;
+            SizeValid = Radius > 0f && Radius < MaxRadius;
         }
 
         public bool ContainsPoint(Vector2 point, float sqrOffset)
