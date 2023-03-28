@@ -11,6 +11,8 @@ namespace Triangulation
         public Dictionary<int, int> EdgeCounterDict => edgeCounterDict;
         public int InnerEdgeCount => innerEdgeTriangleDict.Count;
 
+        public Color ExtTriangleColor = Color.LightGreen;
+
         protected readonly IExceptionThrower exceptionThrower = null;
 
         protected readonly Dictionary<int, int> edgeCounterDict = new Dictionary<int, int>();
@@ -642,7 +644,7 @@ namespace Triangulation
                         extEdgeTriangleDict.Add(edgeKey, triangleKey);
 
                         ref var triangle = ref GetTriangleRef(triangleKey, out _);
-                        triangle.FillColor = Color.LightGreen;
+                        triangle.FillColor = ExtTriangleColor;
 
                         Log.WriteLine(GetType() + ".UpdateTriangleDicts: " + edge + " changed from internal to external");
                     }
@@ -664,7 +666,7 @@ namespace Triangulation
             }
             foreach (var kvp in extEdgeTriangleDict)
             {
-                GetTriangleRef(kvp.Value, out _).FillColor = Color.LightGreen;
+                GetTriangleRef(kvp.Value, out _).FillColor = ExtTriangleColor;
             }
         }
 
@@ -739,7 +741,7 @@ namespace Triangulation
                     }
                 }
             });
-            triangle.FillColor = extEdgeCount > 0 ? Color.LightGreen : innerColor;
+            triangle.FillColor = extEdgeCount > 0 ? ExtTriangleColor : innerColor;
             GetTriangleRef(triangleKey, out _).FillColor = triangle.FillColor;
 
             // change color of former external triangles
