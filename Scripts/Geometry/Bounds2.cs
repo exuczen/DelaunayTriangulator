@@ -11,6 +11,14 @@ namespace Triangulation
         public Vector2 Size => max - min;
         public Vector2 Center => (min + max) * 0.5f;
 
+        public static Bounds2 MinMax(Vector2 min, Vector2 max)
+        {
+            return new Bounds2 {
+                min = min,
+                max = max
+            };
+        }
+
         public static Bounds2 GetBounds(List<Vector2> points, int offset)
         {
             return GetBounds(i => points[i], offset, points.Count - 1);
@@ -50,13 +58,7 @@ namespace Triangulation
                     min.y = v.y;
                 }
             }
-            return new Bounds2(min, max);
-        }
-
-        public Bounds2(Vector2 min, Vector2 max)
-        {
-            this.min = min;
-            this.max = max;
+            return MinMax(min, max);
         }
 
         public bool Overlap(Bounds2 other)

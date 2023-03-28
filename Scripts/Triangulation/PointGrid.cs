@@ -72,7 +72,7 @@ namespace Triangulation
                     addPoint(i);
                 }
             }
-            bounds = new Bounds2(min, max);
+            bounds = Bounds2.MinMax(min, max);
             Array.Copy(points, pointsCount, points, offset, count);
             return offset + count;
         }

@@ -44,7 +44,7 @@
             var ray = point - Origin;
             float a = Vector2.Dot(ray, N1);
             float b = Vector2.Dot(ray, N2);
-            var bounds = new Bounds2(-tolerance * Vector2.One, Size + tolerance * Vector2.One);
+            var bounds = Bounds2.MinMax(-tolerance * Vector2.One, Size + tolerance * Vector2.One);
             return bounds.Contains(new Vector2(a, b));
         }
     }

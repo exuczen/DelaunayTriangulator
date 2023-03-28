@@ -374,7 +374,7 @@ namespace Triangulation
             var cellMax = cellMin + cellSize;
             cellMin -= Vector2.One * cellTolerance;
             cellMax += Vector2.One * cellTolerance;
-            var cellBounds = new Bounds2(cellMin, cellMax);
+            var cellBounds = Bounds2.MinMax(cellMin, cellMax);
 
             if (!cellBounds.Overlap(cc.Bounds))
             {
@@ -402,7 +402,7 @@ namespace Triangulation
         {
             var cellMin = new Vector2(x * cellSize.x, y * cellSize.y);
             var cellMax = cellMin + cellSize;
-            return new Bounds2(cellMin, cellMax);
+            return Bounds2.MinMax(cellMin, cellMax);
         }
 
         private void PrintCells()
