@@ -40,8 +40,6 @@ namespace Triangulation
             }
         }
 
-        protected override void OnClear(Vector2 viewSize) { }
-
         protected override void AddParticle(Vector2 point)
         {
             bool active = triangulator.TryAddPoint(point, out int i);

@@ -58,10 +58,9 @@ namespace Triangulation
             }
         }
 
-        public void Clear(Vector2 viewSize)
+        public void Clear()
         {
             triangulator.Clear();
-            OnClear(viewSize);
             UpdateTriangulation();
         }
 
@@ -75,10 +74,6 @@ namespace Triangulation
         public void UpdateTriangulation()
         {
             InvokeTriangulateAction(() => triangulator.Triangulate());
-        }
-
-        protected virtual void OnClear(Vector2 viewSize)
-        {
         }
 
         protected virtual void AddParticle(Vector2 point)
