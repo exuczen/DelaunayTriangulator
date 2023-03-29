@@ -54,7 +54,7 @@ namespace Triangulation
             ClearIndices();
 
             int count = 0;
-            var min = points[0];
+            var min = points[offset];
             var max = min;
 
             void addPoint(int i)

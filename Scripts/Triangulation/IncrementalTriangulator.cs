@@ -76,7 +76,7 @@ namespace Triangulation
 
             //Log.WriteLine(GetType() + ".Initialize: circleTolerance: " + circleTolerance);
 
-            SetSuperCircumCircle(Bounds2.MinMax(Vector2.Zero, gridSize));
+            SetSuperCircumCirclePoints(Bounds2.MinMax(Vector2.Zero, gridSize), false);
 
             if (triangulate)
             {

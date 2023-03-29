@@ -67,6 +67,12 @@ namespace Triangulation
                 && other.min.y <= max.y && other.max.y >= min.y;
         }
 
+        public bool Contains(Bounds2 other)
+        {
+            return other.min.x >= min.x && other.max.x <= max.x
+                && other.min.y >= min.y && other.max.y <= max.y;
+        }
+
         public bool Contains(Vector2 point)
         {
             return point.x >= min.x && point.x <= max.x
