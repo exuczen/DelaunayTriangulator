@@ -20,6 +20,8 @@ namespace Triangulation
         {
             get => !SuperCircumference && superTrianglesCount > 1 || SuperCircumference && superTrianglesCount <= 1 || pointsOffset != GetSuperPointsCount(superTrianglesCount);
         }
+        public int SuperTrianglesCount => superTrianglesCount;
+
         protected readonly IExceptionThrower exceptionThrower = null;
 
         protected readonly TriangleSet triangleSet = null;
