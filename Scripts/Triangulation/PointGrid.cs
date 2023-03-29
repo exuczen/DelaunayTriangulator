@@ -57,19 +57,15 @@ namespace Triangulation
             var min = points[offset];
             var max = min;
 
-            void addPoint(int i)
-            {
-                var point = points[i];
-                points[pointsCount + count++] = point;
-                min = Vector2.Min(min, point);
-                max = Vector2.Max(max, point);
-            }
             for (int i = offset; i < pointsCount; i++)
             {
                 if (TryAddPoint(i, points, out var xyi, out _))
                 {
-                    indices[xyi.z] = count;
-                    addPoint(i);
+                    var point = points[i];
+                    indices[xyi.z] = offset + count;
+                    points[pointsCount + count++] = point;
+                    min = Vector2.Min(min, point);
+                    max = Vector2.Max(max, point);
                 }
             }
             bounds = Bounds2.MinMax(min, max);
