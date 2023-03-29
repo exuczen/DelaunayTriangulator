@@ -5,13 +5,15 @@ namespace Triangulation
 {
     public class Triangulator
     {
+        private const int SUPERTRIANGLES_MAX = 16;
+
         public int TrianglesCount => trianglesCount;
         public int PointsOffset => pointsOffset;
         public int PointsCount { get => pointsCount; set => pointsCount = Math.Max(pointsOffset, value); }
         public Vector2[] Points => points;
         public Triangle[] Triangles => triangles;
         public List<Triangle> CCTriangles => ccTriangles;
-        public Triangle[] SuperTriangles => supertriangles;
+        public Triangle[] DebugSuperTriangles => debugSuperTriangles;
         public bool SuperCircumference { get; set; } = false;
         public bool Supermanent { get; set; } = false;
         public bool SuperPointsMismatch
@@ -38,7 +40,7 @@ namespace Triangulation
         protected float circleTolerance = 0f;
 
         protected Bounds2 bounds = default;
-        protected Triangle[] supertriangles = null;
+        protected Triangle[] debugSuperTriangles = new Triangle[SUPERTRIANGLES_MAX];
 
         protected int pointsCount = 3;
         protected int pointsOffset = 3;
@@ -69,9 +71,9 @@ namespace Triangulation
             edgeInfo = new EdgeInfo(triangleSet, points, exceptionThrower);
         }
 
-        public void SetSuperCircumCirclePoints(Bounds2 bounds, bool countFromOffset)
+        public void SetSuperCircumCirclePoints(Bounds2 bounds, bool usePointsOffset)
         {
-            if (countFromOffset)
+            if (usePointsOffset)
             {
                 superTrianglesCount = GetSuperTrianglesCount(pointsOffset);
                 superCircumCircle = SetSuperCircumCircle(bounds, pointsOffset);
@@ -84,7 +86,7 @@ namespace Triangulation
             {
                 int prevOffset = pointsOffset;
 
-                superTrianglesCount = SuperCircumference ? 16 : 1;
+                superTrianglesCount = SuperCircumference ? SUPERTRIANGLES_MAX : 1;
 
                 pointsOffset = GetSuperPointsCount(superTrianglesCount);
                 superCircumCircle = SetSuperCircumCircle(bounds, pointsOffset);
@@ -166,7 +168,8 @@ namespace Triangulation
 
         protected virtual void ClearTriangles()
         {
-            ClearSuperTriangles();
+            ClearDebugSuperTriangles();
+
             completedTrianglesCount = 0;
             trianglesCount = 0;
 
@@ -221,15 +224,15 @@ namespace Triangulation
             pointsList.CopyTo(points, 0);
         }
 
-        protected void ClearSuperTriangles()
+        protected void ClearDebugSuperTriangles()
         {
-            if (supertriangles == null || supertriangles[0].A < 0)
+            if (debugSuperTriangles[0].A < 0)
             {
                 return;
             }
-            for (int i = 0; i < supertriangles.Length; i++)
+            for (int i = 0; i < superTrianglesCount; i++)
             {
-                supertriangles[i] = Triangle.None;
+                debugSuperTriangles[i] = Triangle.None;
             }
         }
 
@@ -665,10 +668,6 @@ namespace Triangulation
                 SetSuperCircumCirclePoints(bounds, true);
                 Log.WriteLine("AddSuperTriangles: SuperPointsMismatch:" + SuperPointsMismatch + " pointsOffset: " + pointsOffset + " superTrianglesCount: " + superTrianglesCount + " pointsCount: " + pointsCount + " superCircumCircle: " + superCircumCircle);
             }
-            if (supertriangles == null || supertriangles.Length != superTrianglesCount)
-            {
-                supertriangles = new Triangle[superTrianglesCount];
-            }
             if (superTrianglesCount > 1)
             {
                 var center = mismatch ? bounds.Center : superCircumCircle.Center;
@@ -678,10 +677,10 @@ namespace Triangulation
                 for (int i = 0; i < superTrianglesCount - 1; i++)
                 {
                     AddTriangle(centerPointIndex, i, i + 1, out triangleIndex);
-                    supertriangles[i] = triangles[triangleIndex];
+                    debugSuperTriangles[i] = triangles[triangleIndex];
                 }
                 AddTriangle(centerPointIndex, superTrianglesCount - 1, 0, out triangleIndex);
-                supertriangles[superTrianglesCount - 1] = triangles[triangleIndex];
+                debugSuperTriangles[superTrianglesCount - 1] = triangles[triangleIndex];
 
                 //Log.PrintTriangles(supertriangles, SuperTriangleCount);
                 //Log.PrintPoints(points, pointsCount + SuperTriangleCount + 1);
@@ -689,7 +688,7 @@ namespace Triangulation
             else
             {
                 AddTriangle(0, 1, 2, out int triangleIndex);
-                supertriangles[0] = triangles[triangleIndex];
+                debugSuperTriangles[0] = triangles[triangleIndex];
             }
         }
 

@@ -589,7 +589,7 @@ namespace Triangulation
         {
             ClearAddedTriangles();
 
-            ClearSuperTriangles();
+            ClearDebugSuperTriangles();
 
             edgeInfo.ClearLastPointData();
 
