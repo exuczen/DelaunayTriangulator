@@ -6,9 +6,11 @@
         public static readonly Color Blue = new(0xFF0000FF);
         public static readonly Color Black = new(0xFF000000);
         public static readonly Color FloralWhite = new(0xFFFFFAF0);
+        public static readonly Color Green = new(0xFF00FF00);
         public static readonly Color LightGreen = new(0xFF90EE90);
-        public static readonly Color White = new(0xFFFFFFFF);
         public static readonly Color Red = new(0xFFFF0000);
+        public static readonly Color White = new(0xFFFFFFFF);
+        public static readonly Color Yellow = new(0xFFFFFF00);
 
         public int argb;
 

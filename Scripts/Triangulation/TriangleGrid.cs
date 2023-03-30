@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define DEBUG_CELL_COLORS
+
+using System;
 using System.Collections.Generic;
 
 namespace Triangulation
@@ -14,6 +16,7 @@ namespace Triangulation
         public Vector2 Size => size;
         public Vector2Int XYCount => new Vector2Int(xCount, yCount);
         public Vector2Int SelectedCellXY => selectedCellXY;
+        public TriangleCell SelectedCell => selectedCell;
 
         private readonly Vector2 size = default;
         private readonly Vector2 cellSize = default;
@@ -89,9 +92,14 @@ namespace Triangulation
             ForEachCell((i, cell) => cell.Clear());
         }
 
-        public void ClearFilledCells()
+        public void ClearFilledCellCircles()
         {
-            ForEachCell((i, cell) => SetCellFilled(cell, false));
+            ForEachCell((i, cell) => SetCellCirclesFilled(cell, false));
+        }
+
+        public void ClearFilledCellColors()
+        {
+            ForEachCell((i, cell) => cell.ClearFillColor());
         }
 
         public bool IsPointInsideTriangle(Vector2 point, Vector2[] points, float circleTolerance)
@@ -116,63 +124,28 @@ namespace Triangulation
 
         public bool FindClosestCellWithPredicate(int centerX, int centerY, out TriangleCell cell, Predicate<TriangleCell> predicate)
         {
-            if (GetCell(centerX, centerY, out cell, out _) && predicate(cell))
+#if DEBUG_CELL_COLORS
+            bool cellPredicate(int x, int y, Color color)
             {
-                return true;
-            }
-            int radius = 1;
-            var xInBounds = new bool[2] {
-                centerX - radius >= 0,
-                centerX + radius < xCount
-            };
-            var yInBounds = new bool[2] {
-                centerY - radius >= 0,
-                centerY + radius < yCount
-            };
-            while (xInBounds[0] || xInBounds[1] || yInBounds[0] || yInBounds[1])
-            {
-                int dxMax = Math.Min(radius - 1, xCount - 1 - centerX);
-                int dxMin = -Math.Min(radius - 1, centerX);
-                int dyMax = Math.Min(radius, yCount - 1 - centerY);
-                int dyMin = -Math.Min(radius, centerY);
-
-                for (int absDr = 0; absDr <= radius; absDr++)
+                if (GetCell(x, y, out var cell2, out _))
                 {
-                    for (int i = 0; i < 2; i++)
-                    {
-                        int boundsSign = (i << 1) - 1;
-
-                        for (int j = -1; j <= 1; j += 2)
-                        {
-                            int dr = j * absDr;
-                            if (yInBounds[i] && dr >= dxMin && dr <= dxMax)
-                            {
-                                int y = centerY + radius * boundsSign;
-                                int x = centerX + dr;
-                                if (GetCell(x, y, out cell, out _) && predicate(cell))
-                                {
-                                    return true;
-                                }
-                            }
-                            if (xInBounds[i] && dr >= dyMin && dr <= dyMax)
-                            {
-                                int x = centerX + radius * boundsSign;
-                                int y = centerY + dr;
-                                if (GetCell(x, y, out cell, out _) && predicate(cell))
-                                {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
+                    cell2.SetFillColor(color);
+                    return predicate(cell2);
                 }
-                radius++;
-                xInBounds[0] = centerX - radius >= 0;
-                xInBounds[1] = centerX + radius < xCount;
-                yInBounds[0] = centerY - radius >= 0;
-                yInBounds[1] = centerY + radius < yCount;
+                return false;
             }
-            return false;
+#else
+            bool cellPredicate(int x, int y, Color color) => GetCell(x, y, out var cell2, out _) && predicate(cell2);
+#endif
+            if (GridUtils.FindClosestCellWithPredicate(centerX, centerY, xCount, yCount, out var cellXY, cellPredicate))
+            {
+                return GetCell(cellXY.x, cellXY.y, out cell, out _);
+            }
+            else
+            {
+                cell = null;
+                return false;
+            }
         }
 
         public void AddTriangles(Triangle[] triangles, int trianglesCount)
@@ -274,11 +247,11 @@ namespace Triangulation
             {
                 if (selectedCell != null && selectedCell != cell)
                 {
-                    SetCellFilled(selectedCell, false);
+                    SetCellCirclesFilled(selectedCell, false);
                 }
                 selectedCell = cell;
                 selectedCellXY = cellXY;
-                SetCellFilled(cell, true);
+                SetCellCirclesFilled(cell, true);
 
                 //cell.DebugPoint = default;
                 //foreach (int tIndex in cell.TriangleIndices)
@@ -334,10 +307,9 @@ namespace Triangulation
         //    triangleCellsDict[t.Key].Clear();
         //}
 
-        private void SetCellFilled(TriangleCell cell, bool filled)
+        private void SetCellCirclesFilled(TriangleCell cell, bool filled)
         {
             int pointsLength = triangleSet.PointsLength;
-            cell.Filled = filled;
             foreach (long key in cell.TriangleKeys)
             {
                 ref var triangle = ref GetTriangleRef(key, out int triangleIndex);

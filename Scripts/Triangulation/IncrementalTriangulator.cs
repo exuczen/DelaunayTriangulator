@@ -596,6 +596,8 @@ namespace Triangulation
             cellPointsIndices.Clear();
             cellTrianglesIndices.Clear();
             cellPolygon.Clear();
+
+            triangleGrid.ClearFilledCellColors();
         }
 
         private void AddTriangleVertsToCellPoints(Triangle triangle)
