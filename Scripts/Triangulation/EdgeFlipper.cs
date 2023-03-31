@@ -116,7 +116,7 @@ namespace Triangulation
                     removedTriangleKeys.Add(triangleKey);
                     addedTriangleKeys.Remove(triangleKey);
                 }
-                Log.WriteLine(GetType() + ".FlipEdgesRecursively: FLIPPING TRIANGLES: " + flipTriangles[0] + ", " + flipTriangles[1] + ", flip edge: " + edge);
+                //Log.WriteLine(GetType() + ".FlipEdgesRecursively: FLIPPING TRIANGLES: " + flipTriangles[0] + ", " + flipTriangles[1] + ", flip edge: " + edge);
                 for (int i = 0; i < 2; i++)
                 {
                     for (int j = 0; j < 2; j++)
@@ -146,7 +146,7 @@ namespace Triangulation
                 //edgeInfo.PrintEdgeCounterDict();
                 //edgeInfo.PrintExtEdgeTriangleDict();
                 //edgeInfo.PrintInnerEdgeTriangleDict();
-                Log.WriteLine(GetType() + ".FlipEdgesRecursively: FLIPPED TRIANGLES: " + flipTriangles[0] + ", " + flipTriangles[1]);
+                //Log.WriteLine(GetType() + ".FlipEdgesRecursively: FLIPPED TRIANGLES: " + flipTriangles[0] + ", " + flipTriangles[1]);
 
                 for (int i = 0; i < 2; i++)
                 {
@@ -163,7 +163,7 @@ namespace Triangulation
             }
             else
             {
-                Log.WriteLine(GetType() + ".FlipEdgesRecursively: " + edge + " NOT FOUND IN innerEdgeTriangleDict");
+                Log.WriteWarning(GetType() + ".FlipEdgesRecursively: " + edge + " NOT FOUND IN innerEdgeTriangleDict");
             }
         }
 

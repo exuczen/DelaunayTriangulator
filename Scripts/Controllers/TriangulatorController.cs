@@ -107,7 +107,7 @@ namespace Triangulation
 
         protected Stopwatch InvokeActionWithStopwatch(Action action)
         {
-            stopwatch.Start();
+            stopwatch.Restart();
             action();
             stopwatch.Stop();
             return stopwatch;

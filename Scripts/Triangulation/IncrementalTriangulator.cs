@@ -202,7 +202,7 @@ namespace Triangulation
                         ClearPoint(pointIndex);
                     }
                 }
-                //PrintTriangles();
+                //Log.PrintArray(triangles, trianglesCount, "AddPointToTriangulation: ");
                 //edgeInfo.PrintPointsExternal(pointsCount);
 
                 ValidateTriangulation(EdgesValidation, PointsValidation);
@@ -366,7 +366,7 @@ namespace Triangulation
 
             addedEdgeInfo.JoinSortExternalEdges(exceptionThrower);
 
-            addedEdgeInfo.PrintExternalEdges("AddTrianglesOnClearPoint");
+            //addedEdgeInfo.PrintExternalEdges("AddTrianglesOnClearPoint");
 
             cellPolygon.SetFromExternalEdges(addedEdgeInfo, points);
 
@@ -747,14 +747,6 @@ namespace Triangulation
         private void AddTriangleToProcess(EdgeEntry edge, int pointIndex)
         {
             addedTriangles[addedTrianglesCount++] = new Triangle(edge.A, edge.B, pointIndex, points);
-        }
-
-        private void PrintTriangles()
-        {
-            for (int i = 0; i < trianglesCount; i++)
-            {
-                Log.WriteLine(GetType() + ".PrintTriangles: " + i + " " + triangles[i]);
-            }
         }
     }
 }

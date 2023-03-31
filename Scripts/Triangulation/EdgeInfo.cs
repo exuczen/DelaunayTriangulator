@@ -81,7 +81,7 @@ namespace Triangulation
 
         public void PrintExternalEdges(string prefix = null)
         {
-            Log.PrintEdges(extEdges, extEdgeCount, "PrintExternalEdges: " + prefix);
+            Log.PrintArray(extEdges, extEdgeCount, "PrintExternalEdges: " + prefix);
         }
 
         public void PrintPointsExternal(int pointsCount, string prefix = null)
@@ -906,7 +906,7 @@ namespace Triangulation
             void printExternalEdges()
             {
                 PrintExternalEdges("JoinSortExternalEdges 2");
-                Log.PrintIndexRanges(extEdgeRanges);
+                Log.PrintList(extEdgeRanges, "PrintIndexRanges: ");
             }
             if (extEdgeRanges.Count > 1)
             {

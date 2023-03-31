@@ -632,7 +632,7 @@ namespace Triangulation
                 ccTriangle.FillColor = Color.Red;
                 triangles[trianglesCount++] = ccTriangle;
             }
-            Log.PrintTriangles(triangles, trianglesCount, triangleToString, "ReplaceEdgesWithTriangles: ");
+            Log.PrintArray(triangles, trianglesCount, triangleToString, "ThrowCCTrianglesException: ");
             exceptionThrower.ThrowException("BASE TRIANGULATION FAILED", ErrorCode.BaseTriangulationFailed, pointIndex);
         }
 
