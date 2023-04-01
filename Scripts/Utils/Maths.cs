@@ -92,15 +92,15 @@ namespace Triangulation
             }
         }
 
-        public static int GetClosestPointIndex(Vector2 center, Vector2[] points, int offset, int pointsCount)
+        public static int GetClosestPointIndex(Vector2 center, Vector2[] points, int beg, int end)
         {
-            if (pointsCount <= 0)
+            if (beg < 0 || end < 0)
             {
                 return -1;
             }
-            int pointIndex = offset;
-            float sqrDistMin = (points[offset] - center).SqrLength;
-            for (int i = offset + 1; i < pointsCount; i++)
+            int pointIndex = beg;
+            float sqrDistMin = (points[beg] - center).SqrLength;
+            for (int i = beg + 1; i <= end; i++)
             {
                 float sqrDist = (points[i] - center).SqrLength;
                 if (sqrDist < sqrDistMin)

@@ -1,6 +1,4 @@
-﻿//#define DEBUG_CLOSEST_CELLS
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -140,7 +138,7 @@ namespace Triangulation
                 return false;
             }
 #else
-            bool cellPredicate(int x, int y, Color color, string s) => GetCell(x, y, out var cell2, out _) && predicate(cell2);
+            bool cellPredicate(int x, int y) => GetCell(x, y, out var cell2, out _) && predicate(cell2);
 #endif
             if (GridUtils.FindClosestCellWithPredicate(centerX, centerY, xCount, yCount, out var cellXY, cellPredicate))
             {

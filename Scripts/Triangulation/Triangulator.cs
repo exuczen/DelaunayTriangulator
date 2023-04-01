@@ -227,6 +227,11 @@ namespace Triangulation
             pointsList.CopyTo(points, 0);
         }
 
+        protected virtual int GetClosestPointIndex(Vector2 center)
+        {
+            return Maths.GetClosestPointIndex(center, points, pointsOffset, pointsCount - 1);
+        }
+
         protected void ClearDebugSuperTriangles()
         {
             if (debugSuperTriangles[0].A < 0)
@@ -674,7 +679,7 @@ namespace Triangulation
             if (superTrianglesCount > 1)
             {
                 var center = mismatch ? bounds.Center : superCircumCircle.Center;
-                centerPointIndex = Maths.GetClosestPointIndex(center, points, pointsOffset, pointsCount);
+                centerPointIndex = GetClosestPointIndex(center);
 
                 int triangleIndex;
                 for (int i = 0; i < superTrianglesCount - 1; i++)

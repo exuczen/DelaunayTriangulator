@@ -7,16 +7,32 @@ namespace Triangulation
     {
         private static readonly Color[] DebugColors = { Color.Red, Color.Green, Color.Blue, Color.Yellow };
 
-        public static bool FindClosestCellWithPredicate(int cX, int cY, int xCount, int yCount,
-            /*out TriangleCell cell, Predicate<TriangleCell> predicate*/
-            out Vector2Int cellXY, Func<int, int, Color, string, bool> predicate)
+        public static bool FindClosestCellWithPredicate(Vector2Int cXY, Vector2Int xyCount, out Vector2Int cellXY,
+#if DEBUG_CLOSEST_CELLS
+            Func<int, int, Color, string, bool> predicate)
+#else
+            Func<int, int, bool> predicate)
+#endif
         {
-            //static string deltaString(int dr, int dl) => string.Format("({0},{1})", dr, dl);
-            static string deltaString(int dr, int dl) => null;
+            return FindClosestCellWithPredicate(cXY.x, cXY.y, xyCount.x, xyCount.y, out cellXY, predicate);
+        }
 
+        public static bool FindClosestCellWithPredicate(int cX, int cY, int xCount, int yCount, out Vector2Int cellXY,
+#if DEBUG_CLOSEST_CELLS
+            Func<int, int, Color, string, bool> predicate)
+#else
+            Func<int, int, bool> predicate)
+#endif
+        {
+#if DEBUG_CLOSEST_CELLS
+            static string deltaString(int dr, int dl) => string.Format("({0},{1})", dr, dl);
+#endif
             cellXY = new Vector2Int(cX, cY);
-            /*if (GetCell(cX, cY, out cell, out _) && predicate(cell))*/
+#if DEBUG_CLOSEST_CELLS
             if (predicate(cX, cY, Color.White, deltaString(0, 0)))
+#else
+            if (predicate(cX, cY))
+#endif
             {
                 return true;
             }
@@ -55,8 +71,11 @@ namespace Triangulation
                             {
                                 int y = cY + dl;
                                 int x = cX + dr;
-                                /*if (GetCell(x, y, out cell, out _) && predicate(cell))*/
+#if DEBUG_CLOSEST_CELLS
                                 if (predicate(x, y, debugColor, deltaString(dl, dr)))
+#else
+                                if (predicate(x, y))
+#endif
                                 {
                                     cellXY = new Vector2Int(x, y);
                                     return true;
@@ -66,8 +85,11 @@ namespace Triangulation
                             {
                                 int y = cY + dr;
                                 int x = cX + dl;
-                                /*if (GetCell(x, y, out cell, out _) && predicate(cell))*/
+#if DEBUG_CLOSEST_CELLS
                                 if (predicate(x, y, debugColor, deltaString(dr, dl)))
+#else
+                                if (predicate(x, y))
+#endif
                                 {
                                     cellXY = new Vector2Int(x, y);
                                     return true;
