@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace Triangulation
 {
@@ -9,6 +10,7 @@ namespace Triangulation
     {
         public int YCount => yCount;
         public int XCount => xCount;
+        public Vector2Int XYCount => new Vector2Int(xCount, yCount);
         public float CellSizeMin => MathF.Min(cellSize.x, cellSize.y);
         public Vector2 CellSize => cellSize;
         public Vector2 Size => size;
@@ -94,7 +96,7 @@ namespace Triangulation
             }
         }
 
-        public bool CanAddPoint(Vector2 point, out Vector3Int cellXYI, out int savedIndex, bool throwOffGridException)
+        public bool CanAddPoint(Vector2 point, out Vector3Int cellXYI, out int savedIndex, bool throwOffGridException = true)
         {
             bool onGrid = GetCellXYIndex(point, out cellXYI, throwOffGridException);
             savedIndex = onGrid ? indices[cellXYI.z] : -1;
@@ -119,6 +121,24 @@ namespace Triangulation
             int x = pointIndex % yCount;
             int y = pointIndex / yCount;
             return x == 0 || x == xCount - 1 || y == 0 || y == yCount - 1;
+        }
+
+        public int GetClosestPointIndex(Vector2 center)
+        {
+            if (GetCellXYIndex(center, out var centerXYI))
+            {
+#if DEBUG_CLOSEST_CELLS
+                bool cellPredicate(int x, int y, Color color, string s) => indices[x + y * xCount] >= 0;
+#else
+                bool cellPredicate(int x, int y) => indices[x + y * xCount] >= 0;
+#endif
+                if (GridUtils.FindClosestCellWithPredicate(centerXYI.x, centerXYI.y, xCount, yCount, out var cellXY, cellPredicate))
+                {
+                    //Log.WriteLine("PointGrid.GetClosestPointIndex: cellXY: " + cellXY + " " + GetPointIndex(cellXY));
+                    return indices[cellXY.x + cellXY.y * xCount];
+                }
+            }
+            return -1;
         }
 
         private bool TryAddPoint(int pointIndex, Vector2[] points, out Vector3Int cellXYI, out int savedIndex)
@@ -148,12 +168,51 @@ namespace Triangulation
             return result;
         }
 
-        private bool GetCellXYIndex(Vector2 point, out Vector3Int cellXYI, bool throwException)
+        private int GetPointIndex(Vector2Int cellXY)
+        {
+            return GetPointIndex(cellXY.x, cellXY.y);
+        }
+
+        private int GetPointIndex(int x, int y)
+        {
+            if (GetCellIndex(x, y, out int cellIndex))
+            {
+                return indices[cellIndex];
+            }
+            return -1;
+        }
+
+        private int GetCellIndex(Vector2Int cellXY)
+        {
+            return GetCellIndex(cellXY.x, cellXY.y);
+        }
+
+        private int GetCellIndex(int x, int y)
+        {
+            if (x >= 0 && x < xCount && y >= 0 && y < yCount)
+            {
+                return x + y * xCount;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
+        private bool GetCellIndex(int x, int y, out int cellIndex)
+        {
+            cellIndex = GetCellIndex(x, y);
+            return cellIndex >= 0;
+        }
+
+        private bool GetCellXYIndex(Vector2 point, out Vector3Int cellXYI, bool throwException = true)
         {
             int x = (int)((point.x + cellHalfSize.x) / cellSize.x);
             int y = (int)((point.y + cellHalfSize.y) / cellSize.y);
-            bool inBounds = x >= 0 && x < xCount && y >= 0 && y < yCount;
-            cellXYI = new Vector3Int(x, y, inBounds ? x + y * xCount : -1);
+
+            bool inBounds = GetCellIndex(x, y, out int cellIndex);
+            cellXYI = new Vector3Int(x, y, cellIndex);
+
 #if THROW_POINT_OUT_OF_BOUNDS_EXCEPTION
             if (throwException && !inBounds)
             {

@@ -242,6 +242,11 @@ namespace Triangulation
             pointsList.CopyTo(points, 0);
         }
 
+        protected override int GetClosestPointIndex(Vector2 center)
+        {
+            return pointGrid.GetClosestPointIndex(center);
+        }
+
         protected override void ClearPoint(int pointIndex, bool addToUnused = true)
         {
             pointGrid.ClearPoint(pointIndex, points);
