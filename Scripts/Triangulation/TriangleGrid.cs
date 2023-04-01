@@ -1,4 +1,4 @@
-﻿//#define DEBUG_CELL_COLORS
+﻿//#define DEBUG_CLOSEST_CELLS
 
 using System;
 using System.Collections.Generic;
@@ -98,9 +98,12 @@ namespace Triangulation
             ForEachCell((i, cell) => SetCellCirclesFilled(cell, false));
         }
 
-        public void ClearFilledCellColors()
+        public void ClearFilledCellsColorAndText()
         {
-            ForEachCell((i, cell) => cell.ClearFillColor());
+            ForEachCell((i, cell) => {
+                cell.ClearFillColor();
+                cell.DebugText = null;
+            });
         }
 
         public bool IsPointInsideTriangle(Vector2 point, Vector2[] points, float circleTolerance)
@@ -125,18 +128,19 @@ namespace Triangulation
 
         public bool FindClosestCellWithPredicate(int centerX, int centerY, out TriangleCell cell, Predicate<TriangleCell> predicate)
         {
-#if DEBUG_CELL_COLORS
-            bool cellPredicate(int x, int y, Color color)
+#if DEBUG_CLOSEST_CELLS
+            bool cellPredicate(int x, int y, Color color, string s)
             {
                 if (GetCell(x, y, out var cell2, out _))
                 {
+                    cell2.DebugText = s;
                     cell2.SetFillColor(color);
                     return predicate(cell2);
                 }
                 return false;
             }
 #else
-            bool cellPredicate(int x, int y, Color color) => GetCell(x, y, out var cell2, out _) && predicate(cell2);
+            bool cellPredicate(int x, int y, Color color, string s) => GetCell(x, y, out var cell2, out _) && predicate(cell2);
 #endif
             if (GridUtils.FindClosestCellWithPredicate(centerX, centerY, xCount, yCount, out var cellXY, cellPredicate))
             {

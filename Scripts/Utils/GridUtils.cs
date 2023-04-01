@@ -9,11 +9,14 @@ namespace Triangulation
 
         public static bool FindClosestCellWithPredicate(int cX, int cY, int xCount, int yCount,
             /*out TriangleCell cell, Predicate<TriangleCell> predicate*/
-            out Vector2Int cellXY, Func<int, int, Color, bool> predicate)
+            out Vector2Int cellXY, Func<int, int, Color, string, bool> predicate)
         {
+            //static string deltaString(int dr, int dl) => string.Format("({0},{1})", dr, dl);
+            static string deltaString(int dr, int dl) => null;
+
             cellXY = new Vector2Int(cX, cY);
             /*if (GetCell(cX, cY, out cell, out _) && predicate(cell))*/
-            if (predicate(cX, cY, Color.White))
+            if (predicate(cX, cY, Color.White, deltaString(0, 0)))
             {
                 return true;
             }
@@ -43,16 +46,17 @@ namespace Triangulation
                     for (int i = 0; i < 2; i++)
                     {
                         int boundsSign = (i << 1) - 1;
+                        int dl = radius * boundsSign;
 
                         for (int j = -1; j <= 1; j += 2)
                         {
                             int dr = j * absDr;
                             if (yInBounds[i] && dr >= dxMin && dr <= dxMax)
                             {
-                                int y = cY + radius * boundsSign;
+                                int y = cY + dl;
                                 int x = cX + dr;
                                 /*if (GetCell(x, y, out cell, out _) && predicate(cell))*/
-                                if (predicate(x, y, debugColor))
+                                if (predicate(x, y, debugColor, deltaString(dl, dr)))
                                 {
                                     cellXY = new Vector2Int(x, y);
                                     return true;
@@ -60,10 +64,10 @@ namespace Triangulation
                             }
                             if (xInBounds[i] && dr >= dyMin && dr <= dyMax)
                             {
-                                int x = cX + radius * boundsSign;
                                 int y = cY + dr;
+                                int x = cX + dl;
                                 /*if (GetCell(x, y, out cell, out _) && predicate(cell))*/
-                                if (predicate(x, y, debugColor))
+                                if (predicate(x, y, debugColor, deltaString(dr, dl)))
                                 {
                                     cellXY = new Vector2Int(x, y);
                                     return true;
