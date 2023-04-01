@@ -275,18 +275,6 @@ namespace Triangulation
             }
         }
 
-        private Triangle GetFirstTriangleWithVertex(int pointIndex)
-        {
-            for (int i = 0; i < trianglesCount; i++)
-            {
-                if (triangles[i].HasVertex(pointIndex))
-                {
-                    return triangles[i];
-                }
-            }
-            return Triangle.None;
-        }
-
         private bool ValidateTriangulation(bool validateEdges, bool validatePoints)
         {
             if (!validateEdges && !validatePoints)
