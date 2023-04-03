@@ -125,20 +125,41 @@ namespace Triangulation
 
         public int GetClosestPointIndex(Vector2 center)
         {
-            if (GetCellXYIndex(center, out var centerXYI))
-            {
 #if DEBUG_CLOSEST_CELLS
-                bool cellPredicate(int x, int y, Color color, string s) => indices[x + y * xCount] >= 0;
+            bool cellPredicate(Vector3Int xyi, Color color, string s) => indices[xyi.z] >= 0;
 #else
-                bool cellPredicate(int x, int y) => indices[x + y * xCount] >= 0;
+            bool cellPredicate(Vector3Int xyi) => indices[xyi.z] >= 0;
 #endif
-                if (GridUtils.FindClosestCellWithPredicate(centerXYI.x, centerXYI.y, xCount, yCount, out var cellXY, cellPredicate))
-                {
-                    //Log.WriteLine("PointGrid.GetClosestPointIndex: cellXY: " + cellXY + " " + GetPointIndex(cellXY));
-                    return indices[cellXY.x + cellXY.y * xCount];
-                }
+            if (GetClosestCellWithPredicate(center, out var cellXYI, cellPredicate))
+            {
+                //Log.WriteLine("PointGrid.GetClosestPointIndex: cellXYI: " + cellXYI + " " + indices[cellXYI.z]);
+                return indices[cellXYI.z];
             }
             return -1;
+        }
+
+        public bool GetClosestClearCell(Vector2 point, out Vector3Int cellXYI)
+        {
+#if DEBUG_CLOSEST_CELLS
+            bool cellPredicate(Vector3Int xyi, Color color, string s) => indices[xyi.z] < 0;
+#else
+            bool cellPredicate(Vector3Int xyi) => indices[xyi.z] < 0;
+#endif
+            return GetClosestCellWithPredicate(point, out cellXYI, cellPredicate);
+        }
+
+        private bool GetClosestCellWithPredicate(Vector2 point, out Vector3Int cellXYI,
+#if DEBUG_CLOSEST_CELLS
+            Func<Vector3Int, Color, string, bool> predicate)
+#else
+            Predicate<Vector3Int> predicate)
+#endif
+        {
+            if (GetCellXYIndex(point, out cellXYI))
+            {
+                return GridUtils.FindClosestCellWithPredicate(cellXYI.x, cellXYI.y, xCount, yCount, out cellXYI, predicate);
+            }
+            return false;
         }
 
         private bool TryAddPoint(int pointIndex, Vector2[] points, out Vector3Int cellXYI, out int savedIndex)

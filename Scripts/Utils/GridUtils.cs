@@ -7,33 +7,35 @@ namespace Triangulation
     {
         private static readonly Color[] DebugColors = { Color.Red, Color.Green, Color.Blue, Color.Yellow };
 
-        public static bool FindClosestCellWithPredicate(Vector2Int cXY, Vector2Int xyCount, out Vector2Int cellXY,
+        public static bool FindClosestCellWithPredicate(Vector2Int cXY, Vector2Int xyCount, out Vector3Int cellXYI,
 #if DEBUG_CLOSEST_CELLS
-            Func<int, int, Color, string, bool> predicate)
+            Func<Vector3Int, Color, string, bool> predicate)
 #else
-            Func<int, int, bool> predicate)
+            Predicate<Vector3Int> predicate)
 #endif
         {
-            return FindClosestCellWithPredicate(cXY.x, cXY.y, xyCount.x, xyCount.y, out cellXY, predicate);
+            return FindClosestCellWithPredicate(cXY.x, cXY.y, xyCount.x, xyCount.y, out cellXYI, predicate);
         }
 
-        public static bool FindClosestCellWithPredicate(int cX, int cY, int xCount, int yCount, out Vector2Int cellXY,
+        public static bool FindClosestCellWithPredicate(int cX, int cY, int xCount, int yCount, out Vector3Int cellXYI,
 #if DEBUG_CLOSEST_CELLS
-            Func<int, int, Color, string, bool> predicate)
+            Func<Vector3Int, Color, string, bool> predicate)
 #else
-            Func<int, int, bool> predicate)
+            Predicate<Vector3Int> predicate)
 #endif
         {
 #if DEBUG_CLOSEST_CELLS
             static string deltaString(int dr, int dl) => string.Format("({0},{1})", dr, dl);
 #endif
-            cellXY = new Vector2Int(cX, cY);
+            cellXYI = new Vector3Int(cX, cY, cY * xCount + cX);
+            var xyi = cellXYI;
 #if DEBUG_CLOSEST_CELLS
-            if (predicate(cX, cY, Color.White, deltaString(0, 0)))
+            if (predicate(xyi, Color.White, deltaString(0, 0)))
 #else
-            if (predicate(cX, cY))
+            if (predicate(xyi))
 #endif
             {
+                cellXYI = xyi;
                 return true;
             }
             int radius = 1;
@@ -71,13 +73,14 @@ namespace Triangulation
                             {
                                 int y = cY + dl;
                                 int x = cX + dr;
+                                xyi.Set(x, y, y * xCount + x);
 #if DEBUG_CLOSEST_CELLS
-                                if (predicate(x, y, debugColor, deltaString(dl, dr)))
+                                if (predicate(xyi, debugColor, deltaString(dl, dr)))
 #else
-                                if (predicate(x, y))
+                                if (predicate(xyi))
 #endif
                                 {
-                                    cellXY = new Vector2Int(x, y);
+                                    cellXYI = xyi;
                                     return true;
                                 }
                             }
@@ -85,13 +88,14 @@ namespace Triangulation
                             {
                                 int y = cY + dr;
                                 int x = cX + dl;
+                                xyi.Set(x, y, y * xCount + x);
 #if DEBUG_CLOSEST_CELLS
-                                if (predicate(x, y, debugColor, deltaString(dr, dl)))
+                                if (predicate(xyi, debugColor, deltaString(dl, dr)))
 #else
-                                if (predicate(x, y))
+                                if (predicate(xyi))
 #endif
                                 {
-                                    cellXY = new Vector2Int(x, y);
+                                    cellXYI = xyi;
                                     return true;
                                 }
                             }

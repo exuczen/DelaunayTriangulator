@@ -127,22 +127,20 @@ namespace Triangulation
         public bool FindClosestCellWithPredicate(int centerX, int centerY, out TriangleCell cell, Predicate<TriangleCell> predicate)
         {
 #if DEBUG_CLOSEST_CELLS
-            bool cellPredicate(int x, int y, Color color, string s)
+            bool cellPredicate(Vector3Int xyi, Color color, string s)
             {
-                if (GetCell(x, y, out var cell2, out _))
-                {
-                    cell2.DebugText = s;
-                    cell2.SetFillColor(color);
-                    return predicate(cell2);
-                }
-                return false;
+                var cell = cells[xyi.z];
+                cell.DebugText = s;
+                cell.SetFillColor(color);
+                return predicate(cell);
             }
 #else
-            bool cellPredicate(int x, int y) => GetCell(x, y, out var cell2, out _) && predicate(cell2);
+            bool cellPredicate(Vector3Int xyi) => predicate(cells[xyi.z]);
 #endif
-            if (GridUtils.FindClosestCellWithPredicate(centerX, centerY, xCount, yCount, out var cellXY, cellPredicate))
+            if (GridUtils.FindClosestCellWithPredicate(centerX, centerY, xCount, yCount, out var cellXYI, cellPredicate))
             {
-                return GetCell(cellXY.x, cellXY.y, out cell, out _);
+                cell = cells[cellXYI.z];
+                return true;
             }
             else
             {
