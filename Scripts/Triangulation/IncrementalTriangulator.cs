@@ -122,21 +122,26 @@ namespace Triangulation
         {
             if (pointIndex < 0 || pointIndex >= pointsCount)
             {
-                throw new Exception("RemovePoint: " + pointIndex);
+                throw new ArgumentOutOfRangeException("RemovePoint: " + pointIndex + " pointsCount: " + pointsCount);
             }
             else if (trianglesCount <= 0 || NotEnoughPoints(pointsCount))
             {
                 ClearPoint(pointIndex);
             }
-            else
+            else if (!ClearUnusedPoint(pointIndex))
             {
                 var point = points[pointIndex];
 
-                if (triangleGrid.GetCell(point, out var cell, out _))
+                if (triangleGrid.GetCell(point, out var cell, out var cellXY))
                 {
+                    //Log.WriteLine(GetType() + ".RemovePointFromTriangulation: cellXY: " + cellXY + " point: " + point + " pointIndex: " + pointIndex);
                     ClearLastPointData();
                     ProcessClearPoint(pointIndex, cell);
                     ValidateTriangulation(EdgesValidation, PointsValidation);
+                }
+                else
+                {
+                    Log.WriteWarning("RemovePointFromTriangulation: triangle cell not found for pointIndex: " + pointIndex);
                 }
             }
         }
@@ -346,12 +351,12 @@ namespace Triangulation
             });
             if (cellTrianglesIndices.Count == 0)
             {
-                Log.WriteLine(GetType() + ".ProcessClearPoint: cellTrianglesIndices.Count == 0 for pointIndex: " + pointIndex);
+                Log.WriteLine(GetType() + ".ProcessClearPoint: cellTrianglesIndices.Count == 0 for pointIndex: " + pointIndex + " unusedPointIndices: " + unusedPointIndices.Contains(pointIndex) + " pointsCount: " + pointsCount);
                 return;
             }
             bool isPointExternal = edgeInfo.IsPointExternal(pointIndex);
 
-            Log.WriteLine(GetType() + ".ProcessClearPoint: " + pointIndex + " isPointExternal: " + isPointExternal);
+            Log.WriteLine(GetType() + ".ProcessClearPoint: " + pointIndex + " isPointExternal: " + isPointExternal + " pointsCount: " + pointsCount);
 
             AddCellTrianglesEdges();
 
@@ -605,6 +610,9 @@ namespace Triangulation
             ClearDebugSuperTriangles();
 
             edgeInfo.ClearLastPointData();
+
+            addedEdgeInfo.Clear();
+            addedEdgeInfo.ClearLastPointData();
 
             cellPointsIndices.Clear();
             cellTrianglesIndices.Clear();

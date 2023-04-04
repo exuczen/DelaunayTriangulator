@@ -914,7 +914,7 @@ namespace Triangulation
             }
             else if (!extEdges[0].SharesVertex(extEdges[extEdgeCount - 1]))
             {
-                errorMessage = "JoinSortExternalEdges: OPEN LOOP";
+                errorMessage = "JoinSortExternalEdges: OPEN LOOP, extEdgeCount: " + extEdgeCount;
             }
             if (!string.IsNullOrEmpty(errorMessage))
             {

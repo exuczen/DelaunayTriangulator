@@ -655,7 +655,7 @@ namespace Triangulation
                 }
                 if (MathF.Abs(angleSum - (PeakCount - 2) * 180f) > 1f)
                 {
-                    throw new Exception("SetupPeakAngles: angleSum: " + angleSum);
+                    throw new Exception("SetupPeakAngles: angleSum: " + angleSum + " PeakCount: " + PeakCount);
                 }
                 innerAngleSign = -1;
             }

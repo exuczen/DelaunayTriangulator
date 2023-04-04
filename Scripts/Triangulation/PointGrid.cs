@@ -2,7 +2,9 @@
 
 using System;
 using System.Collections.Generic;
+#if DEBUG_CLOSEST_CELLS
 using System.Drawing;
+#endif
 
 namespace Triangulation
 {

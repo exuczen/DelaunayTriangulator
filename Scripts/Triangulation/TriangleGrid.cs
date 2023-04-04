@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+#if DEBUG_CLOSEST_CELLS
 using System.Drawing;
+#endif
 
 namespace Triangulation
 {
@@ -269,8 +271,16 @@ namespace Triangulation
 
         public bool GetCell(Vector2 p, out TriangleCell cell, out int x, out int y)
         {
-            x = (int)(p.x / cellSize.x);
-            y = (int)(p.y / cellSize.y);
+            x = (int)(MathF.Ceiling(p.x / cellSize.x) + 0.5f);
+            y = (int)(MathF.Ceiling(p.y / cellSize.y) + 0.5f);
+            if (x > 0)
+            {
+                x--;
+            }
+            if (y > 0)
+            {
+                y--;
+            }
             return GetCell(x, y, out cell, out _);
         }
 
@@ -334,9 +344,13 @@ namespace Triangulation
                 cell = cells[cellIndex = y * xCount + x];
                 return true;
             }
-            cellIndex = -1;
-            cell = null;
-            return false;
+            else
+            {
+                throw new ArgumentOutOfRangeException(GetType() + ".GetCell: (" + x + ", " + y + ") | " + XYCount);
+            }
+            //cellIndex = -1;
+            //cell = null;
+            //return false;
         }
 
         private bool GetCellOverlap(int x, int y, Circle cc, out int cellIndex)

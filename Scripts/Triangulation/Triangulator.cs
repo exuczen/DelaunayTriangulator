@@ -209,12 +209,17 @@ namespace Triangulation
             }
             points[pointIndex] = default;
             int lastIndex = pointsCount - 1;
+
+            //Log.WriteLine(".ClearPoint:" + pointIndex + " pointsCount: " + pointsCount);
+
             if (addToUnused && pointIndex < lastIndex)
             {
                 //if (unusedPointIndices.Contains(pointIndex))
                 //{
                 //    throw new Exception("ClearPoint: unusedPointIndices.Contains(pointIndex): " + pointIndex);
                 //}
+                //Log.WriteLine(".ClearPoint: pointsCount: " + pointsCount + " pointIndex: " + pointIndex + " added to unusedPointIndices");
+
                 unusedPointIndices.Add(pointIndex);
             }
             else if (pointIndex == lastIndex)
@@ -245,6 +250,21 @@ namespace Triangulation
         protected virtual int GetClosestPointIndex(Vector2 center)
         {
             return Maths.GetClosestPointIndex(center, points, pointsOffset, pointsCount - 1);
+        }
+
+        protected bool ClearUnusedPoint(int pointIndex)
+        {
+            int index;
+            if ((index = unusedPointIndices.IndexOf(pointIndex)) >= 0)
+            {
+                if (pointIndex == pointsCount - 1)
+                {
+                    pointsCount--;
+                }
+                unusedPointIndices.RemoveAt(index);
+                return true;
+            }
+            return false;
         }
 
         protected void ClearDebugSuperTriangles()
