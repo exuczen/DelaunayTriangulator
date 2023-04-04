@@ -124,14 +124,14 @@ namespace Triangulation
             {
                 throw new Exception("RemovePoint: " + pointIndex);
             }
-            var point = points[pointIndex];
-
-            if (trianglesCount <= 0 || pointsCount < 3)
+            else if (trianglesCount <= 0 || NotEnoughPoints(pointsCount))
             {
                 ClearPoint(pointIndex);
             }
             else
             {
+                var point = points[pointIndex];
+
                 if (triangleGrid.GetCell(point, out var cell, out _))
                 {
                     ClearLastPointData();
@@ -154,7 +154,7 @@ namespace Triangulation
 
         protected bool AddPointToTriangulationRefIndex(Vector2 point, ref int pointIndex, bool findClosestCell)
         {
-            if (trianglesCount <= 0 || pointsCount < 3)
+            if (trianglesCount <= 0 || NotEnoughPoints(pointsCount))
             {
                 if (!TryAddPointRefIndex(point, ref pointIndex, findClosestCell))
                 {

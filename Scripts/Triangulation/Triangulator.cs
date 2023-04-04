@@ -259,6 +259,11 @@ namespace Triangulation
             }
         }
 
+        protected bool NotEnoughPoints(int pointsCount)
+        {
+            return !Supermanent && pointsCount < pointsOffset + 3 || pointsCount <= pointsOffset;
+        }
+
         private Circle SetSuperCircumCircle(Bounds2 bounds, int circlePointsCount)
         {
             var center = bounds.Center;
@@ -271,7 +276,7 @@ namespace Triangulation
             return superCircumCircle;
         }
 
-        private int GetSuperPointsCount(int supertrianglesCount)
+        private static int GetSuperPointsCount(int supertrianglesCount)
         {
             if (supertrianglesCount <= 0)
             {
@@ -291,7 +296,7 @@ namespace Triangulation
             }
         }
 
-        private int GetSuperTrianglesCount(int superpointsCount)
+        private static int GetSuperTrianglesCount(int superpointsCount)
         {
             if (superpointsCount < 3)
             {
@@ -305,11 +310,6 @@ namespace Triangulation
             {
                 return superpointsCount;
             }
-        }
-
-        private bool NotEnoughPoints(int pointsCount)
-        {
-            return !Supermanent && pointsCount < pointsOffset + 3 || pointsCount <= pointsOffset;
         }
 
         private IComparer<Vector2> GetPointsComparer(Bounds2 bounds, out bool xySort)
