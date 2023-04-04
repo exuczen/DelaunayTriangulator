@@ -4,7 +4,7 @@ namespace Triangulation
 {
     public struct Circle
     {
-        public static float MaxRadius = 1E05F;
+        public static float MaxRadius { get; set; } = 1E05F;
 
         public bool SizeValid { get; private set; }
         public Vector2 Center { get; }

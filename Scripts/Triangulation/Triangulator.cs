@@ -115,8 +115,23 @@ namespace Triangulation
 
         public void AddPoint(Vector2 point, out int pointIndex)
         {
+            pointIndex = -1;
+            AddPointRefIndex(point, ref pointIndex);
+        }
+
+        public void AddPointRefIndex(Vector2 point, ref int pointIndex)
+        {
             int unusedIndicesCount = unusedPointIndices.Count;
-            if (unusedIndicesCount > 0)
+
+            if (pointIndex >= 0)
+            {
+                if (unusedIndicesCount > 0)
+                {
+                    unusedPointIndices.Remove(pointIndex);
+                }
+                pointsCount = Math.Max(pointIndex + 1, pointsCount);
+            }
+            else if (unusedIndicesCount > 0)
             {
                 int unusedLast = unusedIndicesCount - 1;
                 pointIndex = unusedPointIndices[unusedLast];

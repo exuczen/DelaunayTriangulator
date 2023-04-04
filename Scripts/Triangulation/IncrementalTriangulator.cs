@@ -85,11 +85,19 @@ namespace Triangulation
             }
         }
 
-        public bool TryAddPoint(Vector2 point, out int pointIndex)
+        public bool TryAddPoint(Vector2 point, out int pointIndex, bool findClosestCell)
         {
-            if (pointGrid.CanAddPoint(point, out var cellXYI, out int savedIndex, true))
+            pointIndex = -1;
+            return TryAddPointRefIndex(point, ref pointIndex, findClosestCell);
+        }
+
+        public bool TryAddPointRefIndex(Vector2 point, ref int pointIndex, bool findClosestCell)
+        {
+            int savedIndex = -1;
+            if (findClosestCell && pointGrid.GetClosestClearCell(point, out var cellXYI) ||
+                !findClosestCell && pointGrid.CanAddPoint(point, out cellXYI, out savedIndex))
             {
-                base.AddPoint(point, out pointIndex);
+                base.AddPointRefIndex(point, ref pointIndex);
                 pointGrid.AddPoint(pointIndex, points, cellXYI);
                 return true;
             }
@@ -133,11 +141,22 @@ namespace Triangulation
             }
         }
 
-        public bool AddPointToTriangulation(Vector2 point, out int pointIndex)
+        public bool AddPointToTriangulation(Vector2 point, int pointIndex, bool findClosestCell)
+        {
+            return AddPointToTriangulationRefIndex(point, ref pointIndex, findClosestCell);
+        }
+
+        public bool AddPointToTriangulation(Vector2 point, out int pointIndex, bool findClosestCell)
+        {
+            pointIndex = -1;
+            return AddPointToTriangulationRefIndex(point, ref pointIndex, findClosestCell);
+        }
+
+        protected bool AddPointToTriangulationRefIndex(Vector2 point, ref int pointIndex, bool findClosestCell)
         {
             if (trianglesCount <= 0 || pointsCount < 3)
             {
-                if (!TryAddPoint(point, out pointIndex))
+                if (!TryAddPointRefIndex(point, ref pointIndex, findClosestCell))
                 {
                     if (pointIndex >= 0)
                     {
@@ -159,7 +178,7 @@ namespace Triangulation
                 ClearLastPointData();
                 bool isInTriangle = false;
 
-                if (!TryAddPoint(point, out pointIndex))
+                if (!TryAddPointRefIndex(point, ref pointIndex, findClosestCell))
                 {
                     if (pointIndex >= 0)
                     {
@@ -294,7 +313,7 @@ namespace Triangulation
                 //float circleSqrOffset = -2f * circleTolerance;
                 float circleSqrOffset = -0.1f * pointGrid.CellSizeMin;
 
-                for (int i = 0; i < pointsCount; i++)
+                for (int i = pointsOffset; i < pointsCount; i++)
                 {
                     var point = points[i];
                     ForEachTriangleInCell(point, (triangle, triangleIndex) => {

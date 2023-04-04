@@ -42,13 +42,13 @@ namespace Triangulation
 
         protected override void AddParticle(Vector2 point)
         {
-            bool active = triangulator.TryAddPoint(point, out int i);
+            bool active = triangulator.TryAddPoint(point, out int i, false);
             SetParticle(active, i);
         }
 
         private void AddParticleToTriangulation(Vector2 point)
         {
-            bool active = triangulator.AddPointToTriangulation(point, out int i);
+            bool active = triangulator.AddPointToTriangulation(point, out int i, false);
             SetParticle(active, i);
         }
 

@@ -111,7 +111,7 @@ namespace Triangulation
 
         public bool GetPointIndex(Vector2 point, out int pointIndex)
         {
-            bool result = GetCellXYIndex(point, out var cellXYI, true);
+            bool result = GetCellXYIndex(point, out var cellXYI);
             pointIndex = result ? indices[cellXYI.z] : -1;
             return result;
         }
@@ -174,7 +174,7 @@ namespace Triangulation
 
         private bool TryAddPoint(int pointIndex, Vector2 point, Action<Vector2> setPoint, out Vector3Int cellXYI, out int savedIndex)
         {
-            bool result = CanAddPoint(point, out cellXYI, out savedIndex, true);
+            bool result = CanAddPoint(point, out cellXYI, out savedIndex);
             if (result)
             {
                 int cellIndex = cellXYI.z;
