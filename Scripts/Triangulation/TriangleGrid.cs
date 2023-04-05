@@ -271,15 +271,30 @@ namespace Triangulation
 
         public bool GetCell(Vector2 p, out TriangleCell cell, out int x, out int y)
         {
-            x = (int)(MathF.Ceiling(p.x / cellSize.x) + 0.5f);
-            y = (int)(MathF.Ceiling(p.y / cellSize.y) + 0.5f);
-            if (x > 0)
+            x = (int)(p.x / cellSize.x);
+            y = (int)(p.y / cellSize.y);
+
+            if (x >= xCount)
             {
-                x--;
+                if (p.x > size.x + cellTolerance)
+                {
+                    throw new ArgumentOutOfRangeException(GetType() + ".GetCell: " + p + " | " + new Vector2Int(x, y) + " for size: " + size + " | " + XYCount);
+                }
+                else if (x == xCount)
+                {
+                    x--;
+                }
             }
-            if (y > 0)
+            if (y >= yCount)
             {
-                y--;
+                if (p.y > size.y + cellTolerance)
+                {
+                    throw new ArgumentOutOfRangeException(GetType() + ".GetCell: " + p + " | " + new Vector2Int(x, y) + " for size: " + size + " | " + XYCount);
+                }
+                else if (y == yCount)
+                {
+                    y--;
+                }
             }
             return GetCell(x, y, out cell, out _);
         }
