@@ -7,6 +7,8 @@ namespace Triangulation
 {
     public class Polygon
     {
+        private const float Lower180 = 179.999f;
+
         public float Tolerance { get; set; }
         public int PeakCount => edgePeaks.Count;
         public List<EdgePeak> EdgePeaks => edgePeaks;
@@ -171,7 +173,7 @@ namespace Triangulation
             int concaveIndex = sortedPeaks.Count - 1;
             EdgePeak concavePeak;
 
-            while (concaveIndex > 0 && (concavePeak = sortedPeaks[concaveIndex--]).Angle > 179f)
+            while (concaveIndex > 0 && (concavePeak = sortedPeaks[concaveIndex--]).Angle > Lower180)
             {
 #if LOGS_ENABLED
                 //Log.WriteLine(GetType() + ".PeakContainsConcave: concavePeak: " + concavePeak);  
@@ -785,13 +787,13 @@ namespace Triangulation
             sortedIndex = -1;
             if (sortedPeaks.Count == 0)
             {
-                return default;
+                throw new Exception("GetNextPeakToClip: sortedPeaks.Count == 0");
             }
             int peaksCount = sortedPeaks.Count;
             EdgePeak convexPeak;
             int convexIndex = 0;
 
-            while (convexIndex < peaksCount && (convexPeak = sortedPeaks[convexIndex]).Angle <= 179f)
+            while (convexIndex < peaksCount && (convexPeak = sortedPeaks[convexIndex]).Angle <= Lower180)
             {
 #if LOGS_ENABLED
                 //Log.WriteLine(GetType() + ".GetMinAnglePeakIndex: convexPeak: " + convexPeak + " convexIndex: " + convexIndex);  
@@ -804,7 +806,7 @@ namespace Triangulation
                 }
                 convexIndex++;
             }
-            return default;
+            throw new Exception("GetNextPeakToClip: convex peak not containing concave peak not found");
         }
 
         private string ConcaveRangeToString(Vector4Int range)
