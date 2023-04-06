@@ -564,7 +564,6 @@ namespace Triangulation
             // The following call adds duplicates to cellPointsIndices.
             edgeInfo.ForEachPointInExtEdgesRange(extEdgesRange, pointIndex => cellPointsIndices.Add(pointIndex));
 
-            bool result;
             if (innerDegenerate)
             {
                 Log.WriteLine(GetType() + ".AddExternalPointTriangles: Inner Degenerate Triangle with addedPointIndex: " + addedPointIndex);
@@ -572,24 +571,24 @@ namespace Triangulation
                 cellPolygon.SetFromExternalEdges(addedEdgeInfo, points);
                 cellPolygon.Triangulate(addedTriangles, ref addedTrianglesCount, points);
                 addedEdgeInfo.Clear();
-                result = true;
+                return true;
             }
             else
             {
                 loopPeak = edgeInfo.GetExternalEdgesRangeLoopPeak(addedPointIndex, extEdgesRange);
                 bool addExternalTriangle(EdgeEntry edge) => AddExternalTriangle(edge, addedPointIndex);
-                result = edgeInfo.InvokeForExternalEdgesRange(extEdgesRange, addExternalTriangle, true, out _);
-            }
-            if (!result)
-            {
-                if (extEdgesRange.GetIndexCount() == 1 && cellTrianglesIndices.Count > 0)
+                bool result = edgeInfo.InvokeForExternalEdgesRange(extEdgesRange, addExternalTriangle, true, out _);
+                if (!result)
                 {
-                    var extEdge = edgeInfo.GetExternalEdge(extEdgesRange.Beg);
-                    processInternal = extEdge.LastPointInRange;
+                    if (extEdgesRange.GetIndexCount() == 1 && cellTrianglesIndices.Count > 0)
+                    {
+                        var extEdge = edgeInfo.GetExternalEdge(extEdgesRange.Beg);
+                        processInternal = extEdge.LastPointInRange;
+                    }
+                    ClearAddedTriangles();
                 }
-                ClearAddedTriangles();
+                return result;
             }
-            return result;
         }
 
         private void ClearAddedTriangles()
