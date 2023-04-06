@@ -1,4 +1,6 @@
-﻿namespace Triangulation
+﻿using System;
+
+namespace Triangulation
 {
     public struct PeakRect
     {
@@ -32,6 +34,21 @@
                 n1Length = dot_edgeA_N1;
             }
             Size = new Vector2(n1Length, n2Length);
+
+            bool n1zero = n1Length < Vector2.Epsilon;
+            bool n2zero = n2Length < Vector2.Epsilon;
+            if (n1zero)
+            {
+                if (n2zero)
+                {
+                    throw new Exception("PeakRect: n1zero && n2zero: " + peak);
+                }
+                N1 = new Vector2(-N2.y, N2.x);
+            }
+            else if (n2zero)
+            {
+                N2 = new Vector2(-N1.y, N1.x);
+            }
         }
 
         public override string ToString()
