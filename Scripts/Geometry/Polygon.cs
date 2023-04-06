@@ -364,7 +364,7 @@ namespace Triangulation
             EdgeEntry.RefreshSortedEdgesNextPrev(addedExtEdges, edgeCount);
             EdgeEntry.SetLastElementCount(addedExtEdges, edgeCount);
 #if LOGS_ENABLED
-            Log.PrintEdges(addedExtEdges, edgeCount, "AddExternalEdgesFromConcaveRanges: rangesCount: " + rangesCount);
+            Log.PrintArray(addedExtEdges, edgeCount, "AddExternalEdgesFromConcaveRanges: rangesCount: " + rangesCount);
 #endif
         }
 
@@ -529,8 +529,8 @@ namespace Triangulation
 
             SortPeaksByAngle();
 #if LOGS_ENABLED
-            Log.PrintEdgePeaks(edgePeaks, "SetFromPolygonRange: peaks: ");
-            Log.PrintEdgePeaks(sortedPeaks, "SetFromPolygonRange: sortedPeaks: ");
+            Log.PrintList(edgePeaks, "SetFromPolygonRange: peaks: ");
+            Log.PrintList(sortedPeaks, "SetFromPolygonRange: sortedPeaks: ");
 #endif
         }
 
