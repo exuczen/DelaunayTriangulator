@@ -981,7 +981,7 @@ namespace Triangulation
             return true;
         }
 
-        public IndexRange TrimExternalEdgesRange(IndexRange range, out bool innerDegenerate)
+        private IndexRange TrimExternalEdgesRange(IndexRange range, out bool innerDegenerate)
         {
             innerDegenerate = false;
 
@@ -1094,7 +1094,7 @@ namespace Triangulation
             }
         }
 
-        public bool GetOppositeExternalEdgesRange(int addedPointIndex, EdgeEntry firstExtEdge, out IndexRange range, out bool pointOnEdge)
+        public bool GetOppositeExternalEdgesRange(int addedPointIndex, EdgeEntry firstExtEdge, out IndexRange range, out bool pointOnEdge, out bool innerDegenerate)
         {
             int extEdgeIndex = GetExternalEdgeIndex(firstExtEdge);
             if (extEdgeIndex >= 0)
@@ -1104,6 +1104,7 @@ namespace Triangulation
                 extEdgeIndex = GetClosestExternalEdge(point, extEdgeIndex);
 
                 range = IndexRange.None;
+                innerDegenerate = false;
 
                 bool isPointOpposite = IsPointOppositeToExternalEdge(point, extEdgeIndex, out pointOnEdge);
                 if (pointOnEdge)
@@ -1125,23 +1126,22 @@ namespace Triangulation
                         range.Beg = range.End = end;
                         return false;
                     }
-                    bool begEdgeValid = IsTerminalExtEdgeValid(point, beg, false);
-                    bool endEdgeValid = IsTerminalExtEdgeValid(point, end, true);
-
-                    range = new IndexRange(beg, end, extEdgeCount);
-                    bool edgesValid = extEdgeIndex >= 0 && begEdgeValid && endEdgeValid;
-                    return edgesValid && !pointOnEdge;
+                    return GetValidatedExtEdgesRange(point, beg, end, out range, out innerDegenerate);
                 }
                 else
                 {
-                    bool result = GetOppositeExternalEdgesRange(point, extEdgeIndex, true, out range, out pointOnEdge);
+                    bool result = GetOppositeExternalEdgesRange(point, extEdgeIndex, true, out range, out pointOnEdge, out innerDegenerate);
                     if (pointOnEdge)
                     {
                         return false;
                     }
                     else if (!result)
                     {
-                        result = GetOppositeExternalEdgesRange(point, extEdgeIndex, false, out range, out pointOnEdge);
+                        result = GetOppositeExternalEdgesRange(point, extEdgeIndex, false, out range, out pointOnEdge, out innerDegenerate);
+                        if (pointOnEdge)
+                        {
+                            return false;
+                        }
                     }
                     return result;
                 }
@@ -1152,11 +1152,12 @@ namespace Triangulation
             }
         }
 
-        private bool GetOppositeExternalEdgesRange(Vector2 point, int extEdgeIndex, bool forward, out IndexRange range, out bool pointOnEdge)
+        private bool GetOppositeExternalEdgesRange(Vector2 point, int extEdgeIndex, bool forward,
+            out IndexRange range, out bool pointOnEdge, out bool innerDegenerate)
         {
             int beg, end;
-            bool begEdgeValid = true, endEdgeValid = true;
             range = IndexRange.None;
+            innerDegenerate = false;
 
             extEdgeIndex = GetFirstEdgeOppositeToExternalPoint(point, extEdgeIndex, forward, out bool isPointOppositeToNext, out pointOnEdge);
             if (pointOnEdge)
@@ -1185,18 +1186,41 @@ namespace Triangulation
                     beg = end;
                     end = extEdgeIndex;
                 }
-                begEdgeValid = IsTerminalExtEdgeValid(point, beg, false);
-                endEdgeValid = IsTerminalExtEdgeValid(point, end, true);
             }
             else
             {
                 beg = end = -1;
             }
-            Log.WriteLine(GetType() + ".GetOppositeExternalEdgesRange: begEdgeValid: " + begEdgeValid + " endEdgeValid: " + endEdgeValid);
+            return GetValidatedExtEdgesRange(point, beg, end, out range, out innerDegenerate);
+        }
 
-            range = new IndexRange(beg, end, extEdgeCount);
-            bool edgesValid = extEdgeIndex >= 0 && begEdgeValid && endEdgeValid;
-            return edgesValid && !pointOnEdge;
+        private bool GetValidatedExtEdgesRange(Vector2 point, int beg, int end, out IndexRange range, out bool innerDegenerate)
+        {
+            innerDegenerate = false;
+
+            if (beg < 0 || end < 0)
+            {
+                range = IndexRange.None;
+                return false;
+            }
+            else
+            {
+                bool begEdgeValid = IsTerminalExtEdgeValid(point, beg, false);
+                bool endEdgeValid = IsTerminalExtEdgeValid(point, end, true);
+
+                Log.WriteLine(GetType() + ".GetValidatedExtEdgesRange: begEdgeValid: " + begEdgeValid + " endEdgeValid: " + endEdgeValid);
+                if (begEdgeValid && endEdgeValid)
+                {
+                    range = new IndexRange(beg, end, extEdgeCount);
+                    range = TrimExternalEdgesRange(range, out innerDegenerate);
+                    return range.FullLength > 0;
+                }
+                else
+                {
+                    range = IndexRange.None;
+                    return false;
+                }
+            }
         }
 
         private int GetLastEdgeOppositeToExternalPoint(Vector2 point, int extEdgeIndex, bool forward, bool skipFirstCheck, out bool pointOnEdge)

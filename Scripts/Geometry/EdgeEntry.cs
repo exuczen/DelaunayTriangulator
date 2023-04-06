@@ -4,7 +4,12 @@ namespace Triangulation
 {
     public struct EdgeEntry
     {
-        public static readonly EdgeEntry None = new EdgeEntry(-1, -1) { Count = 0 };
+        public static readonly EdgeEntry None = new EdgeEntry()
+        {
+            A = -1,
+            B = -1,
+            Count = 0
+        };
 
         public float SqrLength { get; private set; }
 
@@ -49,6 +54,10 @@ namespace Triangulation
 
         public EdgeEntry(int a, int b) : this()
         {
+            if (a == b)
+            {
+                throw new ArgumentException(string.Format("EdgeEntry: ({0}, {1})", a, b));
+            }
             (A, B) = a > b ? (a, b) : (b, a);
 
             Count = 1;

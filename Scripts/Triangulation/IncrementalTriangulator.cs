@@ -455,9 +455,9 @@ namespace Triangulation
             }
             if (triangleGrid.FindClosestCellWithPredicate(cellXY.x, cellXY.y, out var cell, cellPredicate))
             {
-                if (edgeInfo.GetOppositeExternalEdgesRange(addedPointIndex, firstExtEdge, out IndexRange extEdgesRange, out bool pointOnExtEdge))
+                if (edgeInfo.GetOppositeExternalEdgesRange(addedPointIndex, firstExtEdge, out IndexRange extEdgesRange, out bool pointOnExtEdge, out bool innerDegenerate))
                 {
-                    if (AddExternalPointTriangles(addedPointIndex, ref extEdgesRange, out EdgePeak loopPeak, out bool processInternal))
+                    if (AddExternalPointTriangles(addedPointIndex, extEdgesRange, innerDegenerate, out EdgePeak loopPeak, out bool processInternal))
                     {
                         AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Color.FloralWhite, true);
 
@@ -551,12 +551,10 @@ namespace Triangulation
             }
         }
 
-        private bool AddExternalPointTriangles(int addedPointIndex, ref IndexRange extEdgesRange, out EdgePeak loopPeak, out bool processInternal)
+        private bool AddExternalPointTriangles(int addedPointIndex, IndexRange extEdgesRange, bool innerDegenerate, out EdgePeak loopPeak, out bool processInternal)
         {
-            processInternal = false;
-            Log.WriteLine(GetType() + ".AddExternalPointTriangles: extEdgesRange: " + extEdgesRange);
-            extEdgesRange = edgeInfo.TrimExternalEdgesRange(extEdgesRange, out bool innerDegenerate);
             Log.WriteLine(GetType() + ".AddExternalPointTriangles: extEdgesRange: " + extEdgesRange + " innerDegenerate: " + innerDegenerate);
+            processInternal = false;
 
             if (extEdgesRange.FullLength <= 0)
             {
