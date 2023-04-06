@@ -63,7 +63,7 @@ namespace Triangulation
 #if UNITY
             Debug.LogWarning(value);
 #else
-            Debug.WriteLine("WARNING: {0}", value);
+            Debug.WriteLine(string.Format("WARNING: {0}", value));
 #endif
         }
 

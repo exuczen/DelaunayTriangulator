@@ -708,6 +708,12 @@ namespace Triangulation
             }
         }
 
+        private bool GetSortedPeakIndex(int peakVertex, out int sortedIndex)
+        {
+            sortedIndex = sortedPeaks.FindIndex(p => p.PeakVertex == peakVertex);
+            return sortedIndex >= 0;
+        }
+
         private int GetPeakIndex(int peakVertex)
         {
             return edgePeaks.FindIndex(p => p.PeakVertex == peakVertex);
@@ -775,9 +781,13 @@ namespace Triangulation
             {
                 sortedPeaks.RemoveAt(sortedIndex);
             }
+            else if (GetSortedPeakIndex(peak.PeakVertex, out sortedIndex))
+            {
+                sortedPeaks.RemoveAt(sortedIndex);
+            }
             else
             {
-                sortedPeaks.RemoveAt(sortedPeaks.FindIndex(p => p.PeakVertex == peak.PeakVertex));
+                Log.WriteWarning("RemovePeakFromSorted: " + peak.PeakVertex + " not found in sortedPeaks");
             }
         }
 
