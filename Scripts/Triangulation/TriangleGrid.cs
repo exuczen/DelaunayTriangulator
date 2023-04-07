@@ -177,7 +177,7 @@ namespace Triangulation
             {
                 for (int x = begX; x <= endX; x++)
                 {
-                    if (GetCellOverlap(x, y, cc, out int cellIndex))
+                    if (GetCellOverlap(x, y, cc, ccBounds, out int cellIndex))
                     {
                         cells[cellIndex].AddTriangle(triangle.Key);
                         //Log.WriteLine(GetType() + ".AddTriangle: " + cells[cellIndex]);
@@ -368,7 +368,7 @@ namespace Triangulation
             //return false;
         }
 
-        private bool GetCellOverlap(int x, int y, Circle cc, out int cellIndex)
+        private bool GetCellOverlap(int x, int y, Circle cc, Bounds2 ccBounds, out int cellIndex)
         {
             cellIndex = y * xCount + x;
             var ccCenter = cc.Center;
@@ -378,7 +378,7 @@ namespace Triangulation
             cellMax += Vector2.One * cellTolerance;
             var cellBounds = Bounds2.MinMax(cellMin, cellMax);
 
-            if (!cellBounds.Overlap(cc.Bounds))
+            if (!cellBounds.Overlap(ccBounds))
             {
                 cells[cellIndex].DebugPoint = default;
                 return false;

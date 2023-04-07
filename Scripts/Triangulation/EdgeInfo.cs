@@ -1470,6 +1470,11 @@ namespace Triangulation
             return IsEdgeExternal(edge, out _);
         }
 
+        public bool IsEdgeInternal(EdgeEntry edge)
+        {
+            return IsEdgeInternal(edge, out _);
+        }
+
         public bool IsEdgeInternal(int edgeKey)
         {
             return edgeCounterDict.TryGetValue(edgeKey, out int edgeCount) && edgeCount == 2;

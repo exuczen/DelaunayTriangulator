@@ -13,6 +13,9 @@ namespace Triangulation
         public int PeakCount => edgePeaks.Count;
         public List<EdgePeak> EdgePeaks => edgePeaks;
 
+        //public int SortedPeakCount => sortedPeaks.Count;
+        //public bool IsConvex => SortedPeakCount > 0 && sortedPeaks[SortedPeakCount - 1].IsConvex;
+
         private readonly List<EdgePeak> edgePeaks = new List<EdgePeak>();
         private readonly List<EdgePeak> sortedPeaks = new List<EdgePeak>();
         private readonly List<Vector4Int> concaveRanges = new List<Vector4Int>();
@@ -30,16 +33,25 @@ namespace Triangulation
             }
         }
 
-        public void Clear()
+        public void Clear(bool clearSubPoly = true)
         {
             innerAngleSign = 0;
             edgePeaks.Clear();
             sortedPeaks.Clear();
             concaveRanges.Clear();
-            if (subPolygon != null)
+            if (clearSubPoly && subPolygon != null)
             {
                 subPolygon.Clear();
             }
+        }
+
+        public void CopyTo(Polygon other)
+        {
+            other.Clear(other.subPolygon != this);
+            other.innerAngleSign = innerAngleSign;
+            other.edgePeaks.AddRange(edgePeaks);
+            other.sortedPeaks.AddRange(sortedPeaks);
+            other.concaveRanges.AddRange(concaveRanges);
         }
 
         public void SetFromExternalEdges(EdgeInfo edgeInfo, Vector2[] points)
@@ -122,28 +134,32 @@ namespace Triangulation
 #endif
         }
 
-        public bool CanClipPeak(int peakIndex, Vector2[] points, out bool containsConcave)
+        public bool CanClipPeak(int peakIndex, Vector2[] points, EdgeInfo baseEdgeInfo)
         {
             if (PeakCount <= 3)
             {
-                containsConcave = false;
                 return false;
             }
             var peak = edgePeaks[peakIndex];
-            containsConcave = peak.IsConvex && PeakContainsConcave(peak, points);
-            if (!containsConcave)
+            if (peak.IsConvex && PeakContainsConcave(peak, points))
             {
-                GetPrevNextPeaksAfterClip(peakIndex, out var prevPeak, out var nextPeak, points);
-                bool prevPeakTriangleDegenerate = prevPeak.MakesDegenerateTriangle(points, edgeBuffer);
-                bool nextPeakTriangleDegenerate = nextPeak.MakesDegenerateTriangle(points, edgeBuffer);
-#if LOGS_ENABLED
-                Log.WriteLine(GetType() + ".CanClipPeak: " + !prevPeakTriangleDegenerate + " " + !nextPeakTriangleDegenerate + " | prevPeak: " + prevPeak + " nextPeak: " + nextPeak);
-#endif
-                return !prevPeakTriangleDegenerate && !nextPeakTriangleDegenerate;
+                return false;
             }
             else
             {
-                return false;
+                GetPrevNextPeaksAfterClip(peakIndex, out var prevPeak, out var nextPeak, points);
+                bool prevEdgeInternal = baseEdgeInfo.IsEdgeInternal(prevPeak.EdgeA);
+                bool nextEdgeInternal = baseEdgeInfo.IsEdgeInternal(nextPeak.EdgeB);
+                bool prevPeakDegenerate = !prevEdgeInternal && prevPeak.MakesDegenerateTriangle(points, edgeBuffer);
+                bool nextPeakDegenerate = !nextEdgeInternal && nextPeak.MakesDegenerateTriangle(points, edgeBuffer);
+                bool prevPeakValid = prevEdgeInternal || !prevPeakDegenerate;
+                bool nextPeakValid = nextEdgeInternal || !nextPeakDegenerate;
+#if LOGS_ENABLED
+                Log.WriteLine(GetType() + ".CanClipPeak: prevPeak: " + prevPeak);
+                Log.WriteLine(GetType() + ".CanClipPeak: nextPeak: " + nextPeak);
+                Log.WriteLine("{0}.CanClipPeak: {1} | internal: {2} {3} | degenerate: {4} {5}", GetType(), prevPeakValid && nextPeakValid, prevEdgeInternal, nextEdgeInternal, prevPeakDegenerate, nextPeakDegenerate);
+#endif
+                return prevPeakValid && nextPeakValid;
             }
         }
 
