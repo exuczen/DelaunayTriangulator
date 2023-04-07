@@ -70,7 +70,7 @@ namespace Triangulation
             for (int i = 0; i < 3; i++)
             {
                 float absCosAngle = MathF.Abs(Vector2.Dot(-edgeBuffer[i], edgeBuffer[(i + 1) % 3]));
-                //Log.WriteLine("Triangle.IsDegenerate: angle: " + (MathF.Acos(absCosAngle) * SPMathF.Rad2Deg));
+                //Log.WriteLine("Triangle.IsDegenerate: angle: " + (MathF.Acos(absCosAngle) * Maths.Rad2Deg));
                 if (absCosAngle > CosMinAngle)
                 {
                     return true;
@@ -91,7 +91,8 @@ namespace Triangulation
             long bc = key % ptsLengthSqr;
             long b = bc / pointsLength;
             long c = bc % pointsLength;
-            var t = new Triangle((int)a, (int)b, (int)c) {
+            var t = new Triangle((int)a, (int)b, (int)c)
+            {
                 Key = key
             };
             return t;
