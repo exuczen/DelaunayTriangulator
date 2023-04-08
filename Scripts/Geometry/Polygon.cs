@@ -152,14 +152,12 @@ namespace Triangulation
                 bool nextEdgeInternal = baseEdgeInfo.IsEdgeInternal(nextPeak.EdgeB);
                 bool prevPeakDegenerate = !prevEdgeInternal && prevPeak.MakesDegenerateTriangle(points, edgeBuffer);
                 bool nextPeakDegenerate = !nextEdgeInternal && nextPeak.MakesDegenerateTriangle(points, edgeBuffer);
-                bool prevPeakValid = prevEdgeInternal || !prevPeakDegenerate;
-                bool nextPeakValid = nextEdgeInternal || !nextPeakDegenerate;
 #if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".CanClipPeak: prevPeak: " + prevPeak);
                 Log.WriteLine(GetType() + ".CanClipPeak: nextPeak: " + nextPeak);
-                Log.WriteLine("{0}.CanClipPeak: {1} | internal: {2} {3} | degenerate: {4} {5}", GetType(), prevPeakValid && nextPeakValid, prevEdgeInternal, nextEdgeInternal, prevPeakDegenerate, nextPeakDegenerate);
+                Log.WriteLine("{0}.CanClipPeak: {1} | internal: {2} {3} | degenerate: {4} {5}", GetType(), !prevPeakDegenerate && !nextPeakDegenerate, prevEdgeInternal, nextEdgeInternal, prevPeakDegenerate, nextPeakDegenerate);
 #endif
-                return prevPeakValid && nextPeakValid;
+                return !prevPeakDegenerate && !nextPeakDegenerate;
             }
         }
 
@@ -208,18 +206,18 @@ namespace Triangulation
             return false;
         }
 
-        public int TriangulateFromConcavePeaks(IndexRange extEdgesRange, Triangle[] triangles, Vector2[] points, EdgeInfo addedEdgeInfo)
+        public int TriangulateFromConcavePeaks(IndexRange extEdgesRange, EdgeInfo baseEdgeInfo, Triangle[] triangles, EdgeInfo addedEdgeInfo)
         {
             InvalidateExternalEdgesRange(extEdgesRange, out var validRange);
 
-            if (TriangulateFromConcavePeaks(validRange, triangles, points, out int trianglesCount))
+            if (TriangulateFromConcavePeaks(validRange, baseEdgeInfo, triangles, out int trianglesCount))
             {
                 AddExternalEdgesFromConcaveRanges(validRange, addedEdgeInfo);
             }
             return trianglesCount;
         }
 
-        private bool TriangulateFromConcavePeaks(IndexRange validRange, Triangle[] triangles, Vector2[] points, out int trianglesCount)
+        private bool TriangulateFromConcavePeaks(IndexRange validRange, EdgeInfo baseEdgeInfo, Triangle[] triangles, out int trianglesCount)
         {
             trianglesCount = 0;
 
@@ -236,6 +234,8 @@ namespace Triangulation
 #endif
                 return false;
             }
+            var points = baseEdgeInfo.Points;
+
             while (sortedPeaksCount > 2 && concavePeak.Angle >= 180f)
             {
 #if LOGS_ENABLED
@@ -244,8 +244,8 @@ namespace Triangulation
                 int concaveVertex = concavePeak.PeakVertex;
                 int concavePeakIndex = GetPeakIndex(concaveVertex);
                 int prevTrianglesCount = trianglesCount;
-                TriangulateFromConcavePeak(concavePeakIndex, false, triangles, ref trianglesCount, points, out int peakBeg);
-                TriangulateFromConcavePeak(concavePeakIndex, true, triangles, ref trianglesCount, points, out int peakEnd);
+                TriangulateFromConcavePeak(concavePeakIndex, false, baseEdgeInfo, triangles, ref trianglesCount, out int peakBeg);
+                TriangulateFromConcavePeak(concavePeakIndex, true, baseEdgeInfo, triangles, ref trianglesCount, out int peakEnd);
                 var begPeak = edgePeaks[peakBeg];
                 var endPeak = edgePeaks[peakEnd];
                 bool concavePeakTriangleValid = IsConcavePeakTriangleValid(concavePeak, peakBeg, peakEnd, points);
@@ -465,9 +465,9 @@ namespace Triangulation
             return result;
         }
 
-        private void TriangulateFromConcavePeak(int concavePeakIndex, bool forward, Triangle[] triangles, ref int trianglesCount, Vector2[] points, out int endPeakIndex)
+        private void TriangulateFromConcavePeak(int concavePeakIndex, bool forward, EdgeInfo baseEdgeInfo, Triangle[] triangles, ref int trianglesCount, out int endPeakIndex)
         {
-            int peakEnd = endPeakIndex = GetMaxAnglePeakFromPeak(concavePeakIndex, forward, points);
+            int peakEnd = endPeakIndex = GetMaxAnglePeakFromPeak(concavePeakIndex, forward, baseEdgeInfo);
             int peakBeg;
             if (endPeakIndex < 0)
             {
@@ -487,7 +487,7 @@ namespace Triangulation
                 peakEnd = concavePeakIndex;
             }
             var range = new IndexRange(peakBeg, peakEnd, PeakCount);
-            TriangulatePeakRange(range, triangles, ref trianglesCount, points);
+            TriangulatePeakRange(range, triangles, ref trianglesCount, baseEdgeInfo.Points);
         }
 
         private void TriangulatePeakRange(IndexRange range, Triangle[] triangles, ref int trianglesCount, Vector2[] points)
@@ -563,8 +563,9 @@ namespace Triangulation
 #endif
         }
 
-        private int GetMaxAnglePeakFromPeak(int begPeakIndex, bool forward, Vector2[] points)
+        private int GetMaxAnglePeakFromPeak(int begPeakIndex, bool forward, EdgeInfo baseEdgeInfo)
         {
+            var points = baseEdgeInfo.Points;
             var begPeak = edgePeaks[begPeakIndex];
             var begPoint = points[begPeak.PeakVertex];
             int begSign;
@@ -612,7 +613,11 @@ namespace Triangulation
 
                     cosAngle = Vector2.Dot(peakRay, maxPeakRay);
 
-                    if (cosAngle < Maths.Cos1Deg && !Triangle.IsDegenerate(edgeBuffer, true))
+                    var prevEdge = getPrevEdge(peak);
+                    bool prevEdgeInternal = baseEdgeInfo.IsEdgeInternal(prevEdge);
+                    bool triangleDegenerate = !prevEdgeInternal && Triangle.IsDegenerate(edgeBuffer, true);
+
+                    if (cosAngle < Maths.Cos1Deg && !triangleDegenerate)
                     {
                         maxPeakIndex = peakIndex;
                         maxPeakRay = peakRay;

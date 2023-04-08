@@ -6,6 +6,7 @@ namespace Triangulation
 {
     public class EdgeInfo
     {
+        public Vector2[] Points => points;
         public int ExtEdgeCount => extEdgeCount;
         public EdgeEntry[] ExtEdges => extEdges;
         public EdgeEntry[] AddedExtEdges => addedExtEdges;
