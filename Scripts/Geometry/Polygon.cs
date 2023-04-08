@@ -212,10 +212,21 @@ namespace Triangulation
         {
             InvalidateExternalEdgesRange(extEdgesRange, out var validRange);
 
+            if (TriangulateFromConcavePeaks(validRange, triangles, points, out int trianglesCount))
+            {
+                AddExternalEdgesFromConcaveRanges(validRange, addedEdgeInfo);
+            }
+            return trianglesCount;
+        }
+
+        private bool TriangulateFromConcavePeaks(IndexRange validRange, Triangle[] triangles, Vector2[] points, out int trianglesCount)
+        {
+            trianglesCount = 0;
+
             int sortedPeaksCount = sortedPeaks.Count;
             if (sortedPeaksCount < 2)
             {
-                return 0;
+                return false;
             }
             var concavePeak = sortedPeaks[sortedPeaksCount - 1];
             if (concavePeak.Angle < 180f)
@@ -223,10 +234,8 @@ namespace Triangulation
 #if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".TriangulateFromConcavePeaks: Last peak is convex: " + concavePeak);
 #endif
-                return 0;
+                return false;
             }
-            int trianglesCount = 0;
-
             while (sortedPeaksCount > 2 && concavePeak.Angle >= 180f)
             {
 #if LOGS_ENABLED
@@ -263,9 +272,7 @@ namespace Triangulation
                 sortedPeaksCount = sortedPeaks.Count;
                 concavePeak = sortedPeaks[sortedPeaksCount - 1];
             }
-            AddExternalEdgesFromConcaveRanges(validRange, addedEdgeInfo);
-
-            return trianglesCount;
+            return true;
         }
 
         private void AddExternalEdgesInConcaveRange(Vector4Int range, EdgeEntry[] addedExtEdges, ref int edgeCount)
