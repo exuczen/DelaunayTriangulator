@@ -49,8 +49,10 @@ namespace Triangulation
 
                     if (!InternalOnly)
                     {
-                        edgeInfo.FindExternalEdges(pointsCount);
-
+                        if (!edgeInfo.FindExternalEdges(pointsCount, out _))
+                        {
+                            Clear();
+                        }
                         //edgeInfo.PrintPointsExternal(pointsCount);
                     }
                 }
@@ -381,7 +383,7 @@ namespace Triangulation
         {
             updateTriangleDicts = false;
 
-            addedEdgeInfo.JoinSortExternalEdges(exceptionThrower);
+            addedEdgeInfo.JoinSortExternalEdges(out _);
 
             //addedEdgeInfo.PrintExternalEdges("AddTrianglesOnClearPoint");
 

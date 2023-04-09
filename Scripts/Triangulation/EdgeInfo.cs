@@ -603,7 +603,7 @@ namespace Triangulation
             }
         }
 
-        public void FindExternalEdges(int pointsCount)
+        public bool FindExternalEdges(int pointsCount, out string error)
         {
             //Log.WriteLine(GetType() + ".FindExternalEdges: ");
 
@@ -626,7 +626,7 @@ namespace Triangulation
                 var edge = extEdges[extEdgeCount++] = GetEdgeFromKey(kvp.Key);
                 SetEdgePointsExternal(edge, true);
             }
-            JoinSortExternalEdges(exceptionThrower);
+            return JoinSortExternalEdges(out error);
         }
 
         public void UpdateTriangleDicts(EdgeInfo addedEdgeInfo)
@@ -779,14 +779,15 @@ namespace Triangulation
             //PrintEdgeCounterDict("II");
         }
 
-        public void JoinSortExternalEdges(IExceptionThrower exceptionThrower)
+        public bool JoinSortExternalEdges(out string errorMessage)
         {
             extEdgeRanges.Clear();
             edgeIndexPool.Clear();
 
             if (extEdgeCount == 0)
             {
-                return;
+                errorMessage = null;
+                return true;
             }
             //PrintExternalEdges("JoinSortExternalEdges 0");
 
@@ -903,12 +904,8 @@ namespace Triangulation
                 }
             }
 
-            string errorMessage = null;
-            void printExternalEdges()
-            {
-                PrintExternalEdges("JoinSortExternalEdges 2");
-                Log.PrintList(extEdgeRanges, "PrintIndexRanges: ");
-            }
+            errorMessage = null;
+
             if (extEdgeRanges.Count > 1)
             {
                 errorMessage = "JoinSortExternalEdges: RANGES COUNT: " + extEdgeRanges.Count;
@@ -919,11 +916,12 @@ namespace Triangulation
             }
             if (!string.IsNullOrEmpty(errorMessage))
             {
-                Log.WriteError(errorMessage);
-                printExternalEdges();
-                exceptionThrower.ThrowException(new NotImplementedException(errorMessage));
+                Log.WriteWarning(errorMessage);
+                return false;
             }
-            //printExternalEdges();
+            //PrintExternalEdges("JoinSortExternalEdges 2");
+            //Log.PrintList(extEdgeRanges, "PrintIndexRanges: ");
+            return true;
         }
 
         public void ClearLastPointData()
