@@ -59,6 +59,11 @@ namespace Triangulation
             return this;
         }
 
+        public float CosAngle()
+        {
+            return Vector2.Dot(EdgeVecA.Normalized(), EdgeVecB.Normalized());
+        }
+
         public float InvertAngle()
         {
             Angle = 360f - Angle;

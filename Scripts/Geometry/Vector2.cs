@@ -47,9 +47,9 @@ namespace Triangulation
             this.y = y;
         }
 
-        public static implicit operator Vector2(Vector2Int v)
+        public static float CosAngle(Vector2 v1, Vector2 v2)
         {
-            return new Vector2(v.x, v.y);
+            return Dot(v1.Normalized(), v2.Normalized());
         }
 
         public static float AngleDeg(Vector2 v1, Vector2 v2)
@@ -95,6 +95,11 @@ namespace Triangulation
         public static float Dot(Vector2 v1, Vector2 v2)
         {
             return v1.x * v2.x + v1.y * v2.y;
+        }
+
+        public static implicit operator Vector2(Vector2Int v)
+        {
+            return new Vector2(v.x, v.y);
         }
 
         public static Vector2 operator /(Vector2 v1, float div)
