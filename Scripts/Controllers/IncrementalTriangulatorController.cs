@@ -20,7 +20,6 @@ namespace Triangulation
 
         public override void UpdateTriangulation(TriangulationType type, Vector2 point)
         {
-            triangulator.TriangleGrid.SetSelectedCell(point);
             switch (type)
             {
                 case TriangulationType.None:
@@ -38,6 +37,7 @@ namespace Triangulation
                 default:
                     break;
             }
+            triangulator.TriangleGrid.SetSelectedCell(point);
         }
 
         protected override void AddParticle(Vector2 point)

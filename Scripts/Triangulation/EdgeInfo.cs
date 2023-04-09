@@ -114,6 +114,40 @@ namespace Triangulation
             extEdgeCount = 0;
         }
 
+        public int GetExternalTrianglesCount()
+        {
+            if (extEdgeCount < 3)
+            {
+                return 0;
+            }
+            if (!TryGetExternalTriangleKey(extEdges[0], out long firstKey, out _))
+            {
+                throw new KeyNotFoundException("GetExternalTrianglesCount: " + extEdges[0]);
+            }
+            long prevKey = firstKey;
+            int count = 0;
+            for (int i = 1; i < extEdgeCount; i++)
+            {
+                if (TryGetExternalTriangleKey(extEdges[i], out long key, out _))
+                {
+                    if (key != prevKey)
+                    {
+                        count++;
+                    }
+                    prevKey = key;
+                }
+                else
+                {
+                    throw new KeyNotFoundException("GetExternalTrianglesCount: " + extEdges[0]);
+                }
+            }
+            if (firstKey != prevKey)
+            {
+                count++;
+            }
+            return Math.Max(count, 1);
+        }
+
         public void ForEachPointInExtEdgesRange(IndexRange range, Action<int> action)
         {
             var prevEdge = GetPrevExtEdge(range.Beg);
@@ -1587,10 +1621,15 @@ namespace Triangulation
             edgeB = key % points.Length;
         }
 
+        private bool TryGetExternalTriangleKey(EdgeEntry extEdge, out long triangleKey, out int edgeKey)
+        {
+            edgeKey = GetEdgeKey(extEdge);
+            return extEdgeTriangleDict.TryGetValue(edgeKey, out triangleKey);
+        }
+
         private Triangle GetExternalTriangle(EdgeEntry extEdge)
         {
-            int edgeKey = GetEdgeKey(extEdge);
-            if (extEdgeTriangleDict.TryGetValue(edgeKey, out long triangleKey))
+            if (TryGetExternalTriangleKey(extEdge, out long triangleKey, out int edgeKey))
             {
                 return GetTriangleRef(triangleKey, out _);
             }
