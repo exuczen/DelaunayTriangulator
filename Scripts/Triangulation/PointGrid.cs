@@ -23,6 +23,7 @@ namespace Triangulation
         private readonly Vector2 cellHalfSize = default;
         private readonly Vector2 size = default;
 
+        private readonly int[] clearIndices = null;
         private readonly int[] indices = null;
 
         public PointGrid(Vector2 size, Vector2Int xyCount)
@@ -39,8 +40,12 @@ namespace Triangulation
             yCount++;
 
             indices = new int[xCount * yCount];
+            clearIndices = new int[indices.Length];
 
-            Clear();
+            for (int i = 0; i < indices.Length; i++)
+            {
+                indices[i] = clearIndices[i] = -1;
+            }
         }
 
         public void Clear()
@@ -247,10 +252,7 @@ namespace Triangulation
 
         private void ClearIndices()
         {
-            for (int i = 0; i < indices.Length; i++)
-            {
-                indices[i] = -1;
-            }
+            Array.Copy(clearIndices, indices, indices.Length);
         }
     }
 }

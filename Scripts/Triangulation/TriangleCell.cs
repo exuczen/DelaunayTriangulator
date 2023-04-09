@@ -48,6 +48,14 @@ namespace Triangulation
             triangleKeys.Clear();
         }
 
+        public void PrintTriangleKeys()
+        {
+            foreach (var key in triangleKeys)
+            {
+                Log.WriteLine(GetType() + ".PrintTriangleKeys: " + key);
+            }
+        }
+
         public override string ToString()
         {
             return "TriangleCell: TrianglesCount: " + TrianglesCount;

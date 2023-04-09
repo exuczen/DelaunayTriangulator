@@ -2,7 +2,7 @@
 {
     public struct DegenerateTriangle
     {
-        public static DegenerateTriangle None = new DegenerateTriangle(EdgeEntry.None, -1);
+        public static readonly DegenerateTriangle None = new DegenerateTriangle(EdgeEntry.None, -1);
 
         public bool IsValid => PointIndex >= 0 && Edge.IsValid;
         public EdgeEntry Edge { get; private set; }

@@ -169,13 +169,13 @@ namespace Triangulation
 
         public virtual bool Triangulate()
         {
+            RemoveUnusedPoints();
+            ClearTriangles();
+
             if (NotEnoughPoints(pointsCount))
             {
                 return false;
             }
-            RemoveUnusedPoints();
-            ClearTriangles();
-
             bounds = Bounds2.GetBounds(points, pointsOffset, pointsCount - 1);
             Array.Sort(points, pointsOffset, pointsCount - pointsOffset, GetPointsComparer(bounds, out bool xySorted));
 
@@ -254,8 +254,8 @@ namespace Triangulation
 
         protected bool ClearUnusedPoint(int pointIndex)
         {
-            int index;
-            if ((index = unusedPointIndices.IndexOf(pointIndex)) >= 0)
+            int index = unusedPointIndices.IndexOf(pointIndex);
+            if (index >= 0)
             {
                 if (pointIndex == pointsCount - 1)
                 {
