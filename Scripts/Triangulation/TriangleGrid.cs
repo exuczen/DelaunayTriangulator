@@ -23,6 +23,8 @@ namespace Triangulation
         private readonly Vector2 cellSize = default;
         private readonly Vector2 cellHalfSize = default;
         private readonly float cellTolerance = 0f;
+        private readonly float circleTolerance = 0f;
+        private readonly float minCircleRadiusForSqrt = 0f;
         private readonly int xCount, yCount = 0;
 
         private readonly TriangleCell[] cells = null;
@@ -64,7 +66,10 @@ namespace Triangulation
                 cellSize.y = size.y / yCount;
                 cellHalfSize.y = 0.5f * cellSize.y;
             }
-            cellTolerance = MathF.Min(cellSize.x, cellSize.y) * 0.01f;
+            float minCellSize = CellSizeMin;
+            cellTolerance = minCellSize * 0.01f;
+            circleTolerance = minCellSize * 0.1f;
+            minCircleRadiusForSqrt = minCellSize * 50f;
 
             int cellsCount = xCount * yCount;
             cells = new TriangleCell[cellsCount];
@@ -170,6 +175,8 @@ namespace Triangulation
             int begY = Math.Clamp((int)(ccBounds.min.y / cellSize.y), 0, yCount - 1);
             int endY = Math.Clamp((int)(ccBounds.max.y / cellSize.y), 0, yCount - 1);
 
+            //Log.WriteLine(GetType() + ".AddTriangle: " + triangle + " to cells: x: " + begX + "-" + endX + " y: " + begY + "-" + endY);
+
             var cellIndices = cellIndicesPool.Pop();
             triangleCellsDict.Add(triangle.Key, cellIndices);
 
@@ -255,12 +262,6 @@ namespace Triangulation
                 selectedCell = cell;
                 selectedCellXY = cellXY;
                 SetCellCirclesFilled(cell, true);
-
-                //cell.DebugPoint = default;
-                //foreach (int tIndex in cell.TriangleIndices)
-                //{
-                //    GetCellOverlap(x, y, triangles[tIndex].CircumCircle, out _);
-                //}
             }
         }
 
@@ -387,16 +388,23 @@ namespace Triangulation
             bool overlap = (ccCenter.x >= cellMin.x && ccCenter.x <= cellMax.x) ||
                            (ccCenter.y >= cellMin.y && ccCenter.y <= cellMax.y);
             var cellCenter = cellBounds.Center;
-            cells[cellIndex].DebugPoint = cellCenter;
+            var debugPoint = cellCenter;
+
             if (!overlap)
             {
                 var dr = ccCenter - cellCenter;
                 var n = new Vector2(MathF.Sign(dr.x), MathF.Sign(dr.y));
                 var cellVert = cellCenter + n * cellHalfSize;
                 float sqrL = (cellVert - ccCenter).SqrLength;
-                overlap = sqrL <= cc.SqrRadius + cellTolerance;
-                cells[cellIndex].DebugPoint = cellVert;
+                overlap = sqrL <= cc.SqrRadius + circleTolerance;
+
+                if (!overlap && cc.Radius > minCircleRadiusForSqrt)
+                {
+                    overlap = MathF.Sqrt(sqrL) <= cc.Radius + circleTolerance;
+                }
+                debugPoint = cellVert;
             }
+            cells[cellIndex].DebugPoint = debugPoint;
             return overlap;
         }
 
