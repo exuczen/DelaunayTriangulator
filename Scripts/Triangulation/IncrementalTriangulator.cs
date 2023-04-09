@@ -394,7 +394,7 @@ namespace Triangulation
 
                 var peak = cellPolygon.GetPeak(pointIndex, out int peakIndex);
 
-                bool canClipPeak = cellPolygon.CanClipPeak(peakIndex, points, edgeInfo);
+                bool canClipPeak = cellPolygon.CanClipPeak(peakIndex, points, pointGrid.CellSizeMin);
 
                 if (!canClipPeak && cellPolygon.PeakCount > 3)
                 {

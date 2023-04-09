@@ -134,7 +134,7 @@ namespace Triangulation
 #endif
         }
 
-        public bool CanClipPeak(int peakIndex, Vector2[] points, EdgeInfo baseEdgeInfo)
+        public bool CanClipPeak(int peakIndex, Vector2[] points, float pointCellSize)
         {
             if (PeakCount <= 3)
             {
@@ -147,17 +147,12 @@ namespace Triangulation
             }
             else
             {
-                GetPrevNextPeaksAfterClip(peakIndex, out var prevPeak, out var nextPeak, points);
-                bool prevEdgeInternal = baseEdgeInfo.IsEdgeInternal(prevPeak.EdgeA);
-                bool nextEdgeInternal = baseEdgeInfo.IsEdgeInternal(nextPeak.EdgeB);
-                bool prevPeakDegenerate = !prevEdgeInternal && prevPeak.MakesDegenerateTriangle(points, edgeBuffer);
-                bool nextPeakDegenerate = !nextEdgeInternal && nextPeak.MakesDegenerateTriangle(points, edgeBuffer);
+                float minDistToOppEdge = GetOtherPeakMinDistToOppEdge(peakIndex, points);
+                bool result = minDistToOppEdge > pointCellSize * 0.5f;
 #if LOGS_ENABLED
-                Log.WriteLine(GetType() + ".CanClipPeak: prevPeak: " + prevPeak);
-                Log.WriteLine(GetType() + ".CanClipPeak: nextPeak: " + nextPeak);
-                Log.WriteLine("{0}.CanClipPeak: {1} | internal: {2} {3} | degenerate: {4} {5}", GetType(), !prevPeakDegenerate && !nextPeakDegenerate, prevEdgeInternal, nextEdgeInternal, prevPeakDegenerate, nextPeakDegenerate);
+                Log.WriteLine(GetType() + ".CanClipPeak: minDistToOppEdge / pointCellSize: " + (minDistToOppEdge / pointCellSize).ToString("f2") + " " + result);
 #endif
-                return !prevPeakDegenerate && !nextPeakDegenerate;
+                return result;
             }
         }
 
@@ -851,6 +846,44 @@ namespace Triangulation
                 convexIndex++;
             }
             throw new Exception("GetNextPeakToClip: convex peak not containing concave peak not found");
+        }
+
+        private float GetOtherPeakMinDistToOppEdge(int peakIndex, Vector2[] points)
+        {
+            var peak = edgePeaks[peakIndex];
+            float oppEdgeLength = peak.PeakRect.Size.x;
+            var oppEdgeN1 = -peak.PeakRect.N1;
+#if LOGS_ENABLED
+            var oppEdge = peak.GetOppositeEdge(out _);
+#endif
+            int beg = GetNextPeakIndex(peakIndex);
+            int end = GetPrevPeakIndex(peakIndex);
+            int next = GetNextPeakIndex(beg);
+
+            var begPeakVertex = edgePeaks[beg].PeakVertex;
+            var begPeakPoint = points[begPeakVertex];
+
+            float minSqrDist = float.MaxValue;
+
+            while (next != end)
+            {
+                var peakVertex = edgePeaks[next].PeakVertex;
+                var peakPoint = points[peakVertex];
+
+                var ray = peakPoint - begPeakPoint;
+                float rayDotEdge = Vector2.Dot(ray, oppEdgeN1);
+                bool inRange = rayDotEdge >= 0f && rayDotEdge <= oppEdgeLength;
+#if LOGS_ENABLED
+                Log.WriteLine(GetType() + ".GetMinSqrDistPeakToOppEdge: " + oppEdge.ToShortString() + " dot (" + begPeakVertex + ", " + peakVertex + ") = " + rayDotEdge.ToString("f2") + " oppEdgeLength: " + oppEdgeLength.ToString("f2"));
+#endif
+                if (inRange)
+                {
+                    var rayN2 = ray - rayDotEdge * oppEdgeN1;
+                    minSqrDist = MathF.Min(rayN2.SqrLength, minSqrDist);
+                }
+                next = GetNextPeakIndex(next);
+            }
+            return MathF.Sqrt(minSqrDist);
         }
 
         private string ConcaveRangeToString(Vector4Int range)
