@@ -400,7 +400,7 @@ namespace Triangulation
             return terminal;
         }
 
-        private IndexRange GetPeaksRange(IndexRange extEdgesRange)
+        private static IndexRange GetPeaksRange(IndexRange extEdgesRange)
         {
             int beg = extEdgesRange.Beg;
             int end = extEdgesRange.GetPrev(extEdgesRange.End);
@@ -509,7 +509,8 @@ namespace Triangulation
 #if LOGS_ENABLED
                 else
                 {
-                    Log.WriteLine(GetType() + ".TriangulatePeakRange: skipped degerate triangle midPeak: " + midPeak);
+                    Log.WriteLine(GetType() + ".TriangulatePeakRange: SKIPPED DEGENERATE TRIANGLE midPeak: " + midPeak);
+                    InvalidatePeaksRange(range);
                 }
 #endif
             }
@@ -814,10 +815,10 @@ namespace Triangulation
             {
                 sortedPeaks.RemoveAt(sortedIndex);
             }
-            else
-            {
-                Log.WriteWarning("RemovePeakFromSorted: " + peak.PeakVertex + " not found in sortedPeaks");
-            }
+            //else
+            //{
+            //    Log.WriteWarning("RemovePeakFromSorted: " + peak.PeakVertex + " not found in sortedPeaks");
+            //}
         }
 
         private EdgePeak GetNextPeakToClip(Vector2[] points, out int peakIndex, out int sortedIndex)
