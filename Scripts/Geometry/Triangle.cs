@@ -19,6 +19,8 @@ namespace Triangulation
 
         public long Key { get; private set; }
 
+        public bool IsNone => A < 0 || B < 0 || C < 0;
+
         public float CircumCircleMinX => CircumCircle.Bounds.min.x;
         public float CircumCircleMaxX => CircumCircle.Bounds.max.x;
 
@@ -108,6 +110,12 @@ namespace Triangulation
         {
             Setup(a, b, c, points);
             ClearKey();
+        }
+
+        public bool IsDegenerate(Vector2[] points)
+        {
+            GetEdges(points, edgeBuffer);
+            return IsDegenerate(edgeBuffer, false);
         }
 
         #region ToIntegerTriangle

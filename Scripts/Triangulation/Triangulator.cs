@@ -385,6 +385,7 @@ namespace Triangulation
 
         private bool ProcessPoints(int beg, int end, bool xySorted)
         {
+            Func<Vector2, Circle, bool> canCompleteTriangle = xySorted ? CanCompleteTriangleForXYSorted : CanCompleteTriangleForYXSorted;
             Vector2 prevPoint;
             if (pointsOffset == pointsCount - 1)
             {
@@ -407,7 +408,7 @@ namespace Triangulation
                     Log.WriteError(GetType() + ".Triangulate: point.Equals(prevPoint, tolerance): " + i);
                     continue;
                 }
-                if (!ProcessPoint(i, xySorted))
+                if (!ProcessPoint(i, canCompleteTriangle))
                 {
                     ThrowCCTrianglesException(i);
                     return false;
@@ -418,13 +419,11 @@ namespace Triangulation
             return true;
         }
 
-        private bool ProcessPoint(int pointIndex, bool xySorted)
+        private bool ProcessPoint(int pointIndex, Func<Vector2, Circle, bool> canCompleteTriangle)
         {
             ccTriangles.Clear();
             var point = points[pointIndex];
             int triangleEnd = trianglesCount - 1;
-
-            Func<Vector2, Circle, bool> canCompleteTriangle = xySorted ? CanCompleteTriangleForXYSorted : CanCompleteTriangleForYXSorted;
 
             for (int j = triangleEnd; j >= 0; j--)
             {
