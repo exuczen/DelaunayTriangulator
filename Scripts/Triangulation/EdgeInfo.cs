@@ -318,13 +318,17 @@ namespace Triangulation
                     if (edgeCount == 2)
                     {
                         RemoveInnerEdgeTriangleFromDict(edgeKey, triangle.Key);
+                        edgeCounterDict[edgeKey]--;
                     }
-                    edgeCount = --edgeCounterDict[edgeKey];
-                    if (edgeCount <= 0)
+                    else if (edgeCount == 1)
                     {
                         edgeCounterDict.Remove(edgeKey);
                         extEdgeTriangleDict.Remove(edgeKey);
                         innerEdgeTriangleDict.Remove(edgeKey);
+                    }
+                    else
+                    {
+                        throw new Exception("RemoveEdgesFromDicts: " + triangle + " | " + edge);
                     }
                 }
             });
