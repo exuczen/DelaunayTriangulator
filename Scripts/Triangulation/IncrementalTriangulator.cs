@@ -73,6 +73,8 @@ namespace Triangulation
 
             pointGrid = new PointGrid(gridSize, triangleGrid.XYCount * pointGridDivsMlp);
 
+            Circle.MinRadiusForSqrt = 250f * pointGrid.CellSizeMin;
+
             circleTolerance = 0.01f * pointGrid.CellSizeMin;
 
             cellPolygon.Tolerance = 0.1f * circleTolerance;
@@ -134,7 +136,11 @@ namespace Triangulation
             {
                 var point = points[pointIndex];
 
-                if (!TryForceClearPoint(pointIndex) && triangleGrid.GetCell(point, out var cell, out var cellXY))
+                if (TryForceClearPoint(pointIndex))
+                {
+                    return;
+                }
+                else if (triangleGrid.GetCell(point, out var cell, out var cellXY))
                 {
                     //Log.WriteLine(GetType() + ".RemovePointFromTriangulation: cellXY: " + cellXY + " point: " + point + " pointIndex: " + pointIndex);
                     ClearLastPointData();
@@ -340,9 +346,9 @@ namespace Triangulation
                     var point = points[i];
                     ForEachTriangleInCell(point, (triangle, triangleIndex) => {
                         bool isPointExternal = edgeInfo.IsPointExternal(i);
-                        if (!isPointExternal && !triangle.HasVertex(i) && triangle.CircumCircle.ContainsPoint(point, circleSqrOffset, out float circleSqrDelta) && !unusedPointIndices.Contains(i))
+                        if (!isPointExternal && !triangle.HasVertex(i) && triangle.CircumCircle.ContainsPoint(point, circleSqrOffset) && !unusedPointIndices.Contains(i))
                         {
-                            Log.WriteError(GetType() + ".ValidateTriangulation: point " + i + " inside triangle: " + triangle + " | isPointExternal: " + isPointExternal + " | circleSqrDelta: " + circleSqrDelta);
+                            Log.WriteError(GetType() + ".ValidateTriangulation: point " + i + " inside triangle: " + triangle + " | isPointExternal: " + isPointExternal);
                             //edgeInfo.PrintExternalEdges("ValidateTriangulation: ");
                             triangles[triangleIndex].CircumCircle.Filled = true;
                             circleOverlapsPoint = true;

@@ -424,37 +424,42 @@ namespace Triangulation
             var point = points[pointIndex];
             int triangleEnd = trianglesCount - 1;
 
+            Func<Vector2, Circle, bool> canCompleteTriangle = xySorted ? CanCompleteTriangleForXYSorted : CanCompleteTriangleForYXSorted;
+
             for (int j = triangleEnd; j >= 0; j--)
             {
                 var triangle = triangles[j];
                 var cc = triangle.CircumCircle;
 
-                if (cc.ContainsPoint(point, out var dr, out var sqrDr, circleTolerance))
+                if (cc.ContainsPoint(point, out var dr, circleTolerance))
                 {
                     ccTriangles.Add(triangle);
                     ReplaceTriangleWithEdges(j);
                 }
-                else
+                else if (canCompleteTriangle(dr, cc))
                 {
-                    bool completed;
-                    if (xySorted)
-                    {
-                        completed = dr.x > 0f && sqrDr.x > cc.SqrRadius + circleTolerance;
-                    }
-                    else
-                    {
-                        completed = dr.y > 0f && sqrDr.y > cc.SqrRadius + circleTolerance;
-                    }
-                    if (completed)
-                    {
-                        completedTriangles[completedTrianglesCount++] = triangle;
-                        triangles[j] = triangles[--trianglesCount];
-                    }
+                    completedTriangles[completedTrianglesCount++] = triangle;
+                    triangles[j] = triangles[--trianglesCount];
                 }
             }
             DiscardSeparatedCCTriangles();
 
             return ReplaceEdgesWithTriangles(pointIndex);
+        }
+
+        private bool CanCompleteTriangleForXYSorted(Vector2 dr, Circle cc)
+        {
+            return CanCompleteTriangle(dr.x, cc);
+        }
+
+        private bool CanCompleteTriangleForYXSorted(Vector2 dr, Circle cc)
+        {
+            return CanCompleteTriangle(dr.y, cc);
+        }
+
+        private bool CanCompleteTriangle(float dl, Circle cc)
+        {
+            return dl > 0f && dl > cc.Radius + circleTolerance;
         }
 
         private void DiscardSeparatedCCTriangles()
@@ -663,7 +668,7 @@ namespace Triangulation
         {
             string triangleToString(Triangle t)
             {
-                return t + " " + t.CircumCircle.ContainsPoint(points[pointIndex], circleTolerance, out float sqrDelta).ToString() + " sqrDelta: " + sqrDelta;
+                return t + " " + t.CircumCircle.ContainsPoint(points[pointIndex], circleTolerance).ToString();
             }
             for (int i = 0; i < ccTriangles.Count; i++)
             {

@@ -5,6 +5,7 @@ namespace Triangulation
     public struct Circle
     {
         public static float MaxRadius { get; set; } = 1E05F;
+        public static float MinRadiusForSqrt { get; set; } = float.MaxValue;
 
         public bool SizeValid { get; private set; }
         public Vector2 Center { get; }
@@ -19,7 +20,8 @@ namespace Triangulation
             Center = center;
             SqrRadius = sqrRadius;
             Radius = MathF.Sqrt(SqrRadius);
-            Bounds = new Bounds2() {
+            Bounds = new Bounds2()
+            {
                 min = center - Radius * Vector2.One,
                 max = center + Radius * Vector2.One,
             };
@@ -29,24 +31,15 @@ namespace Triangulation
 
         public bool ContainsPoint(Vector2 point, float sqrOffset)
         {
-            return ContainsPoint(point, out _, out _, sqrOffset);
+            return ContainsPoint(point, out _, sqrOffset);
         }
 
-        public bool ContainsPoint(Vector2 point, out Vector2 dr, out Vector2 sqrDr, float sqrOffset)
+        public bool ContainsPoint(Vector2 point, out Vector2 dr, float sqrOffset)
         {
             dr = point - Center;
-            sqrDr.x = dr.x * dr.x;
-            sqrDr.y = dr.y * dr.y;
-            return sqrDr.x + sqrDr.y <= SqrRadius + sqrOffset;
-        }
+            float sqrDr = dr.SqrLength;
 
-        public bool ContainsPoint(Vector2 point, float sqrOffset, out float sqrDelta)
-        {
-            var dr = point - Center;
-            float sqrDx = dr.x * dr.x;
-            float sqrDy = dr.y * dr.y;
-            sqrDelta = SqrRadius - (sqrDx + sqrDy);
-            return sqrDelta + sqrOffset >= 0f;
+            return sqrDr <= SqrRadius + sqrOffset;
         }
 
         public override string ToString()

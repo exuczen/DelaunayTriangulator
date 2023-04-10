@@ -24,7 +24,6 @@ namespace Triangulation
         private readonly Vector2 cellHalfSize = default;
         private readonly float cellTolerance = 0f;
         private readonly float circleTolerance = 0f;
-        private readonly float minCircleRadiusForSqrt = 0f;
         private readonly int xCount, yCount = 0;
 
         private readonly TriangleCell[] cells = null;
@@ -69,7 +68,6 @@ namespace Triangulation
             float minCellSize = CellSizeMin;
             cellTolerance = minCellSize * 0.01f;
             circleTolerance = minCellSize * 0.1f;
-            minCircleRadiusForSqrt = minCellSize * 50f;
 
             int cellsCount = xCount * yCount;
             cells = new TriangleCell[cellsCount];
@@ -398,7 +396,7 @@ namespace Triangulation
                 float sqrL = (cellVert - ccCenter).SqrLength;
                 overlap = sqrL <= cc.SqrRadius + circleTolerance;
 
-                if (!overlap && cc.Radius > minCircleRadiusForSqrt)
+                if (!overlap && cc.Radius > Circle.MinRadiusForSqrt)
                 {
                     overlap = MathF.Sqrt(sqrL) <= cc.Radius + circleTolerance;
                 }
