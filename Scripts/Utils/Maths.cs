@@ -61,6 +61,12 @@ namespace Triangulation
 
         #endregion
 
+        public static float GetMaxSqrtOrSqr(float x)
+        {
+            float absX = MathF.Abs(x);
+            return MathF.Sign(x) * (absX > 1f ? MathF.Sqrt(absX) : x * x);
+        }
+
         public static float Lerp(float a, float b, float t)
         {
             return a + (b - a) * Math.Clamp(t, 0f, 1f);

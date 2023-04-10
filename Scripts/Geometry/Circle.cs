@@ -7,7 +7,7 @@ namespace Triangulation
         public static float MaxRadius { get; set; } = 1E05F;
         public static float MinRadiusForSqrt { get; set; } = float.MaxValue;
 
-        public bool SizeValid { get; private set; }
+        public bool SizeValid { get; }
         public Vector2 Center { get; }
         public float SqrRadius { get; }
         public float Radius { get; }

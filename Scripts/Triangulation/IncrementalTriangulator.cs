@@ -404,8 +404,11 @@ namespace Triangulation
         {
             updateTriangleDicts = false;
 
-            addedEdgeInfo.JoinSortExternalEdges(out _);
-
+            if (!addedEdgeInfo.JoinSortExternalEdges(out _))
+            {
+                exceptionThrower.ThrowException("AddTrianglesOnClearPoint: ", ErrorCode.ExternalEdgesOpenLoop, pointIndex);
+                throw new Exception("AddTrianglesOnClearPoint: " + ErrorCode.ExternalEdgesOpenLoop);
+            }
             //addedEdgeInfo.PrintExternalEdges("AddTrianglesOnClearPoint");
 
             cellPolygon.SetFromExternalEdges(addedEdgeInfo, points);
