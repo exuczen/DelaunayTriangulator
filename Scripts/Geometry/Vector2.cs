@@ -6,6 +6,7 @@ namespace Triangulation
     {
         public const float Epsilon = 1E-05F;
 
+        public static readonly Vector2 NaN = new Vector2(float.NaN, float.NaN);
         public static readonly Vector2 Zero = new Vector2(0f, 0f);
         public static readonly Vector2 One = new Vector2(1f, 1f);
         public static readonly Vector2 Up = new Vector2(0f, 1f);
@@ -45,6 +46,11 @@ namespace Triangulation
         {
             this.x = x;
             this.y = y;
+        }
+
+        public static bool IsNan(Vector2 v)
+        {
+            return float.IsNaN(v.x) || float.IsNaN(v.y);
         }
 
         public static float CosAngle(Vector2 v1, Vector2 v2)

@@ -119,12 +119,16 @@ namespace Triangulation
             AddPointRefIndex(point, ref pointIndex);
         }
 
-        public void AddPointRefIndex(Vector2 point, ref int pointIndex)
+        protected void AddPointRefIndex(Vector2 point, ref int pointIndex)
         {
             int unusedIndicesCount = unusedPointIndices.Count;
 
             if (pointIndex >= 0)
             {
+                if (!Vector2.IsNan(points[pointIndex]))
+                {
+                    throw new Exception(string.Format("AddPointRefIndex: !Vector2.IsNan(points[{0}] : {1}", pointIndex, points[pointIndex]));
+                }
                 if (unusedIndicesCount > 0)
                 {
                     unusedPointIndices.Remove(pointIndex);
@@ -207,7 +211,7 @@ namespace Triangulation
             {
                 throw new Exception("ClearPoint: " + pointIndex);
             }
-            points[pointIndex] = default;
+            points[pointIndex] = Vector2.NaN;
             int lastIndex = pointsCount - 1;
 
             //Log.WriteLine(".ClearPoint:" + pointIndex + " pointsCount: " + pointsCount);
@@ -252,7 +256,7 @@ namespace Triangulation
             return Maths.GetClosestPointIndex(center, points, pointsOffset, pointsCount - 1);
         }
 
-        protected bool ClearUnusedPoint(int pointIndex)
+        protected bool RemoveUnusedPoint(int pointIndex)
         {
             int index = unusedPointIndices.IndexOf(pointIndex);
             if (index >= 0)
