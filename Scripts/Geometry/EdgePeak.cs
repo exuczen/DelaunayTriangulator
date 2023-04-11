@@ -120,7 +120,7 @@ namespace Triangulation
 
         public override string ToString()
         {
-            return string.Format("EdgePeak: " + EdgeA.ToShortString() + EdgeB.ToShortString() + " Angle: " + Angle.ToString("f2") + " " + IsValid);
+            return string.Format("{0}{1} Angle: {2} | {3}", EdgeA.ToShortString(), EdgeB.ToShortString(), Angle.ToString("f2"), IsValid);
         }
 
         private void SetAngle360(int innerAngleSign)
