@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace Triangulation
 {
     public class DeprecatedEdgeInfo : EdgeInfo
     {
+        private readonly List<int> edgeIndexPool = new List<int>();
+
         public DeprecatedEdgeInfo(TriangleSet triangleSet, Vector2[] points, IExceptionThrower exceptionThrower) : base(triangleSet, points, exceptionThrower)
         {
         }

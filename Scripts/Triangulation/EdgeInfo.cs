@@ -32,7 +32,6 @@ namespace Triangulation
         protected readonly bool[] pointsExternal = null;
 
         protected readonly List<IndexRange> extEdgeRanges = new List<IndexRange>();
-        protected readonly List<int> edgeIndexPool = new List<int>();
 
         protected readonly List<int> lastPointExtEdgeIndices = new List<int>();
 
@@ -181,13 +180,13 @@ namespace Triangulation
             }
         }
 
-        public bool ForEachExternalEdge(Func<EdgeEntry, bool> action)
+        public bool ForEachExternalEdge(Predicate<EdgeEntry> predicate, bool breakResult = false)
         {
             for (int i = 0; i < extEdgeCount; i++)
             {
-                if (!action(extEdges[i]))
+                if (!predicate(extEdges[i]))
                 {
-                    return false;
+                    return breakResult;
                 }
             }
             return true;
@@ -820,11 +819,10 @@ namespace Triangulation
         public bool JoinSortExternalEdges(out string errorMessage)
         {
             extEdgeRanges.Clear();
-            edgeIndexPool.Clear();
+            errorMessage = null;
 
-            if (extEdgeCount == 0)
+            if (extEdgeCount < 3)
             {
-                errorMessage = null;
                 return true;
             }
             //PrintExternalEdges("JoinSortExternalEdges 0");
@@ -859,18 +857,9 @@ namespace Triangulation
                 bool iNextNegative = edgeI.Next < 0;
                 bool iPrevNegative = edgeI.Prev < 0;
 
-                if (iNextNegative || iPrevNegative)
+                if (iNextNegative && !iPrevNegative)
                 {
-                    if (iNextNegative && !iPrevNegative)
-                    {
-                        edgeI.SwapNextPrev();
-                    }
-                    //Log.WriteLine(GetType() + ".JoinSortExternalEdges: terminal edge: " + edgeI);
-                    edgeIndexPool.Insert(0, i);
-                }
-                else
-                {
-                    edgeIndexPool.Add(i);
+                    edgeI.SwapNextPrev();
                 }
             }
             //PrintExternalEdges("JoinSortExternalEdges 1");
@@ -886,8 +875,13 @@ namespace Triangulation
 
                 while (edgeCounter < extEdgeCount)
                 {
-                    edgeIndexPool.Remove(edgeIndex);
                     var extEdge = extEdges[edgeIndex];
+                    if (extEdge.Count <= 0)
+                    {
+                        errorMessage = "JoinSortExternalEdges: INTERNAL LOOP EXTERNAL EDGE: " + extEdge;
+                        break;
+                    }
+                    extEdges[edgeIndex].Count = 0;
 
                     int nextIndex = extEdge.Next;
 
@@ -900,9 +894,9 @@ namespace Triangulation
                         //Log.WriteLine(GetType() + ".JoinSortExternalEdges: ADD RANGE: " + range + " edgeCounter: " + edgeCounter + " " + extEdge);
                         extEdgeRanges.Add(range);
 
-                        if (edgeIndexPool.Count > 0)
+                        if (edgeCounter < extEdgeCount - 1 && GetFirstExtEdgeWithPredicate(edge => edge.Count > 0, out _, out int validEdgeIndex))
                         {
-                            nextIndex = firstIndex = edgeIndexPool[0];
+                            nextIndex = firstIndex = validEdgeIndex;
                             range = new IndexRange(edgeCounter + 1, edgeCounter + 1, extEdgeCount);
                         }
                         extEdge.Next = -1;
@@ -921,8 +915,8 @@ namespace Triangulation
                     edgeCounter++;
                 }
                 Array.Copy(extEdges, offset, extEdges, 0, extEdgeCount);
-
             }
+
             if (extEdgeRanges.Count == 0)
             {
                 extEdgeRanges.Add(new IndexRange(0, extEdgeCount - 1, extEdgeCount));
@@ -941,16 +935,16 @@ namespace Triangulation
                     extEdges[range.End].Next = -1;
                 }
             }
-
-            errorMessage = null;
-
-            if (extEdgeRanges.Count > 1)
+            if (string.IsNullOrEmpty(errorMessage))
             {
-                errorMessage = "JoinSortExternalEdges: RANGES COUNT: " + extEdgeRanges.Count;
-            }
-            else if (!extEdges[0].SharesVertex(extEdges[extEdgeCount - 1]))
-            {
-                errorMessage = "JoinSortExternalEdges: OPEN LOOP, extEdgeCount: " + extEdgeCount;
+                if (extEdgeRanges.Count > 1)
+                {
+                    errorMessage = "JoinSortExternalEdges: RANGES COUNT: " + extEdgeRanges.Count;
+                }
+                else if (!extEdges[0].SharesVertex(extEdges[extEdgeCount - 1]))
+                {
+                    errorMessage = "JoinSortExternalEdges: OPEN LOOP, extEdgeCount: " + extEdgeCount;
+                }
             }
             if (!string.IsNullOrEmpty(errorMessage))
             {
@@ -959,6 +953,26 @@ namespace Triangulation
             }
             //PrintExternalEdges("JoinSortExternalEdges 2");
             //Log.PrintList(extEdgeRanges, "PrintIndexRanges: ");
+            return true;
+        }
+
+        public bool ValidateExternalEdges()
+        {
+            if (extEdgeCount < 3)
+            {
+                return false;
+            }
+            if (!extEdges[extEdgeCount - 1].SharesVertex(extEdges[0]))
+            {
+                return false;
+            }
+            for (int i = 1; i < extEdgeCount; i++)
+            {
+                if (!extEdges[i - 1].SharesVertex(extEdges[i]))
+                {
+                    return false;
+                }
+            }
             return true;
         }
 
@@ -1016,6 +1030,22 @@ namespace Triangulation
             }
             lastIndex = end;
             return true;
+        }
+
+        private bool GetFirstExtEdgeWithPredicate(Predicate<EdgeEntry> predicate, out EdgeEntry extEdge, out int extEdgeIndex)
+        {
+            extEdge = EdgeEntry.None;
+            extEdgeIndex = -1;
+            for (int i = 0; i < extEdgeCount; i++)
+            {
+                if (predicate(extEdges[i]))
+                {
+                    extEdge = extEdges[i];
+                    extEdgeIndex = i;
+                    return true;
+                }
+            }
+            return false;
         }
 
         private IndexRange TrimExternalEdgesRange(IndexRange range, out bool innerDegenerate)

@@ -51,6 +51,7 @@ namespace Triangulation
                     {
                         if (!edgeInfo.FindExternalEdges(pointsCount, out _))
                         {
+                            Log.WriteWarning(GetType() + ".base.Triangulate(): Clear on fail of FindExternalEdges");
                             Clear();
                         }
                         //edgeInfo.PrintPointsExternal(pointsCount);
@@ -398,6 +399,11 @@ namespace Triangulation
                 ClearPoints();
             }
             addedEdgeInfo.Clear();
+
+            if (trianglesCount > 0 && !edgeInfo.ValidateExternalEdges())
+            {
+                Log.WriteWarning(GetType() + ".ProcessClearPoint: VALIDATION: " + ErrorCode.ExternalEdgesOpenLoop + " | pointIndex: " + pointIndex);
+            }
         }
 
         private void AddTrianglesOnClearPoint(int pointIndex, out bool updateTriangleDicts)
