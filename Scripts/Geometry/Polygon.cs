@@ -216,12 +216,13 @@ namespace Triangulation
         {
             trianglesCount = 0;
 
-            int sortedPeaksCount = sortedPeaks.Count;
-            if (sortedPeaksCount < 2)
+            int sortedCount = sortedPeaks.Count;
+            int sortedLast = sortedCount - 1;
+            if (sortedCount < 2)
             {
                 return false;
             }
-            var concavePeak = sortedPeaks[sortedPeaksCount - 1];
+            var concavePeak = sortedPeaks[sortedLast];
             if (concavePeak.Angle < 180f)
             {
 #if LOGS_ENABLED
@@ -231,7 +232,7 @@ namespace Triangulation
             }
             var points = baseEdgeInfo.Points;
 
-            while (sortedPeaksCount > 2 && concavePeak.Angle >= 180f)
+            while (sortedLast >= 2 && (concavePeak = sortedPeaks[sortedLast]).Angle >= 180f)
             {
 #if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".TriangulateFromConcavePeak: ---------------- " + concavePeak + " validRange: " + validRange);
@@ -264,8 +265,8 @@ namespace Triangulation
                     }
                     InvalidatePeaksRange(GetNextPeakIndex(peakBeg), GetPrevPeakIndex(peakEnd));
                 }
-                sortedPeaksCount = sortedPeaks.Count;
-                concavePeak = sortedPeaks[sortedPeaksCount - 1];
+                sortedCount = sortedPeaks.Count;
+                sortedLast = sortedCount - 1;
             }
             return true;
         }
@@ -434,9 +435,21 @@ namespace Triangulation
 #endif
         }
 
+        private bool IsPeakRangeValid(int peakBeg, int peakEnd)
+        {
+            bool valid = true;
+            ForEachPeakInRange(peakBeg, peakEnd, (peak, peakIndex) => {
+                if (valid)
+                {
+                    valid = peak.IsValid;
+                }
+            });
+            return valid;
+        }
+
         private bool IsConcavePeakTriangleValid(EdgePeak concavePeak, int peakBeg, int peakEnd, Vector2[] points)
         {
-            if (peakEnd < 0 || peakBeg < 0)
+            if (peakEnd < 0 || peakBeg < 0 || !IsPeakRangeValid(peakBeg, peakEnd))
             {
                 return false;
             }
