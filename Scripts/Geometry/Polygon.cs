@@ -514,18 +514,18 @@ namespace Triangulation
                 var midPeak = GetNextPeak(range.Beg, out _);
                 if (!midPeak.MakesDegenerateTriangle(points, edgeBuffer))
                 {
-#if LOGS_ENABLED
-                    Log.WriteLine(GetType() + ".TriangulatePeakRange: " + midPeak.CreateTriangle(points));
-#endif
                     triangles[trianglesCount++] = midPeak.CreateTriangle(points);
-                }
 #if LOGS_ENABLED
+                    Log.WriteLine(GetType() + ".TriangulatePeakRange: " + triangles[trianglesCount - 1]);
+#endif
+                }
                 else
                 {
-                    Log.WriteLine(GetType() + ".TriangulatePeakRange: SKIPPED DEGENERATE TRIANGLE midPeak: " + midPeak);
                     InvalidatePeaksRange(range);
-                }
+#if LOGS_ENABLED
+                    Log.WriteLine(GetType() + ".TriangulatePeakRange: SKIPPED DEGENERATE TRIANGLE midPeak: " + midPeak);
 #endif
+                }
             }
             else
             {
@@ -634,12 +634,10 @@ namespace Triangulation
                 }
 #if LOGS_ENABLED
                 //Log.WriteLine(GetType() + ".GetMaxAnglePeakFromPeak: PREV EDGE VALIDATION: " + getPrevEdgeVec(peak).Equals(prevPeakPoint - peakPoint), Vector2.Epsilon);
-#endif
                 //prevPeakPoint = peakPoint;
-                prevPeakRay = peakRay;
-#if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".GetMaxAnglePeakFromPeak: " + begEdge + " ray:(" + begPeak.PeakVertex + " -> " + peak.PeakVertex + ") " + sinAngle.ToString("f4") + " prevEdge: " + getPrevEdge(peak));
 #endif
+                prevPeakRay = peakRay;
             }
             ForEachValidPeakFromPeak(getNextPeakIndex(begPeakIndex), forward, action);
 
