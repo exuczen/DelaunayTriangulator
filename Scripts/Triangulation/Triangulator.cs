@@ -32,9 +32,10 @@ namespace Triangulation
         protected readonly Triangle[] triangles = null;
         protected readonly Vector2[] points = null;
         protected readonly Triangle[] completedTriangles = null;
-        protected readonly Dictionary<int, EdgeEntry> edgeDict = new Dictionary<int, EdgeEntry>();
-        protected readonly List<int> unusedPointIndices = new List<int>();
-        protected readonly List<Triangle> ccTriangles = new List<Triangle>();
+        protected readonly Dictionary<int, EdgeEntry> edgeDict = new();
+        protected readonly List<int> unusedPointIndices = new();
+        protected readonly List<int> initialPointIndices = new();
+        protected readonly List<Triangle> ccTriangles = new();
 
         protected readonly EdgeEntry[] edgeBuffer = new EdgeEntry[3];
         protected readonly int[] edgeKeyBuffer = new int[3];
@@ -116,6 +117,12 @@ namespace Triangulation
         public Vector2 GetPoint(int i)
         {
             return points[i];
+        }
+
+        public void GetInitialPointIndices(List<int> indices)
+        {
+            indices.Clear();
+            indices.AddRange(initialPointIndices);
         }
 
         public void AddPoint(Vector2 point, out int pointIndex)
@@ -201,6 +208,7 @@ namespace Triangulation
 
         protected virtual void ClearPoints()
         {
+            initialPointIndices.Clear();
             unusedPointIndices.Clear();
             pointsCount = pointsOffset;
             centerPointIndex = -1;
@@ -505,6 +513,7 @@ namespace Triangulation
 
         private void FindUnusedPoints()
         {
+            initialPointIndices.Clear();
             unusedPointIndices.Clear();
 
             int beg = pointsCount;
@@ -529,11 +538,15 @@ namespace Triangulation
             }
             for (int i = beg + pointsOffset; i <= end; i++)
             {
+                int pointIndex = i - beg;
                 if (Vector2.IsNaN(points[i]))
                 {
-                    int pointIndex = i - beg;
                     unusedPointIndices.Add(pointIndex);
                     points[pointIndex] = default;
+                }
+                else
+                {
+                    initialPointIndices.Add(pointIndex);
                 }
             }
             int unusedLast = unusedPointIndices.Count - 1;
