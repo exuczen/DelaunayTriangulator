@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 
 namespace Triangulation
@@ -49,8 +50,6 @@ namespace Triangulation
         protected int pointsOffset = 3;
         protected int trianglesCount = 0;
         protected int completedTrianglesCount = 0;
-
-        private readonly List<int> usedPointIndices = new List<int>();
 
         private int centerPointIndex = -1;
         private int superTrianglesCount = 1;
@@ -108,6 +107,12 @@ namespace Triangulation
             }
         }
 
+        public bool GetPoint(int i, out Vector2 point)
+        {
+            point = points[i];
+            return !Vector2.IsNaN(point);
+        }
+
         public Vector2 GetPoint(int i)
         {
             return points[i];
@@ -125,10 +130,6 @@ namespace Triangulation
 
             if (pointIndex >= 0)
             {
-                if (!Vector2.IsNan(points[pointIndex]))
-                {
-                    throw new Exception(string.Format("AddPointRefIndex: !Vector2.IsNan(points[{0}] : {1}", pointIndex, points[pointIndex]));
-                }
                 if (unusedIndicesCount > 0)
                 {
                     unusedPointIndices.Remove(pointIndex);
@@ -338,20 +339,9 @@ namespace Triangulation
 
         private IComparer<Vector2> GetPointsComparer(Bounds2 bounds, out bool xySort)
         {
-            IComparer<Vector2> pointsComparer;
             Vector2 boundsSize = bounds.Size;
             xySort = boundsSize.x > boundsSize.y;
-            if (xySort)
-            {
-                // Sort points by X (firstly), Y (secondly)
-                pointsComparer = new PointsXYComparer(pointTolerance);
-            }
-            else // yxSorted
-            {
-                // Sort points by Y (firstly), X (secondly)
-                pointsComparer = new PointsYXComparer(pointTolerance);
-            }
-            return pointsComparer;
+            return xySort ? new PointsXYComparer(pointTolerance) : new PointsYXComparer(pointTolerance);
         }
 
         private bool Triangulate(Bounds2 bounds, bool xySorted)
@@ -379,9 +369,10 @@ namespace Triangulation
 
                 if (!Supermanent)
                 {
-                    FindUnusedPoints();
+                    //DeprecatedFindUnusedPoints();
+                    //DeprecatedClearUnusedPoints();
 
-                    ClearUnusedPoints();
+                    FindUnusedPoints();
                 }
             }
             return result;
@@ -514,6 +505,60 @@ namespace Triangulation
 
         private void FindUnusedPoints()
         {
+            unusedPointIndices.Clear();
+
+            int beg = pointsCount;
+            int end = beg + pointsCount - 1;
+
+            for (int i = 0; i < pointsOffset; i++)
+            {
+                points[beg + i] = points[i];
+            }
+            for (int i = beg + pointsOffset; i <= end; i++)
+            {
+                points[i] = Vector2.NaN;
+            }
+            for (int i = 0; i < trianglesCount; i++)
+            {
+                triangles[i].GetIndices(indexBuffer);
+                for (int j = 0; j < 3; j++)
+                {
+                    int pointIndex = indexBuffer[j];
+                    points[beg + pointIndex] = points[pointIndex];
+                }
+            }
+            for (int i = beg + pointsOffset; i <= end; i++)
+            {
+                if (Vector2.IsNaN(points[i]))
+                {
+                    int pointIndex = i - beg;
+                    unusedPointIndices.Add(pointIndex);
+                    points[pointIndex] = default;
+                }
+            }
+            int unusedLast = unusedPointIndices.Count - 1;
+            int lastIndex = pointsCount - 1;
+            while (unusedLast >= 0 && unusedPointIndices[unusedLast] >= lastIndex)
+            {
+                if (unusedPointIndices[unusedLast] == lastIndex)
+                {
+                    pointsCount--;
+                    lastIndex = pointsCount - 1;
+                }
+                unusedPointIndices.RemoveAt(unusedLast);
+                unusedLast = unusedPointIndices.Count - 1;
+            }
+            if (unusedPointIndices.Count > 0)
+            {
+                Log.PrintList(unusedPointIndices, GetType() + ".FindUnusedPoints: ");
+            }
+        }
+
+        #region DEPRECATED
+        private void DeprecatedFindUnusedPoints()
+        {
+            var usedPointIndices = new List<int>();
+
             usedPointIndices.Clear();
             unusedPointIndices.Clear();
 
@@ -574,7 +619,7 @@ namespace Triangulation
             }
         }
 
-        private void ClearUnusedPoints()
+        private void DeprecatedClearUnusedPoints()
         {
             unusedPointIndices.Sort();
             for (int i = unusedPointIndices.Count - 1; i >= 0; i--)
@@ -586,6 +631,7 @@ namespace Triangulation
                 unusedPointIndices.Clear();
             }
         }
+        #endregion
 
         private void FindValidTriangles(Predicate<Triangle> predicate)
         {
@@ -656,7 +702,6 @@ namespace Triangulation
                     if (!AddTriangle(edge.A, edge.B, pointIndex, out _))
                     {
                         Log.WriteError("ReplaceEdgesWithTriangles: pointIndex: " + pointIndex + " pointsCount: " + pointsCount);
-                        Log.PrintList(ccTriangles, "ReplaceEdgesWithTriangles: ccTriangles:");
                         edgeDict.Clear();
                         trianglesCount = trianglesCountPrev;
                         return false;
@@ -680,7 +725,8 @@ namespace Triangulation
                 ccTriangle.FillColor = Color.Red;
                 triangles[trianglesCount++] = ccTriangle;
             }
-            Log.PrintArray(triangles, trianglesCount, triangleToString, "ThrowCCTrianglesException: ");
+            Log.PrintList(ccTriangles, "ThrowCCTrianglesException: ccTriangles: ");
+            Log.PrintArrayToString(triangles, trianglesCount, triangleToString, "ThrowCCTrianglesException: ");
             exceptionThrower.ThrowException("BASE TRIANGULATION FAILED", ErrorCode.BaseTriangulationFailed, pointIndex);
         }
 

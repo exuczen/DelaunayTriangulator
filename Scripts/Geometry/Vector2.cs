@@ -48,7 +48,12 @@ namespace Triangulation
             this.y = y;
         }
 
-        public static bool IsNan(Vector2 v)
+        public static bool IsFinite(Vector2 v)
+        {
+            return float.IsFinite(v.x) && float.IsFinite(v.y);
+        }
+
+        public static bool IsNaN(Vector2 v)
         {
             return float.IsNaN(v.x) || float.IsNaN(v.y);
         }

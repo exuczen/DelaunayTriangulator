@@ -129,7 +129,7 @@ namespace Triangulation
             {
                 throw new ArgumentOutOfRangeException("RemovePoint: " + pointIndex + " pointsCount: " + pointsCount);
             }
-            else if (Vector2.IsNan(points[pointIndex]))
+            else if (Vector2.IsNaN(points[pointIndex]))
             {
                 return;
             }
@@ -349,7 +349,7 @@ namespace Triangulation
                 for (int i = pointsOffset; i < pointsCount; i++)
                 {
                     var point = points[i];
-                    if (Vector2.IsNan(point))
+                    if (Vector2.IsNaN(point))
                     {
                         continue;
                     }

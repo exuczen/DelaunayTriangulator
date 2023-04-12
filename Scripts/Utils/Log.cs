@@ -96,36 +96,36 @@ namespace Triangulation
 
         public static string ToString<T>(this T[] array, int count, Func<T, string> toString, string prefix)
         {
-            StringBuilder.Append(prefix + " count: " + count + "\n");
+            StringBuilder.Append(string.Format("{0} count: {1}\n", prefix, count));
             for (int i = 0; i < count; i++)
             {
-                StringBuilder.Append("[" + i + "] " + toString(array[i]) + "\n");
+                StringBuilder.Append(string.Format("[{0}] {1}\n", i, toString(array[i])));
             }
             var text = StringBuilder.ToString();
             StringBuilder.Clear();
             return text;
         }
 
-        public static void PrintArray<T>(T[] array, int count, Func<T, string> toString, string prefix)
+        public static void PrintArrayToString<T>(T[] array, int count, Func<T, string> toString, string prefix)
         {
             WriteLine(array.ToString(count, toString, prefix));
         }
 
         public static void PrintList<T>(List<T> list, string prefix)
         {
-            WriteLine(prefix);
+            WriteLine(string.Format("{0} count: {1}\n", prefix, list.Count));
             for (int i = 0; i < list.Count; i++)
             {
-                WriteLine(prefix + " [" + i + "] " + list[i]);
+                WriteLine(string.Format("{0} [{1}] {2}", prefix, i, list[i]));
             }
         }
 
         public static void PrintArray<T>(T[] array, int count, string prefix)
         {
-            WriteLine(prefix);
+            WriteLine(string.Format("{0} count: {1}\n", prefix, count));
             for (int i = 0; i < count; i++)
             {
-                WriteLine(prefix + " [" + i + "] " + array[i]);
+                WriteLine(string.Format("{0} [{1}] {2}", prefix, i, array[i]));
             }
         }
     }
