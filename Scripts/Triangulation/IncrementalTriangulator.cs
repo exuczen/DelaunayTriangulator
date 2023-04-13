@@ -401,7 +401,7 @@ namespace Triangulation
 
             AddCellTrianglesEdges();
 
-            AddTrianglesOnClearPoint(pointIndex);
+            AddTrianglesOnClearPoint(pointIndex, out bool debugFindExtEdges);
 
             ReplaceCellTriangles(addedTriangles, addedTrianglesCount);
 
@@ -417,6 +417,10 @@ namespace Triangulation
             }
             addedEdgeInfo.Clear();
 
+            if (debugFindExtEdges && !edgeInfo.FindExternalEdges(pointsCount, out _))
+            {
+                exceptionThrower.ThrowException("ProcessClearPoint: ", ErrorCode.ExternalEdgesBrokenLoop, pointIndex);
+            }
             if (trianglesCount > 0 && !edgeInfo.ValidateExternalEdges(out var error))
             {
                 Log.WriteWarning(GetType() + ".ProcessClearPoint: VALIDATION ERROR: " + error + " | pointIndex: " + pointIndex);
@@ -424,8 +428,10 @@ namespace Triangulation
             }
         }
 
-        private void AddTrianglesOnClearPoint(int pointIndex)
+        private void AddTrianglesOnClearPoint(int pointIndex, out bool debugFindExtEdges)
         {
+            debugFindExtEdges = false;
+
             if (!addedEdgeInfo.JoinSortExternalEdges(out _))
             {
                 exceptionThrower.ThrowException("AddTrianglesOnClearPoint: ", ErrorCode.ExternalEdgesBrokenLoop, pointIndex);
@@ -451,6 +457,8 @@ namespace Triangulation
                     addedTrianglesCount = cellPolygon.TriangulateFromConcavePeaks(peakExtEdgesRange, edgeInfo, addedTriangles, addedEdgeInfo);
 
                     edgeInfo.ReplacePeakExternalEdges(peakExtEdgesRange, addedEdgeInfo);
+
+                    //debugFindExtEdges = false;
                 }
                 else
                 {
@@ -461,6 +469,9 @@ namespace Triangulation
                         cellPolygon.Triangulate(addedTriangles, ref addedTrianglesCount, points);
                     }
                     edgeInfo.ClipPeakExternalEdges(peak, pointsToClear);
+
+                    //pointsToClear.Add(peak.PeakVertex);
+                    //debugFindExtEdges = false;
                 }
             }
             else
