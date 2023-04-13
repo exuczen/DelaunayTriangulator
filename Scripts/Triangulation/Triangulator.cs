@@ -542,7 +542,7 @@ namespace Triangulation
                 if (Vector2.IsNaN(points[i]))
                 {
                     unusedPointIndices.Add(pointIndex);
-                    points[pointIndex] = default;
+                    points[pointIndex] = Vector2.NaN;
                 }
                 else
                 {

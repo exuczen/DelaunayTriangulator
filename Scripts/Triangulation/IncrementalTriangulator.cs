@@ -131,13 +131,19 @@ namespace Triangulation
             }
             else if (Vector2.IsNaN(points[pointIndex]))
             {
+                //Log.WriteLine(GetType() + ".RemovePointFromTriangulation: " + pointIndex + " isNaN, lastIndex: " + (pointsCount - 1) + " | unusedPointIndices: " + unusedPointIndices.Contains(pointIndex));
+                if (pointIndex == pointsCount - 1)
+                {
+                    unusedPointIndices.Remove(pointIndex);
+                    pointsCount--;
+                }
                 return;
             }
             else if (trianglesCount <= 0 || NotEnoughPoints(pointsCount))
             {
                 ClearPoint(pointIndex);
             }
-            else if (!RemoveUnusedPoint(pointIndex))
+            else
             {
                 var point = points[pointIndex];
 
@@ -294,6 +300,7 @@ namespace Triangulation
         {
             if (edgeInfo.GetExternalTrianglesCount() == trianglesCount)
             {
+                //Log.WriteLine(GetType() + ".TryForceClearPoint: " + pointIndex);
                 ClearPoint(pointIndex);
                 Triangulate();
                 if (trianglesCount <= 0)
@@ -388,7 +395,7 @@ namespace Triangulation
             }
             bool isPointExternal = edgeInfo.IsPointExternal(pointIndex);
 
-            Log.WriteLine(GetType() + ".ProcessClearPoint: " + pointIndex + " isPointExternal: " + isPointExternal + " pointsCount: " + pointsCount);
+            Log.WriteLine(GetType() + ".ProcessClearPoint: ***** " + pointIndex + " ***** isPointExternal: " + isPointExternal + " pointsCount: " + pointsCount);
 
             AddCellTrianglesEdges();
 
