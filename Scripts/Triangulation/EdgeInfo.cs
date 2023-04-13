@@ -159,6 +159,32 @@ namespace Triangulation
             action(EdgeEntry.GetSharedVertex(endEdge, nextEdge));
         }
 
+        public void ForEachExternalPoint(Action<int> action, out bool openLoop)
+        {
+            openLoop = false;
+            if (extEdgeCount <= 0)
+            {
+                return;
+            }
+            void extEdgePeakAction(int edgeI, int edgeJ, ref bool openLoop)
+            {
+                int sharedVertex = EdgeEntry.GetSharedVertex(extEdges[edgeI], extEdges[edgeJ]);
+                if (sharedVertex >= 0)
+                {
+                    action(sharedVertex);
+                }
+                else
+                {
+                    openLoop = true;
+                }
+            }
+            for (int i = 1; i < extEdgeCount; i++)
+            {
+                extEdgePeakAction(i - 1, i, ref openLoop);
+            }
+            extEdgePeakAction(extEdgeCount - 1, 0, ref openLoop);
+        }
+
         public void ForEachExternalPeak(Action<EdgeEntry, EdgeEntry> action)
         {
             if (extEdgeCount <= 0)
@@ -941,24 +967,38 @@ namespace Triangulation
             return true;
         }
 
-        public bool ValidateExternalEdges()
+        public bool ValidateExternalEdges(out string error)
         {
+            error = null;
             if (extEdgeCount < 3)
             {
                 return false;
             }
-            if (!extEdges[extEdgeCount - 1].SharesVertex(extEdges[0]))
+            void setExtEdgesPointsExternal(bool external)
             {
-                return false;
+                ForEachExternalPeak((edge1, edge2) => {
+                    SetEdgePointsExternal(edge1, external);
+                    SetEdgePointsExternal(edge2, external);
+                });
             }
-            for (int i = 1; i < extEdgeCount; i++)
+            bool internalLoop = false;
+
+            setExtEdgesPointsExternal(false);
+
+            ForEachExternalPoint(pointIndex => {
+                internalLoop |= IsPointExternal(pointIndex);
+                SetPointExternal(pointIndex, true);
+            }, out bool openLoop);
+
+            if (openLoop)
             {
-                if (!extEdges[i - 1].SharesVertex(extEdges[i]))
-                {
-                    return false;
-                }
+                setExtEdgesPointsExternal(true);
             }
-            return true;
+            if (internalLoop || openLoop)
+            {
+                error = "internalLoop: " + internalLoop + " | openLoop: " + openLoop;
+            }
+            return !internalLoop && !openLoop;
         }
 
         public void ClearLastPointData()

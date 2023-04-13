@@ -8,7 +8,7 @@
         BaseTriangulationFailed,
         InvalidTriangulation,
         InternalEdgeExists,
-        ExternalEdgesOpenLoop
+        ExternalEdgesBrokenLoop,
     }
 
     public struct ErrorData

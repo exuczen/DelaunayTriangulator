@@ -47,6 +47,11 @@ namespace Triangulation
             edges[count - 1].Next = 0;
         }
 
+        public static bool GetSharedVertex(EdgeEntry edge1, EdgeEntry edge2, out int vertex)
+        {
+            return (vertex = GetSharedVertex(edge1, edge2)) >= 0;
+        }
+
         public static int GetSharedVertex(EdgeEntry edge1, EdgeEntry edge2)
         {
             return edge2.HasVertex(edge1.A) ? edge1.A : (edge2.HasVertex(edge1.B) ? edge1.B : -1);

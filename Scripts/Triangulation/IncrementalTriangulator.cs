@@ -417,9 +417,10 @@ namespace Triangulation
             }
             addedEdgeInfo.Clear();
 
-            if (trianglesCount > 0 && !edgeInfo.ValidateExternalEdges())
+            if (trianglesCount > 0 && !edgeInfo.ValidateExternalEdges(out var error))
             {
-                Log.WriteWarning(GetType() + ".ProcessClearPoint: VALIDATION ERROR: " + ErrorCode.ExternalEdgesOpenLoop + " | pointIndex: " + pointIndex);
+                Log.WriteWarning(GetType() + ".ProcessClearPoint: VALIDATION ERROR: " + error + " | pointIndex: " + pointIndex);
+                exceptionThrower.ThrowException("ProcessClearPoint: VALIDATION ERROR: " + error, ErrorCode.ExternalEdgesBrokenLoop, pointIndex);
             }
         }
 
@@ -427,8 +428,8 @@ namespace Triangulation
         {
             if (!addedEdgeInfo.JoinSortExternalEdges(out _))
             {
-                exceptionThrower.ThrowException("AddTrianglesOnClearPoint: ", ErrorCode.ExternalEdgesOpenLoop, pointIndex);
-                throw new Exception("AddTrianglesOnClearPoint: " + ErrorCode.ExternalEdgesOpenLoop + " | pointIndex: " + pointIndex);
+                exceptionThrower.ThrowException("AddTrianglesOnClearPoint: ", ErrorCode.ExternalEdgesBrokenLoop, pointIndex);
+                throw new Exception("AddTrianglesOnClearPoint: " + ErrorCode.ExternalEdgesBrokenLoop + " | pointIndex: " + pointIndex);
             }
             //addedEdgeInfo.PrintExternalEdges("AddTrianglesOnClearPoint");
 
