@@ -433,7 +433,7 @@ namespace Triangulation
                 var triangle = triangles[j];
                 var cc = triangle.CircumCircle;
 
-                if (cc.ContainsPoint(point, out var dr, circleTolerance))
+                if (cc.ContainsPoint(point, out var dr, out _, circleTolerance))
                 {
                     ccTriangles.Add(triangle);
                     ReplaceTriangleWithEdges(j);

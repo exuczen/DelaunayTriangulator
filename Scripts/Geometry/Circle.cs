@@ -34,15 +34,15 @@ namespace Triangulation
             return ContainsPoint(point, out _, out _, sqrOffset);
         }
 
-        public bool ContainsPointWithSqrt(Vector2 point, float sqrOffset)
+        public bool ContainsPointWithSqrt(Vector2 point, float sqrOffset, bool sqrtForInside)
         {
-            bool result = ContainsPoint(point, out _, out float sqrDist, sqrOffset);
+            bool inside = ContainsPoint(point, out _, out float sqrDist, sqrOffset);
 
-            if (result && Radius >= MinRadiusForSqrt)
+            if (inside == sqrtForInside && Radius >= MinRadiusForSqrt)
             {
-                result = MathF.Sqrt(sqrDist) <= Radius + sqrOffset;
+                inside = MathF.Sqrt(sqrDist) <= Radius + sqrOffset;
             }
-            return result;
+            return inside;
         }
 
         public bool ContainsPoint(Vector2 point, out Vector2 dr, out float sqrDist, float sqrOffset)

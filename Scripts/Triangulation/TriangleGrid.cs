@@ -109,25 +109,25 @@ namespace Triangulation
             });
         }
 
-        public bool IsPointInsideTriangle(Vector2 point, Vector2[] points, float circleTolerance)
-        {
-            if (GetCell(point, out var cell))
-            {
-                foreach (long triangleKey in cell.TriangleKeys)
-                {
-                    ref var triangle = ref GetTriangleRef(triangleKey, out _);
-                    if (triangle.CircumCircle.ContainsPoint(point, circleTolerance))
-                    {
-                        if (triangle.ContainsPoint(point, points))
-                        {
-                            Log.WriteLine(GetType() + ".IsPointInsideTriangle: " + triangle);
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        }
+        //public bool IsPointInsideTriangle(Vector2 point, Vector2[] points, float circleTolerance)
+        //{
+        //    if (GetCell(point, out var cell))
+        //    {
+        //        foreach (long triangleKey in cell.TriangleKeys)
+        //        {
+        //            ref var triangle = ref GetTriangleRef(triangleKey, out _);
+        //            if (triangle.CircumCircle.ContainsPoint(point, circleTolerance))
+        //            {
+        //                if (triangle.ContainsPoint(point, points))
+        //                {
+        //                    Log.WriteLine(GetType() + ".IsPointInsideTriangle: " + triangle);
+        //                    return true;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    return false;
+        //}
 
         public bool FindClosestCellWithPredicate(int centerX, int centerY, out TriangleCell cell, Predicate<TriangleCell> predicate)
         {
@@ -393,13 +393,7 @@ namespace Triangulation
                 var dr = ccCenter - cellCenter;
                 var n = new Vector2(MathF.Sign(dr.x), MathF.Sign(dr.y));
                 var cellVert = cellCenter + n * cellHalfSize;
-                float sqrL = (cellVert - ccCenter).SqrLength;
-                overlap = sqrL <= cc.SqrRadius + circleTolerance;
-
-                if (!overlap && cc.Radius > Circle.MinRadiusForSqrt)
-                {
-                    overlap = MathF.Sqrt(sqrL) <= cc.Radius + circleTolerance;
-                }
+                overlap = cc.ContainsPointWithSqrt(cellVert, circleTolerance, false);
                 debugPoint = cellVert;
             }
             cells[cellIndex].DebugPoint = debugPoint;
