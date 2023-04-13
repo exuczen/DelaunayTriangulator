@@ -401,11 +401,11 @@ namespace Triangulation
 
             AddCellTrianglesEdges();
 
-            AddTrianglesOnClearPoint(pointIndex, out bool updateTriangleDicts);
+            AddTrianglesOnClearPoint(pointIndex);
 
             ReplaceCellTriangles(addedTriangles, addedTrianglesCount);
 
-            if (updateTriangleDicts)
+            if (isPointExternal)
             {
                 edgeInfo.UpdateTriangleDicts(addedEdgeInfo);
             }
@@ -419,18 +419,16 @@ namespace Triangulation
 
             if (trianglesCount > 0 && !edgeInfo.ValidateExternalEdges())
             {
-                Log.WriteWarning(GetType() + ".ProcessClearPoint: VALIDATION: " + ErrorCode.ExternalEdgesOpenLoop + " | pointIndex: " + pointIndex);
+                Log.WriteWarning(GetType() + ".ProcessClearPoint: VALIDATION ERROR: " + ErrorCode.ExternalEdgesOpenLoop + " | pointIndex: " + pointIndex);
             }
         }
 
-        private void AddTrianglesOnClearPoint(int pointIndex, out bool updateTriangleDicts)
+        private void AddTrianglesOnClearPoint(int pointIndex)
         {
-            updateTriangleDicts = false;
-
             if (!addedEdgeInfo.JoinSortExternalEdges(out _))
             {
                 exceptionThrower.ThrowException("AddTrianglesOnClearPoint: ", ErrorCode.ExternalEdgesOpenLoop, pointIndex);
-                throw new Exception("AddTrianglesOnClearPoint: " + ErrorCode.ExternalEdgesOpenLoop);
+                throw new Exception("AddTrianglesOnClearPoint: " + ErrorCode.ExternalEdgesOpenLoop + " | pointIndex: " + pointIndex);
             }
             //addedEdgeInfo.PrintExternalEdges("AddTrianglesOnClearPoint");
 
@@ -452,8 +450,6 @@ namespace Triangulation
                     addedTrianglesCount = cellPolygon.TriangulateFromConcavePeaks(peakExtEdgesRange, edgeInfo, addedTriangles, addedEdgeInfo);
 
                     edgeInfo.ReplacePeakExternalEdges(peakExtEdgesRange, addedEdgeInfo);
-
-                    updateTriangleDicts = true;
                 }
                 else
                 {
@@ -464,8 +460,6 @@ namespace Triangulation
                         cellPolygon.Triangulate(addedTriangles, ref addedTrianglesCount, points);
                     }
                     edgeInfo.ClipPeakExternalEdges(peak, pointsToClear);
-
-                    updateTriangleDicts = addedTrianglesCount == 0;
                 }
             }
             else
