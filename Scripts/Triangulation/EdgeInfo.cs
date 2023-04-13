@@ -293,14 +293,10 @@ namespace Triangulation
 
         public void RemoveEdgesFromCounterDict(Triangle triangle)
         {
-            triangle.GetIndices(indexBuffer);
-            ForEachEdge(triangle, (edgeKey, edge) => {
-                if (edgeCounterDict.ContainsKey(edgeKey))
+            ForEachEdgeInCounterDict(triangle, (edgeKey, edge, edgeCount) => {
+                if (--edgeCounterDict[edgeKey] <= 0)
                 {
-                    if (--edgeCounterDict[edgeKey] <= 0)
-                    {
-                        edgeCounterDict.Remove(edgeKey);
-                    }
+                    edgeCounterDict.Remove(edgeKey);
                 }
             });
             //Log.WriteLine("RemoveEdgesFromCounterDict: " + triangle);
@@ -309,26 +305,21 @@ namespace Triangulation
 
         public void RemoveEdgesFromDicts(Triangle triangle)
         {
-            triangle.GetIndices(indexBuffer);
-            ForEachEdge(triangle, (edgeKey, edge) => {
-                if (edgeCounterDict.ContainsKey(edgeKey))
+            ForEachEdgeInCounterDict(triangle, (edgeKey, edge, edgeCount) => {
+                if (edgeCount == 2)
                 {
-                    int edgeCount = edgeCounterDict[edgeKey];
-                    if (edgeCount == 2)
-                    {
-                        RemoveInnerEdgeTriangleFromDict(edgeKey, triangle.Key);
-                        edgeCounterDict[edgeKey]--;
-                    }
-                    else if (edgeCount == 1)
-                    {
-                        edgeCounterDict.Remove(edgeKey);
-                        extEdgeTriangleDict.Remove(edgeKey);
-                        innerEdgeTriangleDict.Remove(edgeKey);
-                    }
-                    else
-                    {
-                        throw new Exception("RemoveEdgesFromDicts: " + triangle + " | " + edge);
-                    }
+                    RemoveInnerEdgeTriangleFromDict(edgeKey, triangle.Key);
+                    edgeCounterDict[edgeKey]--;
+                }
+                else if (edgeCount == 1)
+                {
+                    edgeCounterDict.Remove(edgeKey);
+                    extEdgeTriangleDict.Remove(edgeKey);
+                    innerEdgeTriangleDict.Remove(edgeKey);
+                }
+                else
+                {
+                    throw new Exception("RemoveEdgesFromDicts: " + triangle + " | " + edge);
                 }
             });
         }
@@ -737,17 +728,14 @@ namespace Triangulation
             }
             long triangleKey = triangle.Key;
 
-            ForEachEdge(triangle, (edgeKey, edge) => {
-                if (edgeCounterDict.TryGetValue(edgeKey, out int edgeCount))
+            ForEachEdgeInCounterDict(triangle, (edgeKey, edge, edgeCount) => {
+                if (edgeCount == 1)
                 {
-                    if (edgeCount == 1)
-                    {
-                        extEdgeTriangleDict.Add(edgeKey, triangleKey);
-                    }
-                    else if (edgeCount == 2)
-                    {
-                        AddInnerEdgeToTriangleDict(edge, edgeKey, triangleKey, out long extTriangleKey);
-                    }
+                    extEdgeTriangleDict.Add(edgeKey, triangleKey);
+                }
+                else if (edgeCount == 2)
+                {
+                    AddInnerEdgeToTriangleDict(edge, edgeKey, triangleKey, out long extTriangleKey);
                 }
             });
         }
@@ -762,21 +750,18 @@ namespace Triangulation
             int extTriangleCount = 0;
             int extEdgeCount = 0;
 
-            ForEachEdge(triangle, (edgeKey, edge) => {
-                if (edgeCounterDict.TryGetValue(edgeKey, out int edgeCount))
+            ForEachEdgeInCounterDict(triangle, (edgeKey, edge, edgeCount) => {
+                if (edgeCount == 1)
                 {
-                    if (edgeCount == 1)
+                    extEdgeTriangleDict.Add(edgeKey, triangleKey);
+                    extEdgeCount++;
+                }
+                else if (edgeCount == 2)
+                {
+                    AddInnerEdgeToTriangleDict(edge, edgeKey, triangleKey, out long extTriangleKey);
+                    if (extTriangleKey >= 0)
                     {
-                        extEdgeTriangleDict.Add(edgeKey, triangleKey);
-                        extEdgeCount++;
-                    }
-                    else if (edgeCount == 2)
-                    {
-                        AddInnerEdgeToTriangleDict(edge, edgeKey, triangleKey, out long extTriangleKey);
-                        if (extTriangleKey >= 0)
-                        {
-                            triangleKeyBuffer[extTriangleCount++] = extTriangleKey;
-                        }
+                        triangleKeyBuffer[extTriangleCount++] = extTriangleKey;
                     }
                 }
             });
@@ -1456,6 +1441,16 @@ namespace Triangulation
                 if (IsEdgeExternal(edgeKey))
                 {
                     action(edgeKey, edge);
+                }
+            });
+        }
+
+        protected void ForEachEdgeInCounterDict(Triangle triangle, Action<int, EdgeEntry, int> action)
+        {
+            ForEachEdge(triangle, (edgeKey, edge) => {
+                if (edgeCounterDict.TryGetValue(edgeKey, out int edgeCount))
+                {
+                    action(edgeKey, edge, edgeCount);
                 }
             });
         }
