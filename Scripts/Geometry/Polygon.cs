@@ -420,14 +420,20 @@ namespace Triangulation
             InvalidatePeaksRange(new IndexRange(beg, end, PeakCount));
         }
 
+        private void InvalidatePeak(int peakIndex)
+        {
+            var peak = edgePeaks[peakIndex];
+            RemovePeakFromSorted(peak, -1);
+            edgePeaks[peakIndex] = peak.Invalidate();
+        }
+
         private void InvalidatePeaksRange(IndexRange range)
         {
             ForEachPeakInRange(range, (peak, peakIndex) => {
 #if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".InvalidatePeaksRange: " + peak);
 #endif
-                RemovePeakFromSorted(peak, -1);
-                edgePeaks[peakIndex] = peak.Invalidate();
+                InvalidatePeak(peakIndex);
             });
 #if LOGS_ENABLED
             //Log.PrintEdgePeaks(edgePeaks, "InvalidatePeaksRange: peaks: ");
@@ -439,10 +445,7 @@ namespace Triangulation
         {
             bool valid = true;
             ForEachPeakInRange(peakBeg, peakEnd, (peak, peakIndex) => {
-                if (valid)
-                {
-                    valid = peak.IsValid;
-                }
+                valid &= peak.IsValid;
             });
             return valid;
         }
