@@ -362,7 +362,7 @@ namespace Triangulation
                     }
                     ForEachTriangleInCell(point, (triangle, triangleIndex) => {
                         bool isPointExternal = edgeInfo.IsPointExternal(i);
-                        if (!isPointExternal && !triangle.HasVertex(i) && triangle.CircumCircle.ContainsPoint(point, circleSqrOffset) && !unusedPointIndices.Contains(i))
+                        if (!isPointExternal && !triangle.HasVertex(i) && triangle.CircumCircle.ContainsPointWithSqrt(point, circleSqrOffset) && !unusedPointIndices.Contains(i))
                         {
                             Log.WriteError(GetType() + ".ValidateTriangulation: point " + i + " inside triangle: " + triangle + " | isPointExternal: " + isPointExternal + " | " + point);
                             //edgeInfo.PrintExternalEdges("ValidateTriangulation: ");
