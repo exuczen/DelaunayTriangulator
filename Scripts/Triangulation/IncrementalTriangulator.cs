@@ -117,14 +117,15 @@ namespace Triangulation
         {
             if (pointGrid.GetPointIndex(point, out pointIndex) && pointIndex >= 0)
             {
-                RemovePointFromTriangulation(pointIndex);
+                RemovePointFromTriangulation(pointIndex, out _);
                 return true;
             }
             return false;
         }
 
-        public void RemovePointFromTriangulation(int pointIndex)
+        public void RemovePointFromTriangulation(int pointIndex, out bool reset)
         {
+            reset = false;
             if (pointIndex < 0 || pointIndex >= pointsCount)
             {
                 throw new ArgumentOutOfRangeException("RemovePoint: " + pointIndex + " pointsCount: " + pointsCount);
@@ -149,6 +150,7 @@ namespace Triangulation
 
                 if (TryForceClearPoint(pointIndex))
                 {
+                    reset = true;
                     return;
                 }
                 else if (triangleGrid.GetCell(point, out var cell, out var cellXY))
@@ -362,7 +364,7 @@ namespace Triangulation
                     }
                     ForEachTriangleInCell(point, (triangle, triangleIndex) => {
                         bool isPointExternal = edgeInfo.IsPointExternal(i);
-                        if (!isPointExternal && !triangle.HasVertex(i) && triangle.CircumCircle.ContainsPointWithSqrt(point, circleSqrOffset) && !unusedPointIndices.Contains(i))
+                        if (!isPointExternal && !triangle.HasVertex(i) && triangle.CircumCircle.ContainsPointWithSqrt(point, circleSqrOffset, true) && !unusedPointIndices.Contains(i))
                         {
                             Log.WriteError(GetType() + ".ValidateTriangulation: point " + i + " inside triangle: " + triangle + " | isPointExternal: " + isPointExternal + " | " + point);
                             //edgeInfo.PrintExternalEdges("ValidateTriangulation: ");
