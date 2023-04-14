@@ -11,6 +11,8 @@ namespace Triangulation
         public const float Rad2Deg = 180f / MathF.PI;
         public const float Deg2Rad = MathF.PI / 180f;
 
+        public static readonly Random Random = new Random();
+
         #region Prime numbers
 
         internal static readonly int[] primes = {
