@@ -53,7 +53,21 @@ namespace Triangulation
             ClearIndices();
         }
 
-        public int SetPoints(Vector2[] points, int offset, int pointsCount, out Bounds2 bounds)
+        public void SetPoints(Vector2[] points, int offset, int pointsCount)
+        {
+            if (pointsCount <= 0)
+            {
+                return;
+            }
+            ClearIndices();
+
+            for (int i = offset; i < pointsCount; i++)
+            {
+                TryAddPoint(i, points, out _, out _);
+            }
+        }
+
+        public int SetSortedPoints(Vector2[] points, int offset, int pointsCount, out Bounds2 bounds)
         {
             if (pointsCount <= 0)
             {
@@ -82,7 +96,7 @@ namespace Triangulation
             return offset + count;
         }
 
-        public void SetPoints(List<Vector2> points, int offset)
+        public void SetSortedPoints(List<Vector2> points, int offset)
         {
             Clear();
             for (int i = offset; i < points.Count; i++)

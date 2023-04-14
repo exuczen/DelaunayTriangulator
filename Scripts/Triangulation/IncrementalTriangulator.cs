@@ -58,6 +58,8 @@ namespace Triangulation
         {
             base.Load(data);
 
+            pointGrid.SetPoints(points, pointsOffset, pointsCount);
+
             AddBaseTrianglesToTriangleSet();
         }
 
@@ -274,12 +276,12 @@ namespace Triangulation
 
         protected override void SetSortedPoints(out Bounds2 bounds)
         {
-            pointsCount = pointGrid.SetPoints(points, pointsOffset, pointsCount, out bounds);
+            pointsCount = pointGrid.SetSortedPoints(points, pointsOffset, pointsCount, out bounds);
         }
 
         protected override void SetSortedPoints(List<Vector2> pointsList)
         {
-            pointGrid.SetPoints(pointsList, pointsOffset);
+            pointGrid.SetSortedPoints(pointsList, pointsOffset);
             pointsCount = pointsList.Count;
             pointsList.CopyTo(points, 0);
         }
