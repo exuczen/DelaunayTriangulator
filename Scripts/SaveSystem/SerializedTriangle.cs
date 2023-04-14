@@ -2,11 +2,11 @@
 {
     public struct SerializedTriangle
     {
-        public int[] Indices { get; set; } = new int[3];
+        public int[] Indices { get; set; }
 
         public SerializedTriangle(Triangle triangle)
         {
-            triangle.GetIndices(Indices);
+            triangle.GetIndices(Indices = new int[3]);
         }
     }
 }

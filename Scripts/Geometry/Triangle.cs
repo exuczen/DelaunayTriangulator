@@ -17,7 +17,7 @@ namespace Triangulation
         private static readonly float[] crossBuffer = new float[3];
         private static readonly int[] signBuffer = new int[3];
 
-        public long Key { get; private set; } = -1;
+        public long Key { get; private set; }
 
         public bool IsNone => A < 0 || B < 0 || C < 0;
 
