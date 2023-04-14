@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
+using System.Text.Json;
 
 namespace Triangulation
 {
     public class TriangulatorController
     {
+        protected const string SaveFolderPath = "save";
+        protected const string SaveFilePath = SaveFolderPath + "/save.json";
+
         public Triangulator Triangulator => triangulator;
 
         public Action<Stopwatch, Triangulator> Triangulated = null;
@@ -21,6 +26,25 @@ namespace Triangulation
             if (createTriangulator)
             {
                 triangulator = new Triangulator(particles.Capacity, Vector2.Epsilon, exceptionThrower);
+            }
+        }
+
+        public void Save()
+        {
+            var save = new SerializedTriangulator(triangulator);
+            if (!Directory.Exists(SaveFolderPath))
+            {
+                Directory.CreateDirectory(SaveFolderPath);
+            }
+            JsonUtils.SaveToJson(save, SaveFilePath);
+        }
+
+        public void Load()
+        {
+            var save = JsonUtils.LoadFromJson<SerializedTriangulator>(SaveFilePath);
+            if (save != null)
+            {
+                triangulator.Load(save);
             }
         }
 

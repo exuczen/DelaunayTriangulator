@@ -74,6 +74,30 @@ namespace Triangulation
             edgeInfo = new EdgeInfo(triangleSet, points, exceptionThrower);
         }
 
+        public virtual void Load(SerializedTriangulator data)
+        {
+            Clear();
+
+            var dataPoints = data.Points;
+            var dataTriangles = data.Triangles;
+
+            pointsOffset = data.PointsOffset;
+            pointsCount = dataPoints.Length;
+            trianglesCount = dataTriangles.Length;
+
+            for (int i = 0; i < pointsCount; i++)
+            {
+                points[i] = dataPoints[i];
+            }
+            for (int i = 0; i < trianglesCount; i++)
+            {
+                triangles[i] = new Triangle(dataTriangles[i], points);
+            }
+            edgeInfo.AddEdgesToCounterDict(triangles, trianglesCount);
+
+            FindUnusedPoints();
+        }
+
         public void SetSuperCircumCirclePoints(Bounds2 bounds, bool usePointsOffset)
         {
             if (usePointsOffset)

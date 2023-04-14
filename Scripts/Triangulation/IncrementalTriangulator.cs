@@ -45,23 +45,20 @@ namespace Triangulation
             {
                 if (!BaseOnly)
                 {
-                    AddBaseTrianglesToTriangleSet(triangles, trianglesCount, Color.FloralWhite);
-
-                    if (!InternalOnly)
-                    {
-                        if (!edgeInfo.FindExternalEdges(pointsCount, out _))
-                        {
-                            Log.WriteWarning(GetType() + ".base.Triangulate(): Clear on fail of FindExternalEdges");
-                            Clear();
-                        }
-                        //edgeInfo.PrintPointsExternal(pointsCount);
-                    }
+                    AddBaseTrianglesToTriangleSet();
                 }
                 ValidateTriangulation(false, PointsValidation);
 
                 return true;
             }
             return false;
+        }
+
+        public override void Load(SerializedTriangulator data)
+        {
+            base.Load(data);
+
+            AddBaseTrianglesToTriangleSet();
         }
 
         public void Initialize(Vector2 gridSize, int triangleGridDivs, int pointGridDivsMlp, bool triangulate)
@@ -562,25 +559,35 @@ namespace Triangulation
             }
         }
 
-        private void AddBaseTrianglesToTriangleSet(Triangle[] addedTriangles, int addedTrianglesCount, Color innerColor)
+        private void AddBaseTrianglesToTriangleSet()
         {
-            if (addedTrianglesCount <= 0)
+            if (trianglesCount <= 0)
             {
                 return;
             }
-            trianglesCount = triangleSet.AddTriangles(addedTriangles, addedTrianglesCount);
+            trianglesCount = triangleSet.AddTriangles(triangles, trianglesCount);
 
             //edgeInfo.EdgeCounterDict.Clear();
-            //edgeInfo.AddEdgesToCounterDict(addedTriangles, addedTrianglesCount);
+            //edgeInfo.AddEdgesToCounterDict(triangles, trianglesCount);
 
-            edgeInfo.AddEdgesToTriangleDicts(addedTriangles, addedTrianglesCount);
-            edgeInfo.SetTrianglesColors(innerColor);
+            edgeInfo.AddEdgesToTriangleDicts(triangles, trianglesCount);
+            edgeInfo.SetTrianglesColors(Color.FloralWhite);
 
             //edgeInfo.PrintEdgeCounterDict();
             //edgeInfo.PrintExtEdgeTriangleDict();
             //edgeInfo.PrintInnerEdgeTriangleDict();
 
-            triangleGrid.AddTriangles(addedTriangles, addedTrianglesCount);
+            triangleGrid.AddTriangles(triangles, trianglesCount);
+
+            if (!InternalOnly)
+            {
+                if (!edgeInfo.FindExternalEdges(pointsCount, out _))
+                {
+                    Log.WriteWarning(GetType() + ".base.Triangulate(): Clear on fail of FindExternalEdges");
+                    Clear();
+                }
+                //edgeInfo.PrintPointsExternal(pointsCount);
+            }
         }
 
         private void AddTrianglesToTriangleSet(Triangle[] addedTriangles, int addedTrianglesCount, Color innerColor, bool flipEdges)

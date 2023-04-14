@@ -17,7 +17,7 @@ namespace Triangulation
         private static readonly float[] crossBuffer = new float[3];
         private static readonly int[] signBuffer = new int[3];
 
-        public long Key { get; private set; }
+        public long Key { get; private set; } = -1;
 
         public bool IsNone => A < 0 || B < 0 || C < 0;
 
@@ -109,6 +109,13 @@ namespace Triangulation
         public Triangle(int a, int b, int c, Vector2[] points) : this()
         {
             Setup(a, b, c, points);
+            ClearKey();
+        }
+
+        public Triangle(SerializedTriangle data, Vector2[] points) : this()
+        {
+            var indices = data.Indices;
+            Setup(indices[0], indices[1], indices[2], points);
             ClearKey();
         }
 
