@@ -1,6 +1,5 @@
 ﻿#define LOGS_ENABLED
-#if UNITY_EDITOR || UNITY_STANDALONE
-#define UNITY
+#if UNITY
 using Debug = UnityEngine.Debug;
 #else
 using Debug = System.Diagnostics.Debug;

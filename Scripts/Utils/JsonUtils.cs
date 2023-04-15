@@ -1,8 +1,7 @@
 ﻿//#define USE_NEWTONSOFT
 #if USE_NEWTONSOFT
 using Newtonsoft.Json;
-#elif UNITY_EDITOR || UNITY_STANDALONE
-#define UNITY
+#elif UNITY
 using UnityEngine;
 #else
 using System.Text.Json;

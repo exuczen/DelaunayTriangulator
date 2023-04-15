@@ -1,8 +1,4 @@
-﻿#if UNITY_EDITOR || UNITY_STANDALONE
-#define UNITY
-#endif
-
-using System.Drawing;
+﻿using System.Drawing;
 using System;
 
 namespace Triangulation
@@ -41,7 +37,8 @@ namespace Triangulation
             int q = Convert.ToInt32(value * (1f - f * saturation));
             int t = Convert.ToInt32(value * (1f - (1f - f) * saturation));
 
-            return hi switch {
+            return hi switch
+            {
                 0 => Color.FromArgb(255, v, t, p),
                 1 => Color.FromArgb(255, q, v, p),
                 2 => Color.FromArgb(255, p, v, t),
