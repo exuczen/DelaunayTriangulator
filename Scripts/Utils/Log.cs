@@ -113,7 +113,7 @@ namespace Triangulation
 
         public static void PrintList<T>(List<T> list, string prefix)
         {
-            WriteLine(string.Format("{0} count: {1}\n", prefix, list.Count));
+            WriteLine(string.Format("{0} count: {1}", prefix, list.Count));
             for (int i = 0; i < list.Count; i++)
             {
                 WriteLine(string.Format("{0} [{1}] {2}", prefix, i, list[i]));
@@ -122,7 +122,7 @@ namespace Triangulation
 
         public static void PrintArray<T>(T[] array, int count, string prefix)
         {
-            WriteLine(string.Format("{0} count: {1}\n", prefix, count));
+            WriteLine(string.Format("{0} count: {1}", prefix, count));
             for (int i = 0; i < count; i++)
             {
                 WriteLine(string.Format("{0} [{1}] {2}", prefix, i, array[i]));

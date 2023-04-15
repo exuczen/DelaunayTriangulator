@@ -150,7 +150,7 @@ namespace Triangulation
                 float minDistToOppEdge = GetOtherPeakMinDistToOppEdge(peakIndex, points);
                 bool result = minDistToOppEdge > pointCellSize * 0.5f;
 #if LOGS_ENABLED
-                Log.WriteLine(GetType() + ".CanClipPeak: minDistToOppEdge / pointCellSize: " + (minDistToOppEdge / pointCellSize).ToString("f2") + " " + result);
+                Log.WriteLine(GetType() + ".CanClipPeak: " + result + " | minDistToOppEdge / pointCellSize = " + (minDistToOppEdge / pointCellSize).ToString("f2"));
 #endif
                 return result;
             }
@@ -900,6 +900,18 @@ namespace Triangulation
             }
             return MathF.Sqrt(minSqrDist);
         }
+
+        //private static float GetSqrDistToEdge(Vector2 point, Vector2 edgePoint, Vector2 edgeRayN, float edgeLength, bool inRange)
+        //{
+        //    var ray = point - edgePoint;
+        //    float rayDotEdge = Vector2.Dot(ray, edgeRayN);
+        //    if (!inRange || rayDotEdge >= 0f && rayDotEdge <= edgeLength)
+        //    {
+        //        var rayN2 = ray - rayDotEdge * edgeRayN;
+        //        return rayN2.SqrLength;
+        //    }
+        //    return -1f;
+        //}
 
         private string ConcaveRangeToString(Vector4Int range)
         {
