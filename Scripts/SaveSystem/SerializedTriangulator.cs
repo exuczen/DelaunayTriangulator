@@ -1,11 +1,25 @@
-﻿namespace Triangulation
+﻿#if UNITY_EDITOR || UNITY_STANDALONE
+#define UNITY
+using UnityEngine;
+#endif
+using System;
+
+namespace Triangulation
 {
+    [Serializable]
     public class SerializedTriangulator
     {
+#if UNITY
+        public SerializedVector2[] Points;
+        public SerializedTriangle[] Triangles;
+        public int PointsOffset;
+        public bool[] PointsUsed;
+#else
         public SerializedVector2[] Points { get; set; }
         public SerializedTriangle[] Triangles { get; set; }
         public int PointsOffset { get; set; }
         public bool[] PointsUsed { get; set; }
+#endif
 
         public SerializedTriangulator() { }
 
