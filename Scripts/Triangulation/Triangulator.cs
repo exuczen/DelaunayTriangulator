@@ -79,6 +79,7 @@ namespace Triangulation
             Clear();
 
             var dataPoints = data.Points;
+            var dataPointsUsed = data.PointsUsed;
             var dataTriangles = data.Triangles;
 
             pointsOffset = data.PointsOffset;
@@ -87,7 +88,7 @@ namespace Triangulation
 
             for (int i = 0; i < pointsCount; i++)
             {
-                points[i] = dataPoints[i];
+                points[i] = dataPointsUsed[i] ? dataPoints[i] : Vector2.NaN;
             }
             for (int i = 0; i < trianglesCount; i++)
             {

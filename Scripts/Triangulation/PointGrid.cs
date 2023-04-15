@@ -195,6 +195,12 @@ namespace Triangulation
 
         private bool TryAddPoint(int pointIndex, Vector2 point, Action<Vector2> setPoint, out Vector3Int cellXYI, out int savedIndex)
         {
+            if (Vector2.IsNaN(point))
+            {
+                cellXYI = -1 * Vector3Int.One;
+                savedIndex = -1;
+                return false;
+            }
             bool result = CanAddPoint(point, out cellXYI, out savedIndex);
             if (result)
             {
