@@ -15,6 +15,8 @@ namespace Triangulation
     {
         public const string KIND_OF_FAKAP = " !!! KIND OF FAKAP !!!";
 
+        public static readonly StringBuilder StringBuilder = new StringBuilder();
+
         public static void WriteWarning(string value)
         {
 #if UNITY
@@ -36,6 +38,8 @@ namespace Triangulation
         public static void WriteLine(string value) { }
 
         public static void PrintList<T>(List<T> list, string prefix = null) { }
+
+        public static void PrintArrayToString<T>(T[] array, int count, Func<T, string> toString, string prefix) { }
 
         public static void PrintArray<T>(T[] array, int count, string prefix = null) { }
 
