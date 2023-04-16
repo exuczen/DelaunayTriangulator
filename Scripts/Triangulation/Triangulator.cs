@@ -23,6 +23,7 @@ namespace Triangulation
             get => !SuperCircumference && superTrianglesCount > 1 || SuperCircumference && superTrianglesCount <= 1 || pointsOffset != GetSuperPointsCount(superTrianglesCount);
         }
         public int SuperTrianglesCount => superTrianglesCount;
+        public PointsSortingOrder PointsSortingOrder { get; set; } = default;
 
         protected readonly IExceptionThrower exceptionThrower = null;
 
@@ -380,7 +381,21 @@ namespace Triangulation
         private IComparer<Vector2> GetPointsComparer(Bounds2 bounds, out bool xySort)
         {
             Vector2 boundsSize = bounds.Size;
-            xySort = boundsSize.x > boundsSize.y;
+            switch (PointsSortingOrder)
+            {
+                case PointsSortingOrder.Default:
+                    xySort = boundsSize.x > boundsSize.y;
+                    break;
+                case PointsSortingOrder.XY:
+                    xySort = true;
+                    break;
+                case PointsSortingOrder.YX:
+                    xySort = false;
+                    break;
+                default:
+                    xySort = true;
+                    break;
+            }
             return xySort ? new PointsXYComparer(pointTolerance) : new PointsYXComparer(pointTolerance);
         }
 
