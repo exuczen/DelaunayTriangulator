@@ -428,7 +428,8 @@ namespace Triangulation
             if (trianglesCount > 0 && !edgeInfo.ValidateExternalEdges(out var error))
             {
                 Log.WriteWarning(GetType() + ".ProcessClearPoint: VALIDATION ERROR: " + error + " | pointIndex: " + pointIndex);
-                exceptionThrower.ThrowException("ProcessClearPoint: VALIDATION ERROR: " + error, ErrorCode.ExternalEdgesBrokenLoop, pointIndex);
+                //exceptionThrower.ThrowException("ProcessClearPoint: VALIDATION ERROR: " + error, ErrorCode.ExternalEdgesBrokenLoop, pointIndex);
+                Clear();
             }
         }
 

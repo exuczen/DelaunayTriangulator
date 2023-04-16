@@ -1509,13 +1509,23 @@ namespace Triangulation
             EdgeEntry.RefreshSortedEdgesNextPrev(extEdges, extEdgeCount, startIndex);
         }
 
-        protected int GetExternalEdgeIndex(EdgeEntry edge, int startIndex = -1)
+        private int GetExternalEdgeIndex(EdgeEntry edge, int startIndex = -1)
+        {
+            int edgeIndex = GetExternalEdgeIndexWithPredicate(i => extEdges[i].Equals(edge), startIndex);
+            //Log.WriteLine(GetType() + ".GetExternalEdgeIndex: extEdgeCount: " + extEdgeCount + " edge: " + edge + " edgeIndex: " + edgeIndex);
+            if (edgeIndex < 0)
+            {
+                throw new Exception("GetExternalEdgeIndex: Edge Not Found: " + edge + " startIndex: " + startIndex);
+            }
+            return edgeIndex;
+        }
+
+        private int GetExternalEdgeIndexWithPredicate(Predicate<int> predicate, int startIndex = -1)
         {
             int edgeIndex = -1;
-            //int stepCounter = 0;
             if (startIndex >= 0 && startIndex < extEdgeCount)
             {
-                if (extEdges[startIndex].Equals(edge))
+                if (predicate(startIndex))
                 {
                     edgeIndex = startIndex;
                 }
@@ -1528,11 +1538,10 @@ namespace Triangulation
                     while (!result && next != prev)
                     {
                         //Log.WriteLine(GetType() + ".GetExternalEdgeIndex: " + next + " " + prev);
-                        nextResult = extEdges[next].Equals(edge);
-                        result = nextResult || extEdges[prev].Equals(edge);
-                        next = extEdges[next].Next; //GetNextIndex(next, extEdgeCount);
-                        prev = extEdges[prev].Prev; //GetPrevIndex(prev, extEdgeCount);
-                        //stepCounter++;
+                        nextResult = predicate(next);
+                        result = nextResult || predicate(prev);
+                        next = extEdges[next].Next;
+                        prev = extEdges[prev].Prev;
                     }
                     if (result)
                     {
@@ -1543,26 +1552,20 @@ namespace Triangulation
             else
             {
                 int halfEdgeCount = extEdgeCount >> 1;
+                int fromEndIndex;
                 for (int i = 0; i <= halfEdgeCount; i++)
                 {
-                    if (extEdges[i].Equals(edge))
+                    if (predicate(i))
                     {
                         edgeIndex = i;
-                        //stepCounter = i;
                         break;
                     }
-                    else if (extEdges[extEdgeCount - 1 - i].Equals(edge))
+                    else if (predicate(fromEndIndex = extEdgeCount - 1 - i))
                     {
-                        edgeIndex = extEdgeCount - 1 - i;
-                        //stepCounter = i;
+                        edgeIndex = fromEndIndex;
                         break;
                     }
                 }
-            }
-            //Log.WriteLine(GetType() + ".GetExternalEdgeIndex: extEdgeCount: " + extEdgeCount + " edge: " + edge + " edgeIndex: " + edgeIndex);
-            if (edgeIndex < 0)
-            {
-                throw new Exception("GetExternalEdgeIndex: Edge Not Found: " + edge + " startIndex: " + startIndex);
             }
             return edgeIndex;
         }
