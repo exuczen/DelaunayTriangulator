@@ -54,7 +54,7 @@ namespace Triangulation
 
         private void TryRemoveParticleFromTriangulation(Vector2 point)
         {
-            if (triangulator.TryRemovePointFromTriangulation(point, out int i))
+            if (triangulator.TryRemovePointFromTriangulation(point, true, out int i))
             {
                 SetParticle(false, i);
             }

@@ -112,17 +112,17 @@ namespace Triangulation
             }
         }
 
-        public bool TryRemovePointFromTriangulation(Vector2 point, out int pointIndex)
+        public bool TryRemovePointFromTriangulation(Vector2 point, bool validate, out int pointIndex)
         {
             if (pointGrid.GetPointIndex(point, out pointIndex) && pointIndex >= 0)
             {
-                RemovePointFromTriangulation(pointIndex, out _);
+                RemovePointFromTriangulation(pointIndex, validate, out _);
                 return true;
             }
             return false;
         }
 
-        public void RemovePointFromTriangulation(int pointIndex, out bool reset)
+        public void RemovePointFromTriangulation(int pointIndex, bool validate, out bool reset)
         {
             reset = false;
             if (pointIndex < 0 || pointIndex >= pointsCount)
@@ -157,7 +157,10 @@ namespace Triangulation
                     //Log.WriteLine(GetType() + ".RemovePointFromTriangulation: cellXY: " + cellXY + " point: " + point + " pointIndex: " + pointIndex);
                     ClearLastPointData();
                     ProcessClearPoint(pointIndex, cell);
-                    ValidateTriangulation(EdgesValidation, PointsValidation);
+                    if (validate)
+                    {
+                        ValidateTriangulation(EdgesValidation, PointsValidation);
+                    }
                 }
                 else
                 {
@@ -339,6 +342,8 @@ namespace Triangulation
                 action(triangle, triangleIndex);
             }
         }
+
+        public bool ValidateTriangulation() => ValidateTriangulation(EdgesValidation, PointsValidation);
 
         private bool ValidateTriangulation(bool validateEdges, bool validatePoints)
         {

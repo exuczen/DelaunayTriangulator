@@ -28,9 +28,13 @@ namespace Triangulation
             }
         }
 
-        public void Save()
+        public SerializedTriangulator CreateSerializedTriangulator()
         {
-            var save = new SerializedTriangulator(triangulator);
+            return new SerializedTriangulator(triangulator);
+        }
+
+        public void SaveTriangulator(SerializedTriangulator save)
+        {
             if (!Directory.Exists(SaveFolderPath))
             {
                 Directory.CreateDirectory(SaveFolderPath);
@@ -38,7 +42,12 @@ namespace Triangulation
             JsonUtils.SaveToJson(save, SaveFilePath);
         }
 
-        public void Load()
+        public void SaveTriangulator()
+        {
+            SaveTriangulator(CreateSerializedTriangulator());
+        }
+
+        public void LoadTriangulator()
         {
             var save = JsonUtils.LoadFromJson<SerializedTriangulator>(SaveFilePath);
             if (save != null)
