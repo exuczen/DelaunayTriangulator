@@ -12,7 +12,9 @@ namespace Triangulation
         public static string GetHash<T>(T data) where T : class
         {
             using var stream = new MemoryStream();
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
             Formatter.Serialize(stream, data);
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
             using var md5 = MD5.Create();
             return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
         }
@@ -25,7 +27,9 @@ namespace Triangulation
         public static void SaveToBinary<T>(T contents, string path) where T : class
         {
             using var stream = new FileStream(path, FileMode.Create);
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
             Formatter.Serialize(stream, contents);
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
         }
 
         public static T LoadFromBinary<T>(string folderPath, string filename) where T : class
@@ -38,7 +42,9 @@ namespace Triangulation
             if (File.Exists(path))
             {
                 using var stream = new FileStream(path, FileMode.Open);
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
                 return Formatter.Deserialize(stream) as T;
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
             }
             else
             {
