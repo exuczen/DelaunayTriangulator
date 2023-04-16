@@ -29,7 +29,7 @@ namespace Triangulation
             for (int i = 0; i < Points.Length; i++)
             {
                 PointsUsed[i] = !Vector2.IsNaN(points[i]);
-                Points[i] = PointsUsed[i] ? new SerializedVector2(points[i]) : default;
+                Points[i] = PointsUsed[i] ? points[i] : default;
             }
             Triangles = new SerializedTriangle[triangulator.TrianglesCount];
             for (int i = 0; i < Triangles.Length; i++)

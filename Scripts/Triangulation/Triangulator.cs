@@ -88,15 +88,22 @@ namespace Triangulation
 
             for (int i = 0; i < pointsCount; i++)
             {
-                points[i] = dataPointsUsed[i] ? dataPoints[i] : Vector2.NaN;
+                if (dataPointsUsed[i])
+                {
+                    points[i] = dataPoints[i];
+                    initialPointIndices.Add(i);
+                }
+                else
+                {
+                    points[i] = Vector2.NaN;
+                    unusedPointIndices.Add(i);
+                }
             }
             for (int i = 0; i < trianglesCount; i++)
             {
                 triangles[i] = new Triangle(dataTriangles[i], points);
             }
             edgeInfo.AddEdgesToCounterDict(triangles, trianglesCount);
-
-            FindUnusedPoints();
         }
 
         public void SetSuperCircumCirclePoints(Bounds2 bounds, bool usePointsOffset)

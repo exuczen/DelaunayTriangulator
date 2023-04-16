@@ -18,5 +18,10 @@ namespace Triangulation
             X = v.x;
             Y = v.y;
         }
+
+        public static implicit operator SerializedVector2(Vector2 v)
+        {
+            return new SerializedVector2(v);
+        }
     }
 }
