@@ -459,7 +459,7 @@ namespace Triangulation
                 {
                     var peakExtEdgesRange = addedEdgeInfo.GetPeakExternalEdgesRange(peak, edgeInfo, pointsToClear);
 
-                    addedTrianglesCount = cellPolygon.TriangulateFromConcavePeaks(peakExtEdgesRange, edgeInfo, addedTriangles, addedEdgeInfo);
+                    addedTrianglesCount = cellPolygon.TriangulateFromConcavePeaks(peak, peakExtEdgesRange, edgeInfo, addedTriangles, addedEdgeInfo);
 
                     edgeInfo.ReplacePeakExternalEdges(peakExtEdgesRange, addedEdgeInfo);
 

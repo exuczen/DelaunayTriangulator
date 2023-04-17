@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Triangulation
 {
@@ -22,6 +23,7 @@ namespace Triangulation
         //private readonly int[] indexBuffer = new int[3];
         private readonly Vector2[] edgeBuffer = new Vector2[3];
         private readonly Polygon subPolygon = null;
+        private readonly EdgePeakComparer edgePeakComparer = default;
 
         private int innerAngleSign = 0;
 
@@ -201,13 +203,18 @@ namespace Triangulation
             return false;
         }
 
-        public int TriangulateFromConcavePeaks(IndexRange extEdgesRange, EdgeInfo baseEdgeInfo, Triangle[] triangles, EdgeInfo addedEdgeInfo)
+        public int TriangulateFromConcavePeaks(EdgePeak peak, IndexRange extEdgesRange, EdgeInfo baseEdgeInfo, Triangle[] triangles, EdgeInfo addedEdgeInfo)
         {
+            int trianglesCount = 0;
+
             InvalidateExternalEdgesRange(extEdgesRange, out var validRange);
 
-            if (TriangulateFromConcavePeaks(validRange, baseEdgeInfo, triangles, out int trianglesCount))
+            if (SortConcavePeaksByDistToOppEdge(peak, baseEdgeInfo.Points))
             {
-                AddExternalEdgesFromConcaveRanges(validRange, addedEdgeInfo);
+                if (TriangulateFromConcavePeaks(validRange, baseEdgeInfo, triangles, out trianglesCount))
+                {
+                    AddExternalEdgesFromConcaveRanges(validRange, addedEdgeInfo);
+                }
             }
             return trianglesCount;
         }
@@ -216,21 +223,10 @@ namespace Triangulation
         {
             trianglesCount = 0;
 
-            int sortedCount = sortedPeaks.Count;
-            int sortedLast = sortedCount - 1;
-            if (sortedCount < 2)
-            {
-                return false;
-            }
-            var concavePeak = sortedPeaks[sortedLast];
-            if (concavePeak.Angle < 180f)
-            {
-#if LOGS_ENABLED
-                Log.WriteLine(GetType() + ".TriangulateFromConcavePeaks: Last peak is convex: " + concavePeak);
-#endif
-                return false;
-            }
+            EdgePeak concavePeak;
             var points = baseEdgeInfo.Points;
+            int sortedLast = sortedPeaks.Count - 1;
+            bool result = false;
 
             while (sortedLast >= 2 && (concavePeak = sortedPeaks[sortedLast]).Angle >= 180f)
             {
@@ -265,10 +261,10 @@ namespace Triangulation
                     }
                     InvalidatePeaksRange(GetNextPeakIndex(peakBeg), GetPrevPeakIndex(peakEnd));
                 }
-                sortedCount = sortedPeaks.Count;
-                sortedLast = sortedCount - 1;
+                sortedLast = sortedPeaks.Count - 1;
+                result = true;
             }
-            return true;
+            return result;
         }
 
         private void AddExternalEdgesInConcaveRange(Vector4Int range, EdgeEntry[] addedExtEdges, ref int edgeCount)
@@ -861,6 +857,50 @@ namespace Triangulation
                 convexIndex++;
             }
             throw new Exception("GetNextPeakToClip: convex peak not containing concave peak not found");
+        }
+
+        private bool SortConcavePeaksByDistToOppEdge(EdgePeak oppPeak, Vector2[] points)
+        {
+            int sortedCount = sortedPeaks.Count;
+            int sortedLast = sortedCount - 1;
+            if (sortedCount < 2)
+            {
+                return false;
+            }
+            var concavePeak = sortedPeaks[sortedLast];
+            if (concavePeak.Angle < 180f)
+            {
+#if LOGS_ENABLED
+                Log.WriteLine(GetType() + ".SortConcavePeaksByDistToOppEdge: Last peak is convex: " + concavePeak);
+#endif
+                return false;
+            }
+            var oppEdge = oppPeak.GetOppositeEdge(out _);
+            var oppEdgeN2 = oppPeak.PeakRect.N2;
+            var oppPeakPoint = points[oppPeak.VertexA];
+
+            Debug.Assert(oppPeak.IsConvex);
+            Debug.Assert(oppPeak.AngleSign == innerAngleSign);
+
+            while (sortedLast >= 0 && (concavePeak = sortedPeaks[sortedLast]).Angle > 180f)
+            {
+                Debug.Assert(oppPeak.PeakVertex != concavePeak.PeakVertex);
+
+                var peakPoint = points[concavePeak.PeakVertex];
+                var ray = peakPoint - oppPeakPoint;
+                float dist = Vector2.Dot(ray, oppEdgeN2);
+
+                sortedPeaks[sortedLast--] = concavePeak.SetValueToCompare(dist);
+#if LOGS_ENABLED
+                Log.WriteLine(GetType() + ".SortConcavePeaksByDistToOppEdge: " + concavePeak.PeakVertex + " dist to " + oppEdge + " : " + dist);
+#endif
+            }
+            sortedPeaks.Sort(++sortedLast, sortedCount - sortedLast, edgePeakComparer);
+#if LOGS_ENABLED
+            Log.WriteLine(GetType() + ".SortConcavePeaksByDistToOppEdge: sortedLast: " + sortedLast + " count: " + (sortedCount - sortedLast));
+            Log.PrintList(sortedPeaks, peak => peak.ToLongString(), "SortConcavePeaksByDistToOppEdge: ");
+#endif
+            return true;
         }
 
         private float GetOtherPeakMinDistToOppEdge(int peakIndex, Vector2[] points)

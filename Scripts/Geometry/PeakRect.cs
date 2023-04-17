@@ -43,11 +43,11 @@ namespace Triangulation
                 {
                     throw new Exception("PeakRect: n1zero && n2zero: " + peak);
                 }
-                N1 = new Vector2(-N2.y, N2.x);
+                N1 = new Vector2(N2.y, -N2.x) * peak.AngleSign;
             }
             else if (n2zero)
             {
-                N2 = new Vector2(-N1.y, N1.x);
+                N2 = new Vector2(N1.y, -N1.x) * peak.AngleSign;
             }
         }
 
