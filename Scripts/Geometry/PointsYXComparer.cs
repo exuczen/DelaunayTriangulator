@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Triangulation
 {
-    public struct PointsYXComparer : IComparer<Vector2>
+    public readonly struct PointsYXComparer : IComparer<Vector2>
     {
         private readonly float tolerance;
 

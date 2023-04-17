@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Triangulation
 {
-    public struct EdgeComparer : IComparer<EdgeEntry>
+    public readonly struct EdgeComparer : IComparer<EdgeEntry>
     {
         public int Compare(EdgeEntry edge1, EdgeEntry edge2)
         {

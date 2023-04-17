@@ -116,10 +116,15 @@ namespace Triangulation
 
         public static void PrintList<T>(List<T> list, string prefix)
         {
+            PrintList(list, element => element.ToString(), prefix);
+        }
+
+        public static void PrintList<T>(List<T> list, Func<T, string> toString, string prefix)
+        {
             WriteLine(string.Format("{0} count: {1}", prefix, list.Count));
             for (int i = 0; i < list.Count; i++)
             {
-                WriteLine(string.Format("{0} [{1}] {2}", prefix, i, list[i]));
+                WriteLine(string.Format("{0} [{1}] {2}", prefix, i, toString(list[i])));
             }
         }
 

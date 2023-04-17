@@ -14,6 +14,7 @@ namespace Triangulation
         public Vector2 EdgeVecB { get; private set; }
         public int AngleSign { get; private set; }
         public float Angle { get; private set; }
+        public float ValueToCompare { get; private set; }
         public int PeakVertex { get; private set; }
         public int VertexA => EdgeA.GetOtherVertex(PeakVertex);
         public int VertexB => EdgeB.GetOtherVertex(PeakVertex);
@@ -56,6 +57,12 @@ namespace Triangulation
         {
             Setup(points);
             SetAngle360(innerAngleSign);
+            return this;
+        }
+
+        public EdgePeak SetValueToCompare(float value)
+        {
+            ValueToCompare = value;
             return this;
         }
 
@@ -116,6 +123,11 @@ namespace Triangulation
             int a = EdgeA.GetOtherVertex(PeakVertex);
             int b = EdgeB.GetOtherVertex(PeakVertex);
             return new Triangle(PeakVertex, a, b, points);
+        }
+
+        public string ToLongString()
+        {
+            return string.Format("{0} | {1}", ToString(), ValueToCompare);
         }
 
         public override string ToString()
