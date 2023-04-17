@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace Triangulation
 {
@@ -17,14 +18,14 @@ namespace Triangulation
         /// </summary>
         public int Compare(Vector2 va, Vector2 vb)
         {
-            float f = va.y - vb.y;
+            float f = va.Y - vb.Y;
 
             if (MathF.Abs(f) > tolerance)
             {
                 return MathF.Sign(f);
             }
 
-            f = va.x - vb.x;
+            f = va.X - vb.X;
 
             if (MathF.Abs(f) > tolerance)
             {

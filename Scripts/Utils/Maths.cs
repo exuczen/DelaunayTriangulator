@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 
 namespace Triangulation
 {
@@ -107,10 +108,10 @@ namespace Triangulation
                 return -1;
             }
             int pointIndex = beg;
-            float sqrDistMin = (points[beg] - center).SqrLength;
+            float sqrDistMin = (points[beg] - center).LengthSquared();
             for (int i = beg + 1; i <= end; i++)
             {
-                float sqrDist = (points[i] - center).SqrLength;
+                float sqrDist = (points[i] - center).LengthSquared();
                 if (sqrDist < sqrDistMin)
                 {
                     sqrDistMin = sqrDist;

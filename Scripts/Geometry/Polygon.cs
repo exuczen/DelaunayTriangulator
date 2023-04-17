@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Numerics;
 
 namespace Triangulation
 {
@@ -459,7 +460,7 @@ namespace Triangulation
             var concavePoint = points[concaveVertex];
             edgeBuffer[1] = points[endVertex] - concavePoint; // b-c -> c-b
             edgeBuffer[2] = points[begVertex] - concavePoint; // a-c
-            float crossRays = innerAngleSign * Vector2.Cross(edgeBuffer[1], edgeBuffer[2]);
+            float crossRays = innerAngleSign * Mathv.Cross(edgeBuffer[1], edgeBuffer[2]);
             if (crossRays > 0f)
             {
                 edgeBuffer[0] = points[endVertex] - points[begVertex]; // b-a
@@ -609,7 +610,7 @@ namespace Triangulation
             {
                 var peakPoint = points[peak.PeakVertex];
                 var peakRay = (peakPoint - begPoint).Normalized();
-                float sinAngle = begSign * Vector2.Cross(peakRay, begEdgeVec);
+                float sinAngle = begSign * Mathv.Cross(peakRay, begEdgeVec);
                 float cosAngle = Vector2.Dot(peakRay, begEdgeVec);
                 if (sinAngle > 0f && cosAngle < minCosAngle)
                 {
@@ -906,7 +907,7 @@ namespace Triangulation
         private float GetOtherPeakMinDistToOppEdge(int peakIndex, Vector2[] points)
         {
             var peak = edgePeaks[peakIndex];
-            float oppEdgeLength = peak.PeakRect.Size.x;
+            float oppEdgeLength = peak.PeakRect.Size.X;
             var oppEdgeN1 = -peak.PeakRect.N1;
 #if LOGS_ENABLED
             var oppEdge = peak.GetOppositeEdge(out _);
@@ -934,7 +935,7 @@ namespace Triangulation
                 if (inRange)
                 {
                     var rayN2 = ray - rayDotEdge * oppEdgeN1;
-                    minSqrDist = MathF.Min(rayN2.SqrLength, minSqrDist);
+                    minSqrDist = MathF.Min(rayN2.LengthSquared(), minSqrDist);
                 }
                 next = GetNextPeakIndex(next);
             }

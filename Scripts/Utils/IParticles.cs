@@ -1,4 +1,6 @@
-﻿namespace Triangulation
+﻿using System.Numerics;
+
+namespace Triangulation
 {
     public interface IParticles
     {

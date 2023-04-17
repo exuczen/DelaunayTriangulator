@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Numerics;
 
 namespace Triangulation
 {
@@ -129,7 +130,7 @@ namespace Triangulation
             {
                 throw new ArgumentOutOfRangeException("RemovePoint: " + pointIndex + " pointsCount: " + pointsCount);
             }
-            else if (Vector2.IsNaN(points[pointIndex]))
+            else if (Mathv.IsNaN(points[pointIndex]))
             {
                 //Log.WriteLine(GetType() + ".RemovePointFromTriangulation: " + pointIndex + " isNaN, lastIndex: " + (pointsCount - 1) + " | unusedPointIndices: " + unusedPointIndices.Contains(pointIndex));
                 if (pointIndex == pointsCount - 1)
@@ -362,7 +363,7 @@ namespace Triangulation
                 for (int i = pointsOffset; i < pointsCount; i++)
                 {
                     var point = points[i];
-                    if (Vector2.IsNaN(point))
+                    if (Mathv.IsNaN(point))
                     {
                         continue;
                     }

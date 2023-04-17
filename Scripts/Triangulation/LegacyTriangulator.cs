@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace Triangulation
 {
@@ -93,7 +94,7 @@ namespace Triangulation
 
         public LegacyTriangulator(int pointsCapacity, float tolerance)
         {
-            this.tolerance = tolerance > 0f ? tolerance : Vector2.Epsilon; // Ensure tolerance is valid
+            this.tolerance = tolerance > 0f ? tolerance : Mathv.Epsilon; // Ensure tolerance is valid
 
             // Create the array of points.
             // We need 3 more items to add supertriangle vertices
@@ -135,7 +136,8 @@ namespace Triangulation
             trianglesCount = pointsCount * 4 + 1;
             int maxTrianglesCount = Math.Max(trianglesCountPrev, trianglesCount);
 
-            Triangle triangleEntry = new Triangle {
+            Triangle triangleEntry = new Triangle
+            {
                 PrevNonCompleted = -1,
                 NextNonCompleted = -1
             };
@@ -194,7 +196,7 @@ namespace Triangulation
 
             IComparer<Vector2> pointsComparer;
             Vector2 boundsSize = bounds.Size;
-            bool xySorted = boundsSize.x > boundsSize.y;
+            bool xySorted = boundsSize.X > boundsSize.Y;
             if (xySorted)
             {
                 // Sort points by X (firstly), Y (secondly)
@@ -225,7 +227,7 @@ namespace Triangulation
 
                 //Log.WriteLine(GetType() + "." + points[pointIndex] + " " + pointsYX[sortedIndex]);
 
-                if (pointIndex != 0 && MathF.Abs(point.x - prevPoint.x) < tolerance && MathF.Abs(point.y - prevPoint.y) < tolerance)
+                if (pointIndex != 0 && MathF.Abs(point.X - prevPoint.X) < tolerance && MathF.Abs(point.Y - prevPoint.Y) < tolerance)
                 {
                     continue; // Ignore current point if equals to previous point. We check equality using tolerance.
                 }
@@ -242,8 +244,8 @@ namespace Triangulation
                     nextNonCompleted = triangles[triangleIndex].NextNonCompleted;
 
                     dr = point - circumCircle.Center;
-                    float sqrDx = dr.x * dr.x;
-                    float sqrDy = dr.y * dr.y;
+                    float sqrDx = dr.X * dr.X;
+                    float sqrDy = dr.Y * dr.Y;
 
                     if (sqrDx + sqrDy <= circumCircle.SqrRadius)
                     {
@@ -257,11 +259,11 @@ namespace Triangulation
                         bool completed;
                         if (xySorted)
                         {
-                            completed = (dr.x > -tolerance) && (sqrDx > circumCircle.SqrRadius + tolerance);
+                            completed = (dr.X > -tolerance) && (sqrDx > circumCircle.SqrRadius + tolerance);
                         }
                         else // yxSorted
                         {
-                            completed = (dr.y > -tolerance) && (sqrDy > circumCircle.SqrRadius + tolerance);
+                            completed = (dr.Y > -tolerance) && (sqrDy > circumCircle.SqrRadius + tolerance);
                         }
                         if (completed)
                         {
@@ -455,7 +457,8 @@ namespace Triangulation
 
         private void AddEdge(int edgeA, int edgeB)
         {
-            EdgeEntry entry = new EdgeEntry {
+            EdgeEntry entry = new EdgeEntry
+            {
                 Prev = -1
             };
             // Calculate bucked index using an hashcode of edge indices.
@@ -507,13 +510,13 @@ namespace Triangulation
         protected void AddSuperTriangle(Bounds2 bounds, int pointsCount)
         {
             Vector2 d = bounds.max - bounds.min;
-            float dmax = (d.x > d.y) ? d.x : d.y;
+            float dmax = (d.X > d.Y) ? d.X : d.Y;
             Vector2 mid = (bounds.max + bounds.min) * 0.5f;
 
             // Create supertriangle vertices
-            points[pointsCount] = new Vector2(mid.x - 2 * dmax, mid.y - dmax);
-            points[pointsCount + 1] = new Vector2(mid.x, mid.y + 2 * dmax);
-            points[pointsCount + 2] = new Vector2(mid.x + 2 * dmax, mid.y - dmax);
+            points[pointsCount] = new Vector2(mid.X - 2 * dmax, mid.Y - dmax);
+            points[pointsCount + 1] = new Vector2(mid.X, mid.Y + 2 * dmax);
+            points[pointsCount + 2] = new Vector2(mid.X + 2 * dmax, mid.Y - dmax);
 
             AddTriangle(pointsCount, pointsCount + 1, pointsCount + 2);
         }
@@ -528,7 +531,8 @@ namespace Triangulation
 
             // Insert the triangle into triangles linked list
 
-            Triangle triangle = new Triangle {
+            Triangle triangle = new Triangle
+            {
                 Previous = -1,
                 Next = trianglesFirst
             };

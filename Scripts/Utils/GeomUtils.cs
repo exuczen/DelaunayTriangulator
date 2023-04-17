@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace Triangulation
 {
@@ -6,8 +7,8 @@ namespace Triangulation
     {
         public static Vector2 GetPositionOnCircle(float angle, Vector2 center, float r)
         {
-            float x = center.x + r * MathF.Sin(angle);
-            float y = center.y + r * MathF.Cos(angle);
+            float x = center.X + r * MathF.Sin(angle);
+            float y = center.Y + r * MathF.Cos(angle);
             return new Vector2(x, y);
         }
 

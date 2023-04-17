@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace Triangulation
 {
@@ -48,7 +49,7 @@ namespace Triangulation
         public bool ContainsPoint(Vector2 point, out Vector2 dr, out float sqrDist, float sqrOffset)
         {
             dr = point - Center;
-            sqrDist = dr.SqrLength;
+            sqrDist = dr.LengthSquared();
 
             return sqrDist <= SqrRadius + sqrOffset;
         }

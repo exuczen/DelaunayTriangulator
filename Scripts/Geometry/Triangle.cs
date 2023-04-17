@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Numerics;
 
 namespace Triangulation
 {
@@ -21,8 +22,8 @@ namespace Triangulation
 
         public bool IsNone => A < 0 || B < 0 || C < 0;
 
-        public float CircumCircleMinX => CircumCircle.Bounds.min.x;
-        public float CircumCircleMaxX => CircumCircle.Bounds.max.x;
+        public float CircumCircleMinX => CircumCircle.Bounds.min.X;
+        public float CircumCircleMaxX => CircumCircle.Bounds.max.X;
 
         public int A;
         public int B;
@@ -177,9 +178,9 @@ namespace Triangulation
             {
                 rayBuffer[i] = point - vertsBuffer[i];
             }
-            crossBuffer[0] = Vector2.Cross(rayBuffer[2], edgeBuffer[2]);
-            crossBuffer[1] = Vector2.Cross(rayBuffer[2], edgeBuffer[1]);
-            crossBuffer[2] = Vector2.Cross(rayBuffer[0], edgeBuffer[0]);
+            crossBuffer[0] = Mathv.Cross(rayBuffer[2], edgeBuffer[2]);
+            crossBuffer[1] = Mathv.Cross(rayBuffer[2], edgeBuffer[1]);
+            crossBuffer[2] = Mathv.Cross(rayBuffer[0], edgeBuffer[0]);
             int signCount = 0;
             int sign;
             if (log)
@@ -215,7 +216,7 @@ namespace Triangulation
 
         public float GetArea(Vector2[] points)
         {
-            return 0.5f * MathF.Abs(Vector2.Cross(points[A] - points[C], points[B] - points[C]));
+            return 0.5f * MathF.Abs(Mathv.Cross(points[A] - points[C], points[B] - points[C]));
         }
 
         public float GetOppositeAngleDeg(EdgeEntry edge, Vector2[] points)
@@ -228,15 +229,15 @@ namespace Triangulation
             int vertIndex = GetOppositeVertex(edge);
             if (vertIndex == A)
             {
-                return Vector2.AngleRad(points[C] - points[A], points[B] - points[A]);
+                return Mathv.AngleRad(points[C] - points[A], points[B] - points[A]);
             }
             else if (vertIndex == B)
             {
-                return Vector2.AngleRad(points[C] - points[B], points[A] - points[B]);
+                return Mathv.AngleRad(points[C] - points[B], points[A] - points[B]);
             }
             else if (vertIndex == C)
             {
-                return Vector2.AngleRad(points[A] - points[C], points[B] - points[C]);
+                return Mathv.AngleRad(points[A] - points[C], points[B] - points[C]);
             }
             else
             {
@@ -422,13 +423,13 @@ namespace Triangulation
 
         public void ComputeCircumCircle(Vector2 a, Vector2 b, Vector2 c)
         {
-            float A = b.x - a.x,
-                B = b.y - a.y,
-                C = c.x - a.x,
-                D = c.y - a.y,
-                E = A * (a.x + b.x) + B * (a.y + b.y),
-                F = C * (a.x + c.x) + D * (a.y + c.y),
-                G = 2f * (A * (c.y - b.y) - B * (c.x - b.x)),
+            float A = b.X - a.X,
+                B = b.Y - a.Y,
+                C = c.X - a.X,
+                D = c.Y - a.Y,
+                E = A * (a.X + b.X) + B * (a.Y + b.Y),
+                F = C * (a.X + c.X) + D * (a.Y + c.Y),
+                G = 2f * (A * (c.Y - b.Y) - B * (c.X - b.X)),
                 minx, miny, dx, dy;
             float cX, cY, sqrR;
 
@@ -436,10 +437,10 @@ namespace Triangulation
              * extremes and use the midpoint as the center of the circumcircle. */
             if (MathF.Abs(G) < CircumCircleTolerance)
             {
-                minx = MathF.Min(MathF.Min(a.x, b.x), c.x);
-                miny = MathF.Min(MathF.Min(a.y, b.y), c.y);
-                dx = (MathF.Max(MathF.Max(a.x, b.x), c.x) - minx) * 0.5f;
-                dy = (MathF.Max(MathF.Max(a.y, b.y), c.y) - miny) * 0.5f;
+                minx = MathF.Min(MathF.Min(a.X, b.X), c.X);
+                miny = MathF.Min(MathF.Min(a.Y, b.Y), c.Y);
+                dx = (MathF.Max(MathF.Max(a.X, b.X), c.X) - minx) * 0.5f;
+                dy = (MathF.Max(MathF.Max(a.Y, b.Y), c.Y) - miny) * 0.5f;
 
                 cX = minx + dx;
                 cY = miny + dy;
@@ -452,8 +453,8 @@ namespace Triangulation
             {
                 cX = (D * E - B * F) / G;
                 cY = (A * F - C * E) / G;
-                dx = cX - a.x;
-                dy = cY - a.y;
+                dx = cX - a.X;
+                dy = cY - a.Y;
                 sqrR = dx * dx + dy * dy;
             }
             CircumCircle = new Circle(new Vector2(cX, cY), sqrR);

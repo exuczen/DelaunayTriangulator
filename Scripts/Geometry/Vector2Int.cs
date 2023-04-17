@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace Triangulation
 {
@@ -39,7 +40,7 @@ namespace Triangulation
 
         public static Vector2 operator *(Vector2Int v1, Vector2 v2)
         {
-            return new Vector2(v1.x * v2.x, v1.y * v2.y);
+            return new Vector2(v1.x * v2.X, v1.y * v2.Y);
         }
 
         public static Vector2Int operator *(Vector2Int v1, Vector2Int v2)
@@ -57,6 +58,11 @@ namespace Triangulation
             return mlp * v;
         }
 
+        public Vector2Int(Vector2 v) : this()
+        {
+            Set((int)v.X, (int)v.Y);
+        }
+
         public Vector2Int(int x, int y) : this()
         {
             Set(x, y);
@@ -67,6 +73,8 @@ namespace Triangulation
             this.x = x;
             this.y = y;
         }
+
+        public Vector2 ToVector2() => new Vector2(x, y);
 
         public override string ToString()
         {

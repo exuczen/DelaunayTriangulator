@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Numerics;
 
 namespace Triangulation
 {
@@ -59,7 +60,7 @@ namespace Triangulation
 
         public Triangulator(int pointsCapacity, float tolerance, IExceptionThrower exceptionThrower)
         {
-            pointTolerance = tolerance > 0f ? tolerance : Vector2.Epsilon;
+            pointTolerance = tolerance > 0f ? tolerance : Mathv.Epsilon;
             circleTolerance = pointTolerance;
 
             points = new Vector2[pointsCapacity];
@@ -91,12 +92,12 @@ namespace Triangulation
             {
                 if (dataPointsUsed[i])
                 {
-                    points[i] = dataPoints[i];
+                    points[i] = dataPoints[i].ToVector2();
                     initialPointIndices.Add(i);
                 }
                 else
                 {
-                    points[i] = Vector2.NaN;
+                    points[i] = Veconst2.NaN;
                     unusedPointIndices.Add(i);
                 }
             }
@@ -144,7 +145,7 @@ namespace Triangulation
         public bool GetPoint(int i, out Vector2 point)
         {
             point = points[i];
-            return !Vector2.IsNaN(point);
+            return !Mathv.IsNaN(point);
         }
 
         public Vector2 GetPoint(int i)
@@ -253,7 +254,7 @@ namespace Triangulation
             {
                 throw new Exception("ClearPoint: " + pointIndex);
             }
-            points[pointIndex] = Vector2.NaN;
+            points[pointIndex] = Veconst2.NaN;
             int lastIndex = pointsCount - 1;
 
             //Log.WriteLine(".ClearPoint:" + pointIndex + " pointsCount: " + pointsCount);
@@ -284,7 +285,7 @@ namespace Triangulation
         {
             for (int i = pointsList.Count - 1; i >= pointsOffset; i--)
             {
-                if (pointsList[i].Equals(pointsList[i - 1], pointTolerance))
+                if (Mathv.Equals(pointsList[i], pointsList[i - 1], pointTolerance))
                 {
                     pointsList.RemoveAt(i);
                 }
@@ -333,7 +334,7 @@ namespace Triangulation
         private Circle SetSuperCircumCircle(Bounds2 bounds, int circlePointsCount)
         {
             var center = bounds.Center;
-            float r = (0.5f * bounds.Size).Length;
+            float r = (0.5f * bounds.Size).Length();
             int n = circlePointsCount;
             float alfa = MathF.PI / n;
             float R = 1.2f * r / MathF.Cos(alfa);
@@ -384,7 +385,7 @@ namespace Triangulation
             switch (PointsSortingOrder)
             {
                 case PointsSortingOrder.Default:
-                    xySort = boundsSize.x > boundsSize.y;
+                    xySort = boundsSize.X > boundsSize.Y;
                     break;
                 case PointsSortingOrder.XY:
                     xySort = true;
@@ -453,7 +454,7 @@ namespace Triangulation
             for (int i = beg; i <= end; i++)
             {
                 var point = points[i];
-                if (point.Equals(prevPoint, pointTolerance))
+                if (Mathv.Equals(point, prevPoint, pointTolerance))
                 {
                     Log.WriteError(GetType() + ".Triangulate: point.Equals(prevPoint, tolerance): " + i);
                     continue;
@@ -498,12 +499,12 @@ namespace Triangulation
 
         private bool CanCompleteTriangleForXYSorted(Vector2 dr, Circle cc)
         {
-            return CanCompleteTriangle(dr.x, cc);
+            return CanCompleteTriangle(dr.X, cc);
         }
 
         private bool CanCompleteTriangleForYXSorted(Vector2 dr, Circle cc)
         {
-            return CanCompleteTriangle(dr.y, cc);
+            return CanCompleteTriangle(dr.Y, cc);
         }
 
         private bool CanCompleteTriangle(float dl, Circle cc)
@@ -572,7 +573,7 @@ namespace Triangulation
             }
             for (int i = beg + pointsOffset; i <= end; i++)
             {
-                points[i] = Vector2.NaN;
+                points[i] = Veconst2.NaN;
             }
             for (int i = 0; i < trianglesCount; i++)
             {
@@ -586,10 +587,10 @@ namespace Triangulation
             for (int i = beg + pointsOffset; i <= end; i++)
             {
                 int pointIndex = i - beg;
-                if (Vector2.IsNaN(points[i]))
+                if (Mathv.IsNaN(points[i]))
                 {
                     unusedPointIndices.Add(pointIndex);
-                    points[pointIndex] = Vector2.NaN;
+                    points[pointIndex] = Veconst2.NaN;
                 }
                 else
                 {

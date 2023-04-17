@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace Triangulation
 {
@@ -37,7 +38,7 @@ namespace Triangulation
             }
             EdgeVecA = edge1.GetVector(points, PeakVertex == edge1.B); // PeakVertex to VertexA vector
             EdgeVecB = edge2.GetVector(points, PeakVertex == edge2.B); // PeakVertex to VertexB vector
-            float cross = Vector2.Cross(EdgeVecB, EdgeVecA);
+            float cross = Mathv.Cross(EdgeVecB, EdgeVecA);
             AngleSign = MathF.Sign(cross);
         }
 
@@ -142,7 +143,7 @@ namespace Triangulation
 
         private float SetAngle360(bool inverted)
         {
-            Angle = Vector2.AngleDeg(EdgeVecA, EdgeVecB);
+            Angle = Mathv.AngleDeg(EdgeVecA, EdgeVecB);
             return inverted ? InvertAngle() : Angle;
         }
     }

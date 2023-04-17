@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 #if DEBUG_CLOSEST_CELLS
 using System.Drawing;
 #endif
@@ -10,8 +11,8 @@ namespace Triangulation
     {
         public const int MinDivsCount = 16;
 
-        public float SizeMin => MathF.Min(size.x, size.y);
-        public float CellSizeMin => MathF.Min(cellSize.x, cellSize.y);
+        public float SizeMin => MathF.Min(size.X, size.Y);
+        public float CellSizeMin => MathF.Min(cellSize.X, cellSize.Y);
         public float CellTolerance => cellTolerance;
         public Vector2 CellSize => cellSize;
         public Vector2 Size => size;
@@ -41,29 +42,29 @@ namespace Triangulation
             this.triangleSet = triangleSet;
             this.size = size;
 
-            if (size.x == size.y)
+            if (size.X == size.Y)
             {
                 xCount = yCount = minDivsCount;
                 cellSize = size / xCount;
                 cellHalfSize = 0.5f * cellSize;
             }
-            else if (size.y < size.x)
+            else if (size.Y < size.X)
             {
                 yCount = minDivsCount;
-                cellSize.y = size.y / yCount;
-                cellHalfSize.y = 0.5f * cellSize.y;
-                xCount = (int)((size.x + cellHalfSize.y) / cellSize.y);
-                cellSize.x = size.x / xCount;
-                cellHalfSize.x = 0.5f * cellSize.x;
+                cellSize.Y = size.Y / yCount;
+                cellHalfSize.Y = 0.5f * cellSize.Y;
+                xCount = (int)((size.X + cellHalfSize.Y) / cellSize.Y);
+                cellSize.X = size.X / xCount;
+                cellHalfSize.X = 0.5f * cellSize.X;
             }
             else
             {
                 xCount = minDivsCount;
-                cellSize.x = size.x / xCount;
-                cellHalfSize.x = 0.5f * cellSize.x;
-                yCount = (int)((size.y + cellHalfSize.x) / cellSize.x);
-                cellSize.y = size.y / yCount;
-                cellHalfSize.y = 0.5f * cellSize.y;
+                cellSize.X = size.X / xCount;
+                cellHalfSize.X = 0.5f * cellSize.X;
+                yCount = (int)((size.Y + cellHalfSize.X) / cellSize.X);
+                cellSize.Y = size.Y / yCount;
+                cellHalfSize.Y = 0.5f * cellSize.Y;
             }
             float minCellSize = CellSizeMin;
             cellTolerance = minCellSize * 0.01f;
@@ -72,7 +73,7 @@ namespace Triangulation
             int cellsCount = xCount * yCount;
             cells = new TriangleCell[cellsCount];
 
-            Log.WriteLine(GetType() + ": " + xCount + "x" + yCount + " " + cellSize + " " + (MathF.Min(cellSize.x, cellSize.y) / MathF.Max(cellSize.x, cellSize.y)).ToString("f4"));
+            Log.WriteLine(GetType() + ": " + xCount + "x" + yCount + " " + cellSize + " " + (MathF.Min(cellSize.X, cellSize.Y) / MathF.Max(cellSize.X, cellSize.Y)).ToString("f4"));
 
             for (int i = 0; i < cellsCount; i++)
             {
@@ -168,10 +169,10 @@ namespace Triangulation
             var ccBounds = cc.Bounds;
             ccBounds.min -= Vector2.One * cellTolerance;
             ccBounds.max += Vector2.One * cellTolerance;
-            int begX = Math.Clamp((int)(ccBounds.min.x / cellSize.x), 0, xCount - 1);
-            int endX = Math.Clamp((int)(ccBounds.max.x / cellSize.x), 0, xCount - 1);
-            int begY = Math.Clamp((int)(ccBounds.min.y / cellSize.y), 0, yCount - 1);
-            int endY = Math.Clamp((int)(ccBounds.max.y / cellSize.y), 0, yCount - 1);
+            int begX = Math.Clamp((int)(ccBounds.min.X / cellSize.X), 0, xCount - 1);
+            int endX = Math.Clamp((int)(ccBounds.max.X / cellSize.X), 0, xCount - 1);
+            int begY = Math.Clamp((int)(ccBounds.min.Y / cellSize.Y), 0, yCount - 1);
+            int endY = Math.Clamp((int)(ccBounds.max.Y / cellSize.Y), 0, yCount - 1);
 
             //Log.WriteLine(GetType() + ".AddTriangle: " + triangle + " to cells: x: " + begX + "-" + endX + " y: " + begY + "-" + endY);
 
@@ -270,12 +271,12 @@ namespace Triangulation
 
         public bool GetCell(Vector2 p, out TriangleCell cell, out int x, out int y)
         {
-            x = (int)(p.x / cellSize.x);
-            y = (int)(p.y / cellSize.y);
+            x = (int)(p.X / cellSize.X);
+            y = (int)(p.Y / cellSize.Y);
 
             if (x >= xCount)
             {
-                if (p.x > size.x + cellTolerance)
+                if (p.X > size.X + cellTolerance)
                 {
                     throw new ArgumentOutOfRangeException(GetType() + ".GetCell: " + p + " | " + new Vector2Int(x, y) + " for size: " + size + " | " + XYCount);
                 }
@@ -286,7 +287,7 @@ namespace Triangulation
             }
             if (y >= yCount)
             {
-                if (p.y > size.y + cellTolerance)
+                if (p.Y > size.Y + cellTolerance)
                 {
                     throw new ArgumentOutOfRangeException(GetType() + ".GetCell: " + p + " | " + new Vector2Int(x, y) + " for size: " + size + " | " + XYCount);
                 }
@@ -371,7 +372,7 @@ namespace Triangulation
         {
             cellIndex = y * xCount + x;
             var ccCenter = cc.Center;
-            var cellMin = new Vector2(x * cellSize.x, y * cellSize.y);
+            var cellMin = new Vector2(x * cellSize.X, y * cellSize.Y);
             var cellMax = cellMin + cellSize;
             cellMin -= Vector2.One * cellTolerance;
             cellMax += Vector2.One * cellTolerance;
@@ -383,15 +384,15 @@ namespace Triangulation
                 return false;
             }
 
-            bool overlap = (ccCenter.x >= cellMin.x && ccCenter.x <= cellMax.x) ||
-                           (ccCenter.y >= cellMin.y && ccCenter.y <= cellMax.y);
+            bool overlap = (ccCenter.X >= cellMin.X && ccCenter.X <= cellMax.X) ||
+                           (ccCenter.Y >= cellMin.Y && ccCenter.Y <= cellMax.Y);
             var cellCenter = cellBounds.Center;
             var debugPoint = cellCenter;
 
             if (!overlap)
             {
                 var dr = ccCenter - cellCenter;
-                var n = new Vector2(MathF.Sign(dr.x), MathF.Sign(dr.y));
+                var n = new Vector2(MathF.Sign(dr.X), MathF.Sign(dr.Y));
                 var cellVert = cellCenter + n * cellHalfSize;
                 overlap = cc.ContainsPointWithSqrt(cellVert, circleTolerance, false);
                 debugPoint = cellVert;
@@ -402,7 +403,7 @@ namespace Triangulation
 
         private Bounds2 GetCellBounds(int x, int y)
         {
-            var cellMin = new Vector2(x * cellSize.x, y * cellSize.y);
+            var cellMin = new Vector2(x * cellSize.X, y * cellSize.Y);
             var cellMax = cellMin + cellSize;
             return Bounds2.MinMax(cellMin, cellMax);
         }

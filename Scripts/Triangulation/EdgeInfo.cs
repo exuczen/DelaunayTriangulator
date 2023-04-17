@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Numerics;
 
 namespace Triangulation
 {
@@ -1337,7 +1338,7 @@ namespace Triangulation
         {
             var getNextEdgeIndex = GetNextExtEdgeIndex(forward);
             var firstEdge = extEdges[extEdgeIndex];
-            float sqrDist = Vector2.SqrDistance(point, firstEdge.GetMidPoint(points));
+            float sqrDist = Vector2.DistanceSquared(point, firstEdge.GetMidPoint(points));
             minSqrDist = float.MaxValue;
 
             int nextEdgeIndex = extEdgeIndex;
@@ -1348,7 +1349,7 @@ namespace Triangulation
                 minSqrDist = sqrDist;
                 nextEdgeIndex = getNextEdgeIndex(nextEdgeIndex);
                 var nextEdge = extEdges[nextEdgeIndex];
-                sqrDist = Vector2.SqrDistance(point, nextEdge.GetMidPoint(points));
+                sqrDist = Vector2.DistanceSquared(point, nextEdge.GetMidPoint(points));
             }
             return extEdgeIndex;
         }
@@ -1432,8 +1433,8 @@ namespace Triangulation
             var edge = extEdge.GetVector(points);
             var oppVert = extTriangle.GetOppositeVertex(extEdge, points, out _);
             var edgeVertA = points[extEdge.A];
-            int sign1 = MathF.Sign(Vector2.Cross(point - edgeVertA, edge));
-            int sign2 = MathF.Sign(Vector2.Cross(oppVert - edgeVertA, edge));
+            int sign1 = MathF.Sign(Mathv.Cross(point - edgeVertA, edge));
+            int sign2 = MathF.Sign(Mathv.Cross(oppVert - edgeVertA, edge));
             if (sign2 == 0)
             {
                 throw new Exception("IsPointOppositeToExternalEdge: signs: " + sign1 + ", " + sign2 + " for edge: " + extEdge);
@@ -1458,7 +1459,7 @@ namespace Triangulation
             var pointRay = addedPoint - points[sharedIndex];
             var edgePeak = new EdgePeak(extEdge, nextEdge, points);
             int sign1 = edgePeak.AngleSign;
-            int sign2 = MathF.Sign(Vector2.Cross(edgePeak.EdgeVecB, pointRay));
+            int sign2 = MathF.Sign(Mathv.Cross(edgePeak.EdgeVecB, pointRay));
             //float crossNextEdgePointRay = Vector2.Cross(edgePeak.EdgeVecB.Normalize(), pointRay.Normalize());
             //int sign2 = MathF.Abs(crossNextEdgePointRay) < Vector2.Epsilon ? 0 : MathF.Sign(crossNextEdgePointRay);
             //Log.WriteLine(GetType() + ".IsTerminalExtEdgeValid: signs: " + sign1 + ", " + sign2 + " for edges: " + extEdge + " " + nextEdge);

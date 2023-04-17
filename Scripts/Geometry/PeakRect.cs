@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace Triangulation
 {
@@ -35,19 +36,19 @@ namespace Triangulation
             }
             Size = new Vector2(n1Length, n2Length);
 
-            bool n1zero = n1Length < Vector2.Epsilon;
-            bool n2zero = n2Length < Vector2.Epsilon;
+            bool n1zero = n1Length < Mathv.Epsilon;
+            bool n2zero = n2Length < Mathv.Epsilon;
             if (n1zero)
             {
                 if (n2zero)
                 {
                     throw new Exception("PeakRect: n1zero && n2zero: " + peak);
                 }
-                N1 = new Vector2(N2.y, -N2.x) * peak.AngleSign;
+                N1 = new Vector2(N2.Y, -N2.X) * peak.AngleSign;
             }
             else if (n2zero)
             {
-                N2 = new Vector2(N1.y, -N1.x) * peak.AngleSign;
+                N2 = new Vector2(N1.Y, -N1.X) * peak.AngleSign;
             }
         }
 

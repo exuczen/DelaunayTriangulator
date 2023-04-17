@@ -28,7 +28,7 @@ namespace Triangulation
             PointsUsed = new bool[Points.Length];
             for (int i = 0; i < Points.Length; i++)
             {
-                PointsUsed[i] = !Vector2.IsNaN(points[i]);
+                PointsUsed[i] = !Mathv.IsNaN(points[i]);
                 Points[i] = PointsUsed[i] ? points[i] : default;
             }
             Triangles = new SerializedTriangle[triangulator.TrianglesCount];

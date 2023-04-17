@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 #if DEBUG_CLOSEST_CELLS
 using System.Drawing;
 #endif
@@ -13,7 +14,7 @@ namespace Triangulation
         public int YCount => yCount;
         public int XCount => xCount;
         public Vector2Int XYCount => new Vector2Int(xCount, yCount);
-        public float CellSizeMin => MathF.Min(cellSize.x, cellSize.y);
+        public float CellSizeMin => MathF.Min(cellSize.X, cellSize.Y);
         public Vector2 CellSize => cellSize;
         public Vector2 Size => size;
         public int[] Indices => indices;
@@ -33,7 +34,7 @@ namespace Triangulation
             xCount = xyCount.x;
             yCount = xyCount.y;
 
-            cellSize = new Vector2(size.x / xCount, size.y / yCount);
+            cellSize = new Vector2(size.X / xCount, size.Y / yCount);
             cellHalfSize = cellSize * 0.5f;
 
             xCount++;
@@ -127,7 +128,7 @@ namespace Triangulation
         public void AddPoint(int pointIndex, Vector2[] points, Vector3Int cellXYI)
         {
             indices[cellXYI.z] = pointIndex;
-            points[pointIndex] = new Vector2(cellXYI.x * cellSize.x, cellXYI.y * cellSize.y);
+            points[pointIndex] = new Vector2(cellXYI.x * cellSize.X, cellXYI.y * cellSize.Y);
         }
 
         public bool GetPointIndex(Vector2 point, out int pointIndex)
@@ -195,7 +196,7 @@ namespace Triangulation
 
         private bool TryAddPoint(int pointIndex, Vector2 point, Action<Vector2> setPoint, out Vector3Int cellXYI, out int savedIndex)
         {
-            if (Vector2.IsNaN(point))
+            if (Mathv.IsNaN(point))
             {
                 cellXYI = -1 * Vector3Int.One;
                 savedIndex = -1;
@@ -206,7 +207,7 @@ namespace Triangulation
             {
                 int cellIndex = cellXYI.z;
                 indices[cellIndex] = pointIndex;
-                setPoint(new Vector2(cellXYI.x * cellSize.x, cellXYI.y * cellSize.y));
+                setPoint(new Vector2(cellXYI.x * cellSize.X, cellXYI.y * cellSize.Y));
                 //Log.WriteLine(GetType() + ".TryAddPoint: " + cellXYI + ", " + savedIndex + " " + result + " " + point);
             }
             //else
@@ -255,8 +256,8 @@ namespace Triangulation
 
         private bool GetCellXYIndex(Vector2 point, out Vector3Int cellXYI, bool throwException = true)
         {
-            int x = (int)((point.x + cellHalfSize.x) / cellSize.x);
-            int y = (int)((point.y + cellHalfSize.y) / cellSize.y);
+            int x = (int)((point.X + cellHalfSize.X) / cellSize.X);
+            int y = (int)((point.Y + cellHalfSize.Y) / cellSize.Y);
 
             bool inBounds = GetCellIndex(x, y, out int cellIndex);
             cellXYI = new Vector3Int(x, y, cellIndex);

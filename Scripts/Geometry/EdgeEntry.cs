@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace Triangulation
 {
@@ -71,7 +72,7 @@ namespace Triangulation
 
         public void SetSqrLength(Vector2[] points)
         {
-            SqrLength = GetVector(points).SqrLength;
+            SqrLength = GetVector(points).LengthSquared();
         }
 
         public void ClearLastPointData()
@@ -142,8 +143,8 @@ namespace Triangulation
         public Vector2 GetNormalizedVector(Vector2[] points, out float edgeLength)
         {
             var edge = GetVector(points);
-            edgeLength = edge.Length;
-            if (edgeLength > Vector2.Epsilon)
+            edgeLength = edge.Length();
+            if (edgeLength > Mathv.Epsilon)
             {
                 edge /= edgeLength;
             }

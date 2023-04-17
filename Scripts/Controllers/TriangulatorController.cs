@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Numerics;
 
 namespace Triangulation
 {
@@ -24,7 +25,7 @@ namespace Triangulation
             this.particles = particles;
             if (createTriangulator)
             {
-                triangulator = new Triangulator(particles.Capacity, Vector2.Epsilon, exceptionThrower);
+                triangulator = new Triangulator(particles.Capacity, Mathv.Epsilon, exceptionThrower);
             }
         }
 

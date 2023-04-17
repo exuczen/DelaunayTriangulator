@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace Triangulation
 {
@@ -41,21 +42,21 @@ namespace Triangulation
             for (int i = beg + 1; i <= end; ++i)
             {
                 Vector2 v = getPoint(i);
-                if (v.x > max.x)
+                if (v.X > max.X)
                 {
-                    max.x = v.x;
+                    max.X = v.X;
                 }
-                else if (v.x < min.x)
+                else if (v.X < min.X)
                 {
-                    min.x = v.x;
+                    min.X = v.X;
                 }
-                if (v.y > max.y)
+                if (v.Y > max.Y)
                 {
-                    max.y = v.y;
+                    max.Y = v.Y;
                 }
-                else if (v.y < min.y)
+                else if (v.Y < min.Y)
                 {
-                    min.y = v.y;
+                    min.Y = v.Y;
                 }
             }
             return MinMax(min, max);
@@ -63,20 +64,20 @@ namespace Triangulation
 
         public bool Overlap(Bounds2 other)
         {
-            return other.min.x <= max.x && other.max.x >= min.x
-                && other.min.y <= max.y && other.max.y >= min.y;
+            return other.min.X <= max.X && other.max.X >= min.X
+                && other.min.Y <= max.Y && other.max.Y >= min.Y;
         }
 
         public bool Contains(Bounds2 other)
         {
-            return other.min.x >= min.x && other.max.x <= max.x
-                && other.min.y >= min.y && other.max.y <= max.y;
+            return other.min.X >= min.X && other.max.X <= max.X
+                && other.min.Y >= min.Y && other.max.Y <= max.Y;
         }
 
         public bool Contains(Vector2 point)
         {
-            return point.x >= min.x && point.x <= max.x
-                && point.y >= min.y && point.y <= max.y;
+            return point.X >= min.X && point.X <= max.X
+                && point.Y >= min.Y && point.Y <= max.Y;
         }
 
         public string ToString(string format)
