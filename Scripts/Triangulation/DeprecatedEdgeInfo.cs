@@ -12,6 +12,22 @@ namespace Triangulation
         {
         }
 
+        public bool GetOppositeExternalEdgesRange(int extVertex)
+        {
+            if (GetExternalEdgesWithVertex(extVertex, out int prev, out int next))
+            {
+                prev = extEdges[prev].Prev;
+                next = extEdges[next].Next;
+
+                Log.WriteLine(GetType() + ".GetOppositeExternalEdgesRange: " + prev + " " + next);
+                throw new NotImplementedException(GetType() + ".GetOppositeExternalEdgesRange: " + prev + " " + next);
+            }
+            else
+            {
+                throw new Exception("!GetExternalEdgesWithVertex");
+            }
+        }
+
         public void ClearCheckedInnerEdges()
         {
             edgeIndexPool.Clear();

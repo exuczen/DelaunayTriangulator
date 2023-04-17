@@ -1509,6 +1509,31 @@ namespace Triangulation
             EdgeEntry.RefreshSortedEdgesNextPrev(extEdges, extEdgeCount, startIndex);
         }
 
+        protected bool GetExternalEdgesWithVertex(int vertex, out int prev, out int next)
+        {
+            int edgeIndex = GetExternalEdgeIndexWithPredicate(i => extEdges[i].HasVertex(vertex));
+            if (edgeIndex < 0)
+            {
+                throw new Exception("GetExternalEdgesWithVertex: Edge Not Found: vertex: " + vertex);
+            }
+            prev = extEdges[edgeIndex].Prev;
+            next = extEdges[edgeIndex].Next;
+            if (extEdges[next].HasVertex(vertex))
+            {
+                prev = edgeIndex;
+                return true;
+            }
+            else if (extEdges[prev].HasVertex(vertex))
+            {
+                next = edgeIndex;
+                return true;
+            }
+            else
+            {
+                throw new Exception("GetExternalEdgesWithVertex: " + vertex);
+            }
+        }
+
         private int GetExternalEdgeIndex(EdgeEntry edge, int startIndex = -1)
         {
             int edgeIndex = GetExternalEdgeIndexWithPredicate(i => extEdges[i].Equals(edge), startIndex);
