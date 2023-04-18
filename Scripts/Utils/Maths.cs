@@ -64,6 +64,11 @@ namespace Triangulation
 
         #endregion
 
+        public static float Round(float x, float gradation)
+        {
+            return ((int)(x / gradation + 0.5f)) * gradation;
+        }
+
         public static float GetMaxSqrtOrSqr(float x)
         {
             float absX = MathF.Abs(x);
