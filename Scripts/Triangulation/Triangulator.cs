@@ -423,13 +423,7 @@ namespace Triangulation
             {
                 FindValidTriangles(IsTriangleValid);
 
-                if (!Supermanent)
-                {
-                    //DeprecatedFindUnusedPoints();
-                    //DeprecatedClearUnusedPoints();
-
-                    FindUnusedPoints();
-                }
+                FindPointsIndices();
             }
             return result;
         }
@@ -559,11 +553,16 @@ namespace Triangulation
             unusedPointIndices.Clear();
         }
 
-        private void FindUnusedPoints()
+        private void FindPointsIndices()
         {
             initialPointIndices.Clear();
             unusedPointIndices.Clear();
 
+            if (Supermanent)
+            {
+                initialPointIndices.AddIntRange(pointsOffset, pointsCount - pointsOffset);
+                return;
+            }
             int beg = pointsCount;
             int end = beg + pointsCount - 1;
 

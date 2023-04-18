@@ -14,6 +14,8 @@ namespace Triangulation
         public Polygon CellPolygon => cellPolygon;
         public bool InternalOnly => Supermanent;
 
+        private bool NotEnoughTriangles => Supermanent && trianglesCount <= SuperTrianglesCount || trianglesCount <= 0;
+
         public bool BaseOnly = false;
         public bool PointsValidation = false;
         public bool EdgesValidation = false;
@@ -416,21 +418,24 @@ namespace Triangulation
             }
             ClearPoints(pointsToClear);
 
-            if (trianglesCount == 0)
+            if (NotEnoughTriangles)
             {
                 ClearPoints();
             }
             addedEdgeInfo.Clear();
 
-            if (debugFindExtEdges && !edgeInfo.FindExternalEdges(pointsCount, out _))
+            if (!InternalOnly)
             {
-                exceptionThrower.ThrowException("ProcessClearPoint: ", ErrorCode.ExternalEdgesBrokenLoop, pointIndex);
-            }
-            if (trianglesCount > 0 && !edgeInfo.ValidateExternalEdges(out var error))
-            {
-                Log.WriteWarning(GetType() + ".ProcessClearPoint: VALIDATION ERROR: " + error + " | pointIndex: " + pointIndex);
-                //exceptionThrower.ThrowException("ProcessClearPoint: VALIDATION ERROR: " + error, ErrorCode.ExternalEdgesBrokenLoop, pointIndex);
-                Clear();
+                if (debugFindExtEdges && !edgeInfo.FindExternalEdges(pointsCount, out _))
+                {
+                    exceptionThrower.ThrowException("ProcessClearPoint: ", ErrorCode.ExternalEdgesBrokenLoop, pointIndex);
+                }
+                if (trianglesCount > 0 && !edgeInfo.ValidateExternalEdges(out var error))
+                {
+                    Log.WriteWarning(GetType() + ".ProcessClearPoint: VALIDATION ERROR: " + error + " | pointIndex: " + pointIndex);
+                    //exceptionThrower.ThrowException("ProcessClearPoint: VALIDATION ERROR: " + error, ErrorCode.ExternalEdgesBrokenLoop, pointIndex);
+                    Clear();
+                }
             }
         }
 
