@@ -184,7 +184,7 @@ namespace Triangulation
             return string.Format("({0}, {1})", v.X.ToString(format), v.Y.ToString(format));
         }
 
-        public static string ToString(this Vector2 v)
+        public static string ToStringF2(this Vector2 v)
         {
             return string.Format("({0}, {1})", v.X.ToString("f2"), v.Y.ToString("f2"));
         }

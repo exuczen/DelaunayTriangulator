@@ -10,7 +10,7 @@ namespace Triangulation
         public Vector2 Size { private set; get; }
         public Vector2 Origin { private set; get; }
 
-        public PeakRect(EdgePeak peak, Vector2[] points) : this()
+        public PeakRect(EdgePeak peak, Vector2[] points, int innerAngleSign) : this()
         {
             //var edgeA = peak.EdgeA;
             var edgeVecA = -peak.EdgeVecA;
@@ -44,17 +44,17 @@ namespace Triangulation
                 {
                     throw new Exception("PeakRect: n1zero && n2zero: " + peak);
                 }
-                N1 = new Vector2(N2.Y, -N2.X) * peak.AngleSign;
+                N1 = new Vector2(-N2.Y, N2.X) * innerAngleSign;
             }
             else if (n2zero)
             {
-                N2 = new Vector2(N1.Y, -N1.X) * peak.AngleSign;
+                N2 = new Vector2(N1.Y, -N1.X) * innerAngleSign;
             }
         }
 
         public override string ToString()
         {
-            return string.Format("PeakRect: {0}{1}{2}{3}", N1, N2, Size, Origin);
+            return string.Format("PeakRect: {0}{1}{2}{3}", N1.ToStringF2(), N2.ToStringF2(), Size.ToStringF2(), Origin.ToStringF2());
         }
 
         public bool ContainsPoint(Vector2 point, float tolerance)

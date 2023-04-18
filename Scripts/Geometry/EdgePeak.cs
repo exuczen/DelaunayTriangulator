@@ -48,15 +48,15 @@ namespace Triangulation
             return this;
         }
 
-        public EdgePeak Setup(Vector2[] points)
+        public EdgePeak SetupPeakRect(int innerAngleSign, Vector2[] points)
         {
-            PeakRect = new PeakRect(this, points);
+            PeakRect = new PeakRect(this, points, innerAngleSign);
             return this;
         }
 
         public EdgePeak Setup(int innerAngleSign, Vector2[] points)
         {
-            Setup(points);
+            SetupPeakRect(innerAngleSign, points);
             SetAngle360(innerAngleSign);
             return this;
         }

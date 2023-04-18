@@ -75,7 +75,7 @@ namespace Triangulation
 
             for (int i = 0; i < PeakCount; i++)
             {
-                edgePeaks[i] = edgePeaks[i].Setup(points);
+                edgePeaks[i] = edgePeaks[i].SetupPeakRect(innerAngleSign, points);
 #if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".SetFromExternalEdges: " + i + " " + edgePeaks[i]);
 #endif
@@ -898,7 +898,7 @@ namespace Triangulation
             }
             sortedPeaks.Sort(++sortedLast, sortedCount - sortedLast, edgePeakComparer);
 #if LOGS_ENABLED
-            Log.WriteLine(GetType() + ".SortConcavePeaksByDistToOppEdge: sortedLast: " + sortedLast + " count: " + (sortedCount - sortedLast));
+            Log.WriteLine(GetType() + ".SortConcavePeaksByDistToOppEdge: sortedLast: " + sortedLast + " count: " + (sortedCount - sortedLast) + " | oppPeakRect: " + oppPeak.PeakRect);
             Log.PrintList(sortedPeaks, peak => peak.ToLongString(), "SortConcavePeaksByDistToOppEdge: ");
 #endif
             return true;
