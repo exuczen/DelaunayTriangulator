@@ -119,26 +119,19 @@ namespace Triangulation
             EdgePeak concavePeak;
             int sortedLast = sortedPeaks.Count - 1;
 
-            while (sortedLast > 1 && (concavePeak = sortedPeaks[sortedLast]).Angle > 180f)
+            while (sortedLast > 1 && (concavePeak = sortedPeaks[sortedLast]).Angle > 182.5f)
             {
-                if (concavePeak.MakesDegenerateTriangle(points, edgeBuffer))
-                {
-                    sortedPeaks.RemoveAt(sortedLast);
-                }
-                else
-                {
-                    int peakIndex = GetPeakIndex(concavePeak.PeakVertex);
+                int peakIndex = GetPeakIndex(concavePeak.PeakVertex);
 
-                    ClipPeak(peakIndex, sortedLast, points);
+                ClipPeak(peakIndex, sortedLast, points);
 
-                    edgeInfo.ClipPeakExternalEdges(concavePeak, null);
-                    edgeInfo.SetPointExternal(concavePeak.PeakVertex, false);
+                edgeInfo.ClipPeakExternalEdges(concavePeak, null);
+                edgeInfo.SetPointExternal(concavePeak.PeakVertex, false);
 
-                    triangles[trianglesCount++] = concavePeak.CreateTriangle(points);
+                triangles[trianglesCount++] = concavePeak.CreateTriangle(points);
 #if LOGS_ENABLED
-                    Log.WriteLine(GetType() + ".ClipConcavePeaks: " + triangles[trianglesCount - 1]);
+                Log.WriteLine(GetType() + ".ClipConcavePeaks: " + triangles[trianglesCount - 1]);
 #endif
-                }
                 sortedLast = sortedPeaks.Count - 1;
             }
             return trianglesCount;
