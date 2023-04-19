@@ -525,7 +525,7 @@ namespace Triangulation
                 {
                     if (AddExternalPointTriangles(addedPointIndex, extEdgesRange, innerDegenerate, out EdgePeak loopPeak, out bool processInternal))
                     {
-                        AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Color.FloralWhite, true);
+                        AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Color.FloralWhite);
 
                         edgeInfo.ClearTrianglesPointsExternal(addedTriangles, addedTrianglesCount);
                         edgeInfo.InsertExternalEdges(loopPeak, extEdgesRange);
@@ -569,7 +569,7 @@ namespace Triangulation
 
             if (addedTrianglesCount > 0)
             {
-                AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Color.Azure, true);
+                AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Color.Azure);
             }
         }
 
@@ -604,7 +604,7 @@ namespace Triangulation
             }
         }
 
-        private void AddTrianglesToTriangleSet(Triangle[] addedTriangles, int addedTrianglesCount, Color innerColor, bool flipEdges)
+        private void AddTrianglesToTriangleSet(Triangle[] addedTriangles, int addedTrianglesCount, Color innerColor, bool flipEdges = true)
         {
             if (addedTrianglesCount <= 0)
             {
@@ -691,7 +691,10 @@ namespace Triangulation
             cellTrianglesIndices.Clear();
             cellPolygon.Clear();
 
-            triangleGrid.ClearFilledCellsColorAndText();
+            if (TriangleGrid.ClosestCellDebugging)
+            {
+                triangleGrid.ClearFilledCellsColorAndText();
+            }
         }
 
         private void AddTriangleVertsToCellPoints(Triangle triangle)

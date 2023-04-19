@@ -11,6 +11,11 @@ namespace Triangulation
     {
         public const int MinDivsCount = 16;
 
+#if DEBUG_CLOSEST_CELLS
+        public bool ClosestCellDebugging { get; } = true;
+#else
+        public bool ClosestCellDebugging { get; } = false;
+#endif
         public float SizeMin => MathF.Min(size.X, size.Y);
         public float CellSizeMin => MathF.Min(cellSize.X, cellSize.Y);
         public float CellTolerance => cellTolerance;

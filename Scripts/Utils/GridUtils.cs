@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace Triangulation
 {
-    public struct GridUtils
+    public readonly struct GridUtils
     {
         private static readonly Color[] DebugColors = { Color.Red, Color.Green, Color.Blue, Color.Yellow };
 
