@@ -48,13 +48,14 @@ namespace Triangulation
             SaveTriangulator(CreateSerializedTriangulator());
         }
 
-        public void LoadTriangulator()
+        public SerializedTriangulator LoadTriangulator()
         {
             var save = JsonUtils.LoadFromJson<SerializedTriangulator>(SaveFilePath);
             if (save != null)
             {
                 triangulator.Load(save);
             }
+            return save;
         }
 
         public virtual void UpdateTriangulation(TriangulationType type, Vector2 point)
