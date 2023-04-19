@@ -112,6 +112,38 @@ namespace Triangulation
 #endif
         }
 
+        public int ClipConcavePeaks(Triangle[] triangles, Vector2[] points, EdgeInfo edgeInfo)
+        {
+            int trianglesCount = 0;
+
+            EdgePeak concavePeak;
+            int sortedLast = sortedPeaks.Count - 1;
+
+            while (sortedLast > 1 && (concavePeak = sortedPeaks[sortedLast]).Angle > 180f)
+            {
+                if (concavePeak.MakesDegenerateTriangle(points, edgeBuffer))
+                {
+                    sortedPeaks.RemoveAt(sortedLast);
+                }
+                else
+                {
+                    int peakIndex = GetPeakIndex(concavePeak.PeakVertex);
+
+                    ClipPeak(peakIndex, sortedLast, points);
+
+                    edgeInfo.ClipPeakExternalEdges(concavePeak, null);
+                    edgeInfo.SetPointExternal(concavePeak.PeakVertex, false);
+
+                    triangles[trianglesCount++] = concavePeak.CreateTriangle(points);
+#if LOGS_ENABLED
+                    Log.WriteLine(GetType() + ".ClipConcavePeaks: " + triangles[trianglesCount - 1]);
+#endif
+                }
+                sortedLast = sortedPeaks.Count - 1;
+            }
+            return trianglesCount;
+        }
+
         public void ClipPeak(int peakIndex, int sortedIndex, Vector2[] points)
         {
             if (PeakCount < 3)
@@ -144,7 +176,11 @@ namespace Triangulation
                 return false;
             }
             var peak = edgePeaks[peakIndex];
-            if (peak.IsConvex && PeakContainsConcave(peak, points))
+            if (!peak.IsConvex)
+            {
+                return true;
+            }
+            else if (PeakContainsConcave(peak, points))
             {
                 return false;
             }
@@ -172,38 +208,6 @@ namespace Triangulation
             }
         }
 
-        public bool PeakContainsConcave(EdgePeak convexPeak, Vector2[] points)
-        {
-            //if (convexPeak.Angle > 180f)
-            //{
-            //    return false;
-            //}
-            int peakVertex = convexPeak.PeakVertex;
-            int prevPeakVertex = convexPeak.VertexA;
-            int nextPeakVertex = convexPeak.VertexB;
-
-            int concaveIndex = sortedPeaks.Count - 1;
-            EdgePeak concavePeak;
-
-            while (concaveIndex > 0 && (concavePeak = sortedPeaks[concaveIndex--]).Angle > Lower180)
-            {
-#if LOGS_ENABLED
-                //Log.WriteLine(GetType() + ".PeakContainsConcave: concavePeak: " + concavePeak);
-#endif
-                int concaveVertex = concavePeak.PeakVertex;
-                var concavePoint = points[concaveVertex];
-                bool concaveSeparate = concaveVertex != prevPeakVertex && concaveVertex != nextPeakVertex && concaveVertex != peakVertex;
-                if (concaveSeparate && convexPeak.PeakRect.ContainsPoint(concavePoint, ReakRectTolerance))
-                {
-#if LOGS_ENABLED
-                    //Log.WriteLine(GetType() + ".PeakContainsConcave: " + convexPeak + " PeakRect contains " + concaveVertex + " of " + concavePeak);
-#endif
-                    return true;
-                }
-            }
-            return false;
-        }
-
         public int TriangulateFromConcavePeaks(EdgePeak peak, IndexRange extEdgesRange, EdgeInfo baseEdgeInfo, Triangle[] triangles, EdgeInfo addedEdgeInfo)
         {
             int trianglesCount = 0;
@@ -229,7 +233,7 @@ namespace Triangulation
             int sortedLast = sortedPeaks.Count - 1;
             bool result = false;
 
-            while (sortedLast >= 2 && (concavePeak = sortedPeaks[sortedLast]).Angle >= 180f)
+            while (sortedLast > 1 && (concavePeak = sortedPeaks[sortedLast]).Angle >= 180f)
             {
 #if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".TriangulateFromConcavePeak: ---------------- " + concavePeak + " validRange: " + validRange);
@@ -858,6 +862,38 @@ namespace Triangulation
                 convexIndex++;
             }
             throw new Exception("GetNextPeakToClip: convex peak not containing concave peak not found");
+        }
+
+        private bool PeakContainsConcave(EdgePeak convexPeak, Vector2[] points)
+        {
+            //if (convexPeak.Angle > 180f)
+            //{
+            //    return false;
+            //}
+            int peakVertex = convexPeak.PeakVertex;
+            int prevPeakVertex = convexPeak.VertexA;
+            int nextPeakVertex = convexPeak.VertexB;
+
+            int concaveIndex = sortedPeaks.Count - 1;
+            EdgePeak concavePeak;
+
+            while (concaveIndex > 0 && (concavePeak = sortedPeaks[concaveIndex--]).Angle > Lower180)
+            {
+#if LOGS_ENABLED
+                //Log.WriteLine(GetType() + ".PeakContainsConcave: concavePeak: " + concavePeak);
+#endif
+                int concaveVertex = concavePeak.PeakVertex;
+                var concavePoint = points[concaveVertex];
+                bool concaveSeparate = concaveVertex != prevPeakVertex && concaveVertex != nextPeakVertex && concaveVertex != peakVertex;
+                if (concaveSeparate && convexPeak.PeakRect.ContainsPoint(concavePoint, ReakRectTolerance))
+                {
+#if LOGS_ENABLED
+                    //Log.WriteLine(GetType() + ".PeakContainsConcave: " + convexPeak + " PeakRect contains " + concaveVertex + " of " + concavePeak);
+#endif
+                    return true;
+                }
+            }
+            return false;
         }
 
         private bool SortConcavePeaksByDistToOppEdge(EdgePeak oppPeak, Vector2[] points)

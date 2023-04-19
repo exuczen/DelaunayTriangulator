@@ -638,7 +638,7 @@ namespace Triangulation
 
         public void ClipPeakExternalEdges(EdgePeak peak, List<int> pointsToClear)
         {
-            pointsToClear.Add(peak.PeakVertex);
+            pointsToClear?.Add(peak.PeakVertex);
 
             if (triangleSet.Count > 1)
             {
@@ -651,8 +651,8 @@ namespace Triangulation
             }
             else
             {
-                pointsToClear.Add(peak.VertexA);
-                pointsToClear.Add(peak.VertexB);
+                pointsToClear?.Add(peak.VertexA);
+                pointsToClear?.Add(peak.VertexB);
 
                 extEdgeCount = 0;
             }

@@ -595,9 +595,17 @@ namespace Triangulation
 
             if (!InternalOnly)
             {
-                if (!edgeInfo.FindExternalEdges(pointsCount, out _))
+                if (edgeInfo.FindExternalEdges(pointsCount, out _))
                 {
-                    Log.WriteWarning(GetType() + ".base.Triangulate(): Clear on fail of FindExternalEdges");
+                    cellPolygon.SetFromExternalEdges(edgeInfo, points);
+
+                    addedTrianglesCount = cellPolygon.ClipConcavePeaks(addedTriangles, points, edgeInfo);
+
+                    AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Color.FloralWhite);
+                }
+                else
+                {
+                    Log.WriteWarning(GetType() + ".AddBaseTrianglesToTriangleSet: Clear on fail of FindExternalEdges");
                     Clear();
                 }
                 //edgeInfo.PrintPointsExternal(pointsCount);
