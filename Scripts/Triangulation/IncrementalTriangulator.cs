@@ -80,7 +80,7 @@ namespace Triangulation
 
             circleTolerance = 0.01f * pointGrid.CellSizeMin;
 
-            cellPolygon.Tolerance = 0.1f * circleTolerance;
+            cellPolygon.ReakRectTolerance = 0.1f * circleTolerance;
 
             //Log.WriteLine(GetType() + ".Initialize: circleTolerance: " + circleTolerance);
 

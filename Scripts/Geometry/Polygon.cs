@@ -11,7 +11,7 @@ namespace Triangulation
     {
         private const float Lower180 = 179.999f;
 
-        public float Tolerance { get; set; }
+        public float ReakRectTolerance { get; set; }
         public int PeakCount => edgePeaks.Count;
         public List<EdgePeak> EdgePeaks => edgePeaks;
 
@@ -193,7 +193,7 @@ namespace Triangulation
                 int concaveVertex = concavePeak.PeakVertex;
                 var concavePoint = points[concaveVertex];
                 bool concaveSeparate = concaveVertex != prevPeakVertex && concaveVertex != nextPeakVertex && concaveVertex != peakVertex;
-                if (concaveSeparate && convexPeak.PeakRect.ContainsPoint(concavePoint, Tolerance))
+                if (concaveSeparate && convexPeak.PeakRect.ContainsPoint(concavePoint, ReakRectTolerance))
                 {
 #if LOGS_ENABLED
                     //Log.WriteLine(GetType() + ".PeakContainsConcave: " + convexPeak + " PeakRect contains " + concaveVertex + " of " + concavePeak);
@@ -543,7 +543,7 @@ namespace Triangulation
             {
                 return;
             }
-            Tolerance = source.Tolerance;
+            ReakRectTolerance = source.ReakRectTolerance;
             innerAngleSign = source.innerAngleSign;
 
             var sourcePeaks = source.edgePeaks;
