@@ -467,6 +467,8 @@ namespace Triangulation
         private bool ProcessPoint(int pointIndex, Func<Vector2, Circle, bool> canCompleteTriangle)
         {
             ccTriangles.Clear();
+            edgeInfo.SetPointExternal(pointIndex, false);
+
             var point = points[pointIndex];
             int triangleEnd = trianglesCount - 1;
 
