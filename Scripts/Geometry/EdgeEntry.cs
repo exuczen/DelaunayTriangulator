@@ -12,8 +12,6 @@ namespace Triangulation
             Count = 0
         };
 
-        public float SqrLength { get; private set; }
-
         public bool IsValid => Count > 0 && A != B && A >= 0 && B >= 0;
         public bool IsTerminal => Prev < 0 || Next < 0;
 
@@ -70,27 +68,12 @@ namespace Triangulation
             Next = Prev = -1;
         }
 
-        public void SetSqrLength(Vector2[] points)
-        {
-            SqrLength = GetVector(points).LengthSquared();
-        }
-
         public void ClearLastPointData()
         {
             LastPointDegenerateTriangle = false;
             LastPointDegenerateAngle = false;
             LastPointInRange = false;
         }
-
-        //public bool IsPointOnEdge(int pointIndex, Vector2[] points, out bool inRange)
-        //{
-        //    return IsPointOnEdge(points[pointIndex], points, out inRange, false);
-        //}
-
-        //public bool IsPointOnEdge(Vector2 point, Vector2[] points, out bool inRange)
-        //{
-        //    return IsPointOnEdge(point, points, out inRange, false);
-        //}
 
         public bool IsPointInRange(int pointIndex, Vector2[] points)
         {

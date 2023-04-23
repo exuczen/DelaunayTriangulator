@@ -38,22 +38,6 @@ namespace Triangulation
         public int PrevNonCompleted;
         public int NextNonCompleted;
 
-        //public static void SetKeys(Triangle[] triangles, int trianglesCount, int pointsLength, int[] indexBuffer)
-        //{
-        //    for (int i = 0; i < trianglesCount; i++)
-        //    {
-        //        triangles[i].SetKey(pointsLength, indexBuffer);
-        //    }
-        //}
-
-        public static bool IsDegenerate(int a, int b, int c, Vector2[] points)
-        {
-            edgeBuffer[0] = (points[b] - points[a]).Normalized();
-            edgeBuffer[1] = (points[c] - points[b]).Normalized();
-            edgeBuffer[2] = (points[a] - points[c]).Normalized();
-            return IsDegenerate(edgeBuffer, true);
-        }
-
         public static bool IsDegenerate(Vector2[] edges, bool normalized)
         {
             if (normalized)
@@ -120,31 +104,6 @@ namespace Triangulation
             ClearKey();
         }
 
-        public bool IsDegenerate(Vector2[] points)
-        {
-            GetEdges(points, edgeVecBuffer);
-            return IsDegenerate(edgeVecBuffer, false);
-        }
-
-        #region ToIntegerTriangle
-
-        //public IntegerTriangle ToIntegerTriangle()
-        //{
-        //    IntegerTriangle result;
-        //    result.A = A;
-        //    result.B = B;
-        //    result.C = C;
-        //    return result;
-        //}
-
-        //public void ToIntegerTriangle(ref IntegerTriangle destination)
-        //{
-        //    destination.A = A;
-        //    destination.B = B;
-        //    destination.C = C;
-        //}
-
-        #endregion
 
         public void ClearKey()
         {
