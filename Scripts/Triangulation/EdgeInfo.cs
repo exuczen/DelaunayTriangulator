@@ -1301,15 +1301,28 @@ namespace Triangulation
                 bool begEdgeValid = IsTerminalExtEdgeValid(point, beg, false);
                 bool endEdgeValid = IsTerminalExtEdgeValid(point, end, true);
 
-                Log.WriteLine(GetType() + ".GetValidatedExtEdgesRange: begEdgeValid: " + begEdgeValid + " endEdgeValid: " + endEdgeValid);
                 if (begEdgeValid && endEdgeValid)
                 {
                     range = new IndexRange(beg, end, extEdgeCount);
-                    range = TrimExternalEdgesRange(range, out innerDegenerate);
+                    var trimmedRange = TrimExternalEdgesRange(range, out innerDegenerate);
+                    if (trimmedRange.FullLength > 0)
+                    {
+                        if (trimmedRange.Beg != beg)
+                        {
+                            begEdgeValid = IsTerminalExtEdgeValid(point, trimmedRange.Beg, false);
+                        }
+                        if (trimmedRange.End != end)
+                        {
+                            endEdgeValid = IsTerminalExtEdgeValid(point, trimmedRange.End, true);
+                        }
+                    }
+                    Log.WriteLine(GetType() + ".GetValidatedExtEdgesRange: begEdgeValid: " + begEdgeValid + " endEdgeValid: " + endEdgeValid);
+                    range = begEdgeValid && endEdgeValid ? trimmedRange : IndexRange.None;
                     return range.FullLength > 0;
                 }
                 else
                 {
+                    Log.WriteLine(GetType() + ".GetValidatedExtEdgesRange: begEdgeValid: " + begEdgeValid + " endEdgeValid: " + endEdgeValid);
                     range = IndexRange.None;
                     return false;
                 }
