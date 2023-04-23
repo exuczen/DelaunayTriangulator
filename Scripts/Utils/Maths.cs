@@ -64,6 +64,8 @@ namespace Triangulation
 
         #endregion
 
+        public static float ACos2Deg(float cosAngle) => MathF.Acos(cosAngle) * Rad2Deg;
+
         public static float Round(float x, float gradation)
         {
             return ((int)(x / gradation + 0.5f)) * gradation;

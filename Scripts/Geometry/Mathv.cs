@@ -47,6 +47,18 @@ namespace Triangulation
             return v1.X * v2.Y - v1.Y * v2.X;
         }
 
+        public static Vector2 GetNormalComponent(this Vector2 v, Vector2 t)
+        {
+            return v - Vector2.Dot(v, t) * t;
+        }
+
+        public static float GetSqrDistToLine(this Vector2 p, Vector2 linePoint, Vector2 lineDir)
+        {
+            var ray = p - linePoint;
+            var rayN = ray.GetNormalComponent(lineDir);
+            return rayN.LengthSquared();
+        }
+
         public static SerializedVector2 ToSerializedVector2(this Vector2 v) => new SerializedVector2(v);
 
         public static Vector2Int ToVector2Int(this Vector2 v) => new Vector2Int(v);
@@ -57,7 +69,7 @@ namespace Triangulation
             return length > Epsilon ? v / length : v;
         }
 
-        public static Vector2 Normalized(this Vector2 v) => v.Normalized(out _);
+        public static Vector2 Normalized(this Vector2 v) => Vector2.Normalize(v);
 
         public static bool Equals(Vector2 v1, Vector2 v2, float tolerance)
         {
