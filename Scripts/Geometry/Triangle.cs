@@ -13,7 +13,7 @@ namespace Triangulation
         public static float CosMinAngle { get; private set; } = Maths.Cos1Deg;
 
         private static readonly Vector2[] rayBuffer = new Vector2[3];
-        private static readonly Vector2[] edgeBuffer = new Vector2[3];
+        private static readonly Vector2[] edgeVecBuffer = new Vector2[3];
         private static readonly Vector2[] vertsBuffer = new Vector2[3];
         private static readonly float[] crossBuffer = new float[3];
         private static readonly int[] signBuffer = new int[3];
@@ -60,19 +60,19 @@ namespace Triangulation
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    edgeBuffer[i] = edges[i];
+                    edgeVecBuffer[i] = edges[i];
                 }
             }
             else
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    edgeBuffer[i] = edges[i].Normalized();
+                    edgeVecBuffer[i] = edges[i].Normalized();
                 }
             }
             for (int i = 0; i < 3; i++)
             {
-                float absCosAngle = MathF.Abs(Vector2.Dot(-edgeBuffer[i], edgeBuffer[(i + 1) % 3]));
+                float absCosAngle = MathF.Abs(Vector2.Dot(-edgeVecBuffer[i], edgeVecBuffer[(i + 1) % 3]));
                 //Log.WriteLine("Triangle.IsDegenerate: angle: " + (MathF.Acos(absCosAngle) * Maths.Rad2Deg));
                 if (absCosAngle > CosMinAngle)
                 {
@@ -122,8 +122,8 @@ namespace Triangulation
 
         public bool IsDegenerate(Vector2[] points)
         {
-            GetEdges(points, edgeBuffer);
-            return IsDegenerate(edgeBuffer, false);
+            GetEdges(points, edgeVecBuffer);
+            return IsDegenerate(edgeVecBuffer, false);
         }
 
         #region ToIntegerTriangle
@@ -172,15 +172,15 @@ namespace Triangulation
 
         public bool ContainsPoint(Vector2 point, Vector2[] points, bool log = false)
         {
-            GetEdges(points, edgeBuffer);
+            GetEdges(points, edgeVecBuffer);
             GetVerts(points, vertsBuffer);
             for (int i = 0; i < 3; i++)
             {
                 rayBuffer[i] = point - vertsBuffer[i];
             }
-            crossBuffer[0] = Mathv.Cross(rayBuffer[2], edgeBuffer[2]);
-            crossBuffer[1] = Mathv.Cross(rayBuffer[2], edgeBuffer[1]);
-            crossBuffer[2] = Mathv.Cross(rayBuffer[0], edgeBuffer[0]);
+            crossBuffer[0] = Mathv.Cross(rayBuffer[2], edgeVecBuffer[2]);
+            crossBuffer[1] = Mathv.Cross(rayBuffer[2], edgeVecBuffer[1]);
+            crossBuffer[2] = Mathv.Cross(rayBuffer[0], edgeVecBuffer[0]);
             int signCount = 0;
             int sign;
             if (log)
@@ -342,9 +342,9 @@ namespace Triangulation
 
         public void GetIndices(int[] indexBuffer, int offset)
         {
-            indexBuffer[offset++] = A;
-            indexBuffer[offset++] = B;
-            indexBuffer[offset++] = C;
+            indexBuffer[offset++ % 3] = A;
+            indexBuffer[offset++ % 3] = B;
+            indexBuffer[offset++ % 3] = C;
         }
 
         public void GetIndices(int[] indexBuffer)
