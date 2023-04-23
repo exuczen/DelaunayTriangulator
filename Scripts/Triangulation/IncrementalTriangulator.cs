@@ -527,7 +527,7 @@ namespace Triangulation
                 {
                     if (AddExternalPointTriangles(addedPointIndex, extEdgesRange, innerDegenerate, out EdgePeak loopPeak, out bool processInternal))
                     {
-                        AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Color.FloralWhite);
+                        AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Triangle.DefaultColor);
 
                         edgeInfo.ClearTrianglesPointsExternal(addedTriangles, addedTrianglesCount);
                         edgeInfo.InsertExternalEdges(loopPeak, extEdgesRange);
@@ -587,7 +587,7 @@ namespace Triangulation
             //edgeInfo.AddEdgesToCounterDict(triangles, trianglesCount);
 
             edgeInfo.AddEdgesToTriangleDicts(triangles, trianglesCount);
-            edgeInfo.SetTrianglesColors(Color.FloralWhite);
+            edgeInfo.SetTrianglesColors(Triangle.DefaultColor);
 
             //edgeInfo.PrintEdgeCounterDict();
             //edgeInfo.PrintExtEdgeTriangleDict();
@@ -603,7 +603,7 @@ namespace Triangulation
 
                     addedTrianglesCount = cellPolygon.ClipConcavePeaks(addedTriangles, points, edgeInfo);
 
-                    AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Color.FloralWhite);
+                    AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Triangle.DefaultColor);
                 }
                 else
                 {

@@ -137,7 +137,7 @@ namespace Triangulation
                 }
                 for (int i = 0; i < 2; i++)
                 {
-                    edgeInfo.AddEdgesToTriangleDicts(ref flipTriangles[i], Color.FloralWhite);
+                    edgeInfo.AddEdgesToTriangleDicts(ref flipTriangles[i], Triangle.DefaultColor);
                     //if (flipTriangles[i].Key != triangleSet.Triangles[triangleSet.Count - 2 + i].Key)
                     //{
                     //    throw new Exception("flipTriangles[i].Key != triangleSet.Triangles[triangleSet.Count - 2 + i].Key");

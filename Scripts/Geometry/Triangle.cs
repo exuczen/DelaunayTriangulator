@@ -10,6 +10,8 @@ namespace Triangulation
 
         public static readonly Triangle None = new Triangle(-1, -1, -1);
 
+        public static readonly Color DefaultColor = Color.FloralWhite;
+
         public static float CosMinAngle { get; private set; } = Maths.Cos1Deg;
 
         private static readonly Vector2[] rayBuffer = new Vector2[3];
@@ -370,7 +372,7 @@ namespace Triangulation
         {
             SetIndices(a, b, c);
             ComputeCircumCircle(points[A], points[B], points[C]);
-            FillColor = Color.FloralWhite;
+            FillColor = DefaultColor;
         }
 
         public void SetIndices(int a, int b, int c)
