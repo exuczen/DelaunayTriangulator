@@ -11,6 +11,8 @@ namespace Triangulation
             B = -1,
             Count = 0
         };
+        public static float DegenerateDistance { set => DegenerateDistanceSqr = value * value; }
+        private static float DegenerateDistanceSqr;
 
         public bool IsValid => Count > 0 && A != B && A >= 0 && B >= 0;
         public bool IsTerminal => Prev < 0 || Next < 0;
@@ -121,6 +123,15 @@ namespace Triangulation
                 //Log.WriteLine(GetType() + ".IsPointOnEdge: " + ToLastPointDataString());
             }
             return onEdge;
+        }
+
+        public bool MakesDegenerateAngleWithPoint(Vector2 point, Vector2[] points)
+        {
+            var midPoint = GetMidPoint(points);
+            var midRay = (midPoint - point).Normalized();
+            bool degenerateDistA = points[A].GetSqrDistToLine(point, midRay) < DegenerateDistanceSqr;
+            bool degenerateDistB = points[B].GetSqrDistToLine(point, midRay) < DegenerateDistanceSqr;
+            return degenerateDistA || degenerateDistB;
         }
 
         public Vector2 GetNormalizedVector(Vector2[] points, out float edgeLength)
