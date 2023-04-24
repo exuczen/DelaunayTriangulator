@@ -127,5 +127,10 @@ namespace Triangulation
             }
             return pointIndex;
         }
+
+        public static string ToStringF2(this float x)
+        {
+            return x.ToString("f2");
+        }
     }
 }

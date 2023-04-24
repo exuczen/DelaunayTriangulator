@@ -107,6 +107,46 @@ namespace Triangulation
             return new EdgeEntry(a, b);
         }
 
+        public float GetPointRayAngleB(Vector2 point, Vector2[] points)
+        {
+            var pointRay = point - points[PeakVertex];
+            int signA = MathF.Sign(Mathv.Cross(pointRay, EdgeVecA));
+            int signB = MathF.Sign(Mathv.Cross(pointRay, EdgeVecB));
+            pointRay = pointRay.Normalized();
+            float cosB = Vector2.Dot(pointRay, EdgeVecB.Normalized());
+            float angle = MathF.Acos(cosB);
+
+            if (signA == signB)
+            {
+                float cosA = Vector2.Dot(pointRay, EdgeVecA.Normalized());
+                if (cosB < cosA)
+                {
+                    angle = MathF.Tau - angle;
+                }
+            }
+            return angle * Maths.Rad2Deg;
+        }
+
+        //public bool IsPointInAngularRange(Vector2 point, Vector2[] points)
+        //{
+        //    if (AngleSign == 0)
+        //    {
+        //        return false;
+        //    }
+        //    var pointRay = point - points[PeakVertex];
+        //    int signA = MathF.Sign(Mathv.Cross(pointRay, EdgeVecA));
+        //    int signB = MathF.Sign(Mathv.Cross(pointRay, EdgeVecB));
+        //    if (signA == 0 || signB == 0 || signA == signB)
+        //    {
+        //        return false;
+        //    }
+        //    else
+        //    {
+        //        var bisector = EdgeVecA.Normalized() + EdgeVecB.Normalized();
+        //        return Vector2.Dot(pointRay, bisector) > 0f;
+        //    }
+        //}
+
         public bool MakesDegenerateTriangle(Vector2[] points, Vector2[] edgeBuffer)
         {
             var abEdge = GetOppositeEdge(out bool abOrder);

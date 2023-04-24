@@ -100,8 +100,8 @@ namespace Triangulation
             inRange = dotRayEdgeA > 0f && dotRayEdgeA < edgeLength;
 
             //var pointRayNormal = pointRayA - dotRayEdgeA * edge;
-            //float sqrDist = pointRayNormal.SqrLength;
-            //bool onLine = sqrDist < pointOnEdgeSqrDistMin;
+            //float sqrDist = pointRayNormal.LengthSquared();
+            //bool onLine = sqrDist < DegenerateDistanceSqr;
 
             pointRayA = pointRayA.Normalized();
             pointRayB = pointRayB.Normalized();
@@ -117,8 +117,8 @@ namespace Triangulation
             if (setLastPointData)
             {
                 LastPointDegenerateTriangle = degenerateAngleA || degenerateAngleB || degenerateAngleC;
-                //LastPointDegenerateAngle = cosAngleC > Triangle.CosMinAngle;
-                LastPointDegenerateAngle = cosAngleC > Triangle.CosMinAngle || (!inRange && (degenerateAngleA || degenerateAngleB));
+                //LastPointDegenerateAngle = cosAngleC > Triangle.CosMinAngle || (!inRange && (degenerateAngleA || degenerateAngleB));
+                LastPointDegenerateAngle = MakesDegenerateAngleWithPoint(point, points);
                 LastPointInRange = inRange;
                 //Log.WriteLine(GetType() + ".IsPointOnEdge: " + ToLastPointDataString());
             }

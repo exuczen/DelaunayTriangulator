@@ -1298,25 +1298,20 @@ namespace Triangulation
             }
             else
             {
-                bool begEdgeValid = IsTerminalExtEdgeValid(point, beg, false);
-                bool endEdgeValid = IsTerminalExtEdgeValid(point, end, true);
+                bool begEdgeValid = IsTerminalExtEdgeValid(point, beg, false, false);
+                bool endEdgeValid = IsTerminalExtEdgeValid(point, end, true, false);
 
+                Log.WriteLine(GetType() + ".GetValidatedExtEdgesRange: begEdgeValid: " + begEdgeValid + " endEdgeValid: " + endEdgeValid);
                 if (begEdgeValid && endEdgeValid)
                 {
                     range = new IndexRange(beg, end, extEdgeCount);
                     var trimmedRange = TrimExternalEdgesRange(range, out innerDegenerate);
-                    if (trimmedRange.FullLength > 0)
+                    if (trimmedRange.FullLength > 0 && trimmedRange.GetIndexCount() != range.GetIndexCount())
                     {
-                        if (trimmedRange.Beg != beg)
-                        {
-                            begEdgeValid = IsTerminalExtEdgeValid(point, trimmedRange.Beg, false);
-                        }
-                        if (trimmedRange.End != end)
-                        {
-                            endEdgeValid = IsTerminalExtEdgeValid(point, trimmedRange.End, true);
-                        }
+                        begEdgeValid = IsTerminalExtEdgeValid(point, trimmedRange.Beg, false, true);
+                        endEdgeValid = IsTerminalExtEdgeValid(point, trimmedRange.End, true, true);
+                        Log.WriteLine(GetType() + ".GetValidatedExtEdgesRange: begEdgeValid: " + begEdgeValid + " endEdgeValid: " + endEdgeValid);
                     }
-                    Log.WriteLine(GetType() + ".GetValidatedExtEdgesRange: begEdgeValid: " + begEdgeValid + " endEdgeValid: " + endEdgeValid);
                     range = begEdgeValid && endEdgeValid ? trimmedRange : IndexRange.None;
                     return range.FullLength > 0;
                 }
@@ -1463,20 +1458,26 @@ namespace Triangulation
             return opposite;
         }
 
-        private bool IsTerminalExtEdgeValid(Vector2 addedPoint, int extEdgeIndex, bool nextForward)
+        private bool IsTerminalExtEdgeValid(Vector2 addedPoint, int extEdgeIndex, bool nextForward, bool trimmed)
         {
             var extEdge = extEdges[extEdgeIndex];
             int next = nextForward ? extEdge.Next : extEdge.Prev;
             var nextEdge = extEdges[next];
-            int sharedIndex = EdgeEntry.GetSharedVertex(extEdge, nextEdge);
-            var pointRay = addedPoint - points[sharedIndex];
             var edgePeak = new EdgePeak(extEdge, nextEdge, points);
-            int sign1 = edgePeak.AngleSign;
-            int sign2 = MathF.Sign(Mathv.Cross(edgePeak.EdgeVecB, pointRay));
-            //float crossNextEdgePointRay = Vector2.Cross(edgePeak.EdgeVecB.Normalize(), pointRay.Normalize());
-            //int sign2 = MathF.Abs(crossNextEdgePointRay) < Vector2.Epsilon ? 0 : MathF.Sign(crossNextEdgePointRay);
-            //Log.WriteLine(GetType() + ".IsTerminalExtEdgeValid: signs: " + sign1 + ", " + sign2 + " for edges: " + extEdge + " " + nextEdge);
-            return sign2 == 0 || sign1 == sign2;
+            if (trimmed)
+            {
+                float angleB = edgePeak.GetPointRayAngleB(addedPoint, points);
+                Log.WriteLine(GetType() + ".IsTerminalExtEdgeValid: angle between: " + edgePeak.EdgeB + " and pointRay from " + edgePeak.PeakVertex + ": " + angleB.ToStringF2());
+                return angleB > 170f;
+            }
+            else
+            {
+                var pointRay = addedPoint - points[edgePeak.PeakVertex];
+                int sign1 = edgePeak.AngleSign;
+                int sign2 = MathF.Sign(Mathv.Cross(edgePeak.EdgeVecB, pointRay));
+                Log.WriteLine(GetType() + ".IsTerminalExtEdgeValid: signs: " + sign1 + ", " + sign2 + " for edges: " + extEdge + " " + nextEdge);
+                return sign2 == 0 || sign1 == sign2;
+            }
         }
 
         protected void ForEachInternalEdge(Triangle triangle, Action<int, EdgeEntry> action)
