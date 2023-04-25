@@ -121,7 +121,7 @@ namespace Triangulation
                 float cosA = Vector2.Dot(pointRay, EdgeVecA.Normalized());
                 if (cosB < cosA)
                 {
-                    angle = MathF.Tau - angle;
+                    angle = Maths.Tau - angle;
                 }
             }
             return angle * Maths.Rad2Deg;

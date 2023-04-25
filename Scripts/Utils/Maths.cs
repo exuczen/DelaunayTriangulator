@@ -5,6 +5,8 @@ namespace Triangulation
 {
     public static class Maths
     {
+        public static readonly float Tau = MathF.PI * 2f;
+
         public static readonly float Sin1Deg = MathF.Sin(Deg2Rad);
         public static readonly float Cos1Deg = MathF.Cos(Deg2Rad);
         public static readonly float Cos2Deg = MathF.Cos(2f * Deg2Rad);
