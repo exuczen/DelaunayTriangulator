@@ -19,6 +19,8 @@ namespace Triangulation
         private static readonly Vector2[] vertsBuffer = new Vector2[3];
         private static readonly float[] crossBuffer = new float[3];
         private static readonly int[] signBuffer = new int[3];
+        //private static readonly EdgeEntry[] edgeBuffer = new EdgeEntry[3];
+        //private static readonly int[] indexBuffer = new int[3];
 
         public long Key { get; private set; }
 

@@ -2,8 +2,8 @@
 {
     public readonly struct DeprecatedTriangle
     {
-        //private static readonly EdgeEntry[] edgeBuffer = new EdgeEntry[3];
         //private static readonly Vector2[] edgeVecBuffer = new Vector2[3];
+        //private static readonly EdgeEntry[] edgeBuffer = new EdgeEntry[3];
         //private static readonly int[] indexBuffer = new int[3];
 
         //public static void SetKeys(Triangle[] triangles, int trianglesCount, int pointsLength, int[] indexBuffer)
@@ -36,7 +36,7 @@
         //    {
         //        for (int i = 0; i < 3; i++)
         //        {
-        //            if (edgeBuffer[i].MakesDegenerateTriangleWithPoint(indexBuffer[i], points))
+        //            if (edgeBuffer[i].MakesDegenerateAngleWithPoint(points[indexBuffer[i]], points))
         //            {
         //                return true;
         //            }
@@ -56,7 +56,7 @@
         //                minIndex = i;
         //            }
         //        }
-        //        return edgeBuffer[minIndex].MakesDegenerateTriangleWithPoint(indexBuffer[minIndex], points);
+        //        return edgeBuffer[minIndex].MakesDegenerateAngleWithPoint(points[indexBuffer[minIndex]], points);
         //    }
         //}
     }
