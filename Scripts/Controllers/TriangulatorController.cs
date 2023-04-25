@@ -7,9 +7,6 @@ namespace Triangulation
 {
     public class TriangulatorController
     {
-        protected const string SaveFolderPath = "save";
-        protected const string SaveFilePath = SaveFolderPath + "/save.json";
-
         public Triangulator Triangulator => triangulator;
 
         public Action<Stopwatch, Triangulator> Triangulated = null;
@@ -34,23 +31,28 @@ namespace Triangulation
             return new SerializedTriangulator(triangulator);
         }
 
-        public void SaveTriangulator(SerializedTriangulator save)
+        public static void SaveTriangulator(SerializedTriangulator save, string filepath)
         {
-            if (!Directory.Exists(SaveFolderPath))
+            if (string.IsNullOrEmpty(filepath))
             {
-                Directory.CreateDirectory(SaveFolderPath);
+                return;
             }
-            JsonUtils.SaveToJson(save, SaveFilePath);
+            string folderPath = Path.GetDirectoryName(filepath);
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+            JsonUtils.SaveToJson(save, filepath);
         }
 
-        public void SaveTriangulator()
+        public void SaveTriangulator(string filepath)
         {
-            SaveTriangulator(CreateSerializedTriangulator());
+            SaveTriangulator(CreateSerializedTriangulator(), filepath);
         }
 
-        public SerializedTriangulator LoadTriangulator()
+        public SerializedTriangulator LoadTriangulator(string filepath)
         {
-            var save = JsonUtils.LoadFromJson<SerializedTriangulator>(SaveFilePath);
+            var save = JsonUtils.LoadFromJson<SerializedTriangulator>(filepath);
             if (save != null)
             {
                 triangulator.Load(save);
