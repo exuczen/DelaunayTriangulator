@@ -282,6 +282,11 @@ namespace Triangulation
             base.ClearPoints();
         }
 
+        protected override void OnFindUnusedPoint(int pointIndex)
+        {
+            pointGrid.ClearPoint(pointIndex, points);
+        }
+
         protected override void SetSortedPoints(out Bounds2 bounds)
         {
             pointsCount = pointGrid.SetSortedPoints(points, pointsOffset, pointsCount, out bounds);

@@ -279,6 +279,8 @@ namespace Triangulation
             }
         }
 
+        protected virtual void OnFindUnusedPoint(int pointIndex) { }
+
         protected virtual void SetSortedPoints(out Bounds2 bounds) { bounds = this.bounds; }
 
         protected virtual void SetSortedPoints(List<Vector2> pointsList)
@@ -590,6 +592,7 @@ namespace Triangulation
                 int pointIndex = i - beg;
                 if (Mathv.IsNaN(points[i]))
                 {
+                    OnFindUnusedPoint(pointIndex);
                     unusedPointIndices.Add(pointIndex);
                     points[pointIndex] = Veconst2.NaN;
                 }
