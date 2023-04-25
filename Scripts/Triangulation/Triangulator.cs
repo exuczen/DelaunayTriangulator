@@ -412,6 +412,7 @@ namespace Triangulation
 
             if (centerPointIndex >= pointsOffset)
             {
+                edgeInfo.SetPointExternal(centerPointIndex, false);
                 result = ProcessPoints(pointsOffset, centerPointIndex - 1, xySorted);
                 result = result && ProcessPoints(centerPointIndex + 1, pointsCount - 1, xySorted);
             }
@@ -451,9 +452,8 @@ namespace Triangulation
                 if (Mathv.Equals(point, prevPoint, pointTolerance))
                 {
                     Log.WriteError(GetType() + ".Triangulate: point.Equals(prevPoint, tolerance): " + i);
-                    continue;
                 }
-                if (!ProcessPoint(i, canCompleteTriangle))
+                else if (!ProcessPoint(i, canCompleteTriangle))
                 {
                     ThrowCCTrianglesException(i);
                     return false;
