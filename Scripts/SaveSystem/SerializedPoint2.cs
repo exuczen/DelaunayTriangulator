@@ -24,5 +24,10 @@ namespace Triangulation
         }
 
         public Vector2 ToVector2() => new Vector2(X, Y);
+
+        public override string ToString()
+        {
+            return string.Format("({0}, {1}, {2})", X.ToStringF2(), Y.ToStringF2(), Index);
+        }
     }
 }

@@ -576,7 +576,11 @@ namespace Triangulation
             initialPointIndices.Clear();
             unusedPointIndices.Clear();
 
-            if (Supermanent)
+            if (trianglesCount <= 0)
+            {
+                return;
+            }
+            else if (Supermanent)
             {
                 initialPointIndices.AddIntRange(pointsOffset, pointsCount - pointsOffset);
                 return;
