@@ -13,6 +13,7 @@ namespace Triangulation
         public int TrianglesCount => trianglesCount;
         public int PointsOffset => pointsOffset;
         public int PointsCount { get => pointsCount; set => pointsCount = Math.Max(pointsOffset, value); }
+        public int UsedPointsCount => PointsCount - unusedPointIndices.Count;
         public Vector2[] Points => points;
         public Triangle[] Triangles => triangles;
         public List<Triangle> CCTriangles => ccTriangles;
@@ -78,27 +79,38 @@ namespace Triangulation
 
         public virtual void Load(SerializedTriangulator data)
         {
+            var dataPoints = data.Points;
+            var dataTriangles = data.Triangles;
+            if (dataPoints.Length == 0)
+            {
+                return;
+            }
             Clear();
 
-            var dataPoints = data.Points;
-            var dataPointsUsed = data.PointsUsed;
-            var dataTriangles = data.Triangles;
-
+            int usedPointsCount = dataPoints.Length;
             pointsOffset = data.PointsOffset;
-            pointsCount = dataPoints.Length;
+            pointsCount = dataPoints[^1].Index + 1;
             trianglesCount = dataTriangles.Length;
 
             for (int i = 0; i < pointsCount; i++)
             {
-                if (dataPointsUsed[i])
+                edgeInfo.SetPointExternal(i, false);
+                points[i] = Veconst2.NaN;
+            }
+            for (int i = 0; i < usedPointsCount; i++)
+            {
+                int pointIndex = dataPoints[i].Index;
+                points[pointIndex] = dataPoints[i].ToVector2();
+            }
+            for (int i = 0; i < pointsCount; i++)
+            {
+                if (Mathv.IsNaN(points[i]))
                 {
-                    points[i] = dataPoints[i].ToVector2();
-                    initialPointIndices.Add(i);
+                    unusedPointIndices.Add(i);
                 }
                 else
                 {
-                    points[i] = Veconst2.NaN;
-                    unusedPointIndices.Add(i);
+                    initialPointIndices.Add(i);
                 }
             }
             for (int i = 0; i < trianglesCount; i++)
@@ -254,7 +266,9 @@ namespace Triangulation
             {
                 throw new Exception("ClearPoint: " + pointIndex);
             }
+            edgeInfo.SetPointExternal(pointIndex, false);
             points[pointIndex] = Veconst2.NaN;
+
             int lastIndex = pointsCount - 1;
 
             //Log.WriteLine(".ClearPoint:" + pointIndex + " pointsCount: " + pointsCount);
@@ -271,7 +285,7 @@ namespace Triangulation
             }
             else if (pointIndex == lastIndex)
             {
-                pointsCount--;
+                pointsCount = lastIndex;
             }
             else if (addToUnused)
             {

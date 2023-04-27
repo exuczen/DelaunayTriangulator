@@ -6,15 +6,13 @@ namespace Triangulation
     public class SerializedTriangulator
     {
 #if UNITY
-        public SerializedVector2[] Points;
+        public SerializedPoint2[] Points;
         public SerializedTriangle[] Triangles;
         public int PointsOffset;
-        public bool[] PointsUsed;
 #else
-        public SerializedVector2[] Points { get; set; }
+        public SerializedPoint2[] Points { get; set; }
         public SerializedTriangle[] Triangles { get; set; }
         public int PointsOffset { get; set; }
-        public bool[] PointsUsed { get; set; }
 #endif
 
         public SerializedTriangulator() { }
@@ -24,14 +22,18 @@ namespace Triangulation
             var points = triangulator.Points;
             var triangles = triangulator.Triangles;
 
-            Points = new SerializedVector2[triangulator.PointsCount];
-            PointsUsed = new bool[Points.Length];
-            for (int i = 0; i < Points.Length; i++)
-            {
-                PointsUsed[i] = !Mathv.IsNaN(points[i]);
-                Points[i] = PointsUsed[i] ? points[i] : default;
-            }
+            Points = new SerializedPoint2[triangulator.UsedPointsCount];
             Triangles = new SerializedTriangle[triangulator.TrianglesCount];
+
+            int pointsCount = triangulator.PointsCount;
+            int count = 0;
+            for (int i = 0; i < pointsCount; i++)
+            {
+                if (!Mathv.IsNaN(points[i]))
+                {
+                    Points[count++] = new SerializedPoint2(points[i], i);
+                }
+            }
             for (int i = 0; i < Triangles.Length; i++)
             {
                 Triangles[i] = new SerializedTriangle(triangles[i]);
