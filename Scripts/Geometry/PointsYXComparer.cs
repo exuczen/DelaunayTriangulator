@@ -16,20 +16,20 @@ namespace Triangulation
         /// <summary>
         /// Sort points by Y (firstly), X (secondly)
         /// </summary>
-        public int Compare(Vector2 va, Vector2 vb)
+        public int Compare(Vector2 p1, Vector2 p2)
         {
-            float f = va.Y - vb.Y;
+            float delta = p1.Y - p2.Y;
 
-            if (MathF.Abs(f) > tolerance)
+            if (MathF.Abs(delta) > tolerance)
             {
-                return MathF.Sign(f);
+                return MathF.Sign(delta);
             }
 
-            f = va.X - vb.X;
+            delta = p1.X - p2.X;
 
-            if (MathF.Abs(f) > tolerance)
+            if (MathF.Abs(delta) > tolerance)
             {
-                return MathF.Sign(f);
+                return MathF.Sign(delta);
             }
 
             return 0;
