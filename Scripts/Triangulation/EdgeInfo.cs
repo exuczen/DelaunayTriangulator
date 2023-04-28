@@ -1317,7 +1317,6 @@ namespace Triangulation
                 }
                 else
                 {
-                    Log.WriteLine(GetType() + ".GetValidatedExtEdgesRange: begEdgeValid: " + begEdgeValid + " endEdgeValid: " + endEdgeValid);
                     range = IndexRange.None;
                     return false;
                 }
@@ -1475,8 +1474,17 @@ namespace Triangulation
                 var pointRay = addedPoint - points[edgePeak.PeakVertex];
                 int sign1 = edgePeak.AngleSign;
                 int sign2 = MathF.Sign(Mathv.Cross(edgePeak.EdgeVecB, pointRay));
-                Log.WriteLine(GetType() + ".IsTerminalExtEdgeValid: signs: " + sign1 + ", " + sign2 + " for edges: " + extEdge + " " + nextEdge);
-                return sign2 == 0 || sign1 == sign2;
+                if (sign2 == 0)
+                {
+                    float rayDotEdgeB = Vector2.Dot(edgePeak.EdgeVecB, pointRay);
+                    Log.WriteLine(GetType() + ".IsTerminalExtEdgeValid: signs: " + sign1 + ", " + sign2 + " for edges: " + extEdge + " " + nextEdge + " rayDotEdgeB: " + rayDotEdgeB.ToStringF2());
+                    return rayDotEdgeB < 0f;
+                }
+                else
+                {
+                    Log.WriteLine(GetType() + ".IsTerminalExtEdgeValid: signs: " + sign1 + ", " + sign2 + " for edges: " + extEdge + " " + nextEdge);
+                    return sign1 == sign2;
+                }
             }
         }
 
