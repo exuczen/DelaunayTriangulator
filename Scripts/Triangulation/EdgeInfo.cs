@@ -1310,8 +1310,8 @@ namespace Triangulation
                     {
                         begEdgeValid = IsTerminalExtEdgeValid(point, trimmedRange.Beg, false, true);
                         endEdgeValid = IsTerminalExtEdgeValid(point, trimmedRange.End, true, true);
-                        Log.WriteLine(GetType() + ".GetValidatedExtEdgesRange: begEdgeValid: " + begEdgeValid + " endEdgeValid: " + endEdgeValid);
                     }
+                    Log.WriteLine(GetType() + ".GetValidatedExtEdgesRange: begEdgeValid: " + begEdgeValid + " endEdgeValid: " + endEdgeValid + " | trimmedRange: " + trimmedRange);
                     range = begEdgeValid && endEdgeValid ? trimmedRange : IndexRange.None;
                     return range.FullLength > 0;
                 }

@@ -11,7 +11,7 @@
         ExternalEdgesBrokenLoop,
     }
 
-    public struct ErrorData
+    public readonly struct ErrorData
     {
         public ErrorCode ErrorCode { get; }
         public int PointIndex { get; }

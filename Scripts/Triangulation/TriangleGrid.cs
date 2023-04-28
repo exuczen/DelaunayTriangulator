@@ -51,26 +51,23 @@ namespace Triangulation
             {
                 xCount = yCount = minDivsCount;
                 cellSize = size / xCount;
-                cellHalfSize = 0.5f * cellSize;
             }
             else if (size.Y < size.X)
             {
                 yCount = minDivsCount;
                 cellSize.Y = size.Y / yCount;
-                cellHalfSize.Y = 0.5f * cellSize.Y;
-                xCount = (int)((size.X + cellHalfSize.Y) / cellSize.Y);
+                xCount = (int)(size.X / cellSize.Y + 0.5f);
                 cellSize.X = size.X / xCount;
-                cellHalfSize.X = 0.5f * cellSize.X;
             }
             else
             {
                 xCount = minDivsCount;
                 cellSize.X = size.X / xCount;
-                cellHalfSize.X = 0.5f * cellSize.X;
-                yCount = (int)((size.Y + cellHalfSize.X) / cellSize.X);
+                yCount = (int)(size.Y / cellSize.X + 0.5f);
                 cellSize.Y = size.Y / yCount;
-                cellHalfSize.Y = 0.5f * cellSize.Y;
             }
+            cellHalfSize = 0.5f * cellSize;
+
             float minCellSize = CellSizeMin;
             cellTolerance = minCellSize * 0.01f;
             circleTolerance = minCellSize * 0.1f;
