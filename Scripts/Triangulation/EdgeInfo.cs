@@ -1081,14 +1081,14 @@ namespace Triangulation
             int rangeCount = range.GetIndexCount();
             if (rangeCount == 1)
             {
-                if (extEdges[range.Beg].LastPointDegenerateAngle)
+                if (extEdges[range.Beg].LastPointDegenerateTriangle)
                 {
                     return IndexRange.None;
                 }
             }
             else if (rangeCount > 1)
             {
-                InvokeForExternalEdgesRange(range, edge => edge.LastPointDegenerateAngle, true, out int degenerateEnd);
+                InvokeForExternalEdgesRange(range, edge => edge.LastPointDegenerateTriangle, true, out int degenerateEnd);
                 if (degenerateEnd >= 0)
                 {
                     if (degenerateEnd == range.End)
@@ -1100,7 +1100,7 @@ namespace Triangulation
                         range.Beg = extEdges[degenerateEnd].Next;
                     }
                 }
-                InvokeForExternalEdgesRange(range, edge => edge.LastPointDegenerateAngle, false, out int degenerateBeg);
+                InvokeForExternalEdgesRange(range, edge => edge.LastPointDegenerateTriangle, false, out int degenerateBeg);
                 if (degenerateBeg >= 0)
                 {
                     if (degenerateBeg == range.Beg)
