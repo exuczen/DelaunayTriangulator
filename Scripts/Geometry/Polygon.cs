@@ -908,9 +908,10 @@ namespace Triangulation
             var oppEdge = oppPeak.GetOppositeEdge(out _);
             var oppEdgeN2 = oppPeak.PeakRect.N2;
             var oppPeakPoint = points[oppPeak.VertexA];
+            int oppAngleSign = oppPeak.AngleSign;
 
             Debug.Assert(oppPeak.IsConvex);
-            Debug.Assert(oppPeak.AngleSign == innerAngleSign);
+            Debug.Assert(oppAngleSign == 0 || oppAngleSign == innerAngleSign);
 
             while (sortedLast >= 0 && (concavePeak = sortedPeaks[sortedLast]).Angle > 180f)
             {

@@ -184,6 +184,10 @@ namespace Triangulation
         private float SetAngle360(bool inverted)
         {
             Angle = Mathv.AngleDeg(EdgeVecA, EdgeVecB);
+            if (MathF.Abs(Angle - 180f) < 0.001f)
+            {
+                AngleSign = 0;
+            }
             return inverted ? InvertAngle() : Angle;
         }
     }
