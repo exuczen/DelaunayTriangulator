@@ -21,7 +21,7 @@ namespace Triangulation
 
         private readonly int xCount, yCount = 0;
         private readonly Vector2 cellSize = default;
-        private readonly Vector2 cellHalfSize = default;
+        //private readonly Vector2 cellHalfSize = default;
         private readonly Vector2 size = default;
 
         private readonly int[] clearIndices = null;
@@ -35,7 +35,7 @@ namespace Triangulation
             yCount = xyCount.y;
 
             cellSize = new Vector2(size.X / xCount, size.Y / yCount);
-            cellHalfSize = cellSize * 0.5f;
+            //cellHalfSize = cellSize * 0.5f;
 
             xCount++;
             yCount++;
@@ -65,6 +65,22 @@ namespace Triangulation
             for (int i = offset; i < pointsCount; i++)
             {
                 TryAddPoint(i, points, out _, out _);
+            }
+        }
+
+        public void SnapPointsToGrid(Vector2[] points, int offset, int pointsCount)
+        {
+            for (int i = offset; i < pointsCount; i++)
+            {
+                points[i] = SnapToGrid(points[i]);
+            }
+        }
+
+        public void SnapPointsToGrid(List<Vector2> points, int offset)
+        {
+            for (int i = offset; i < points.Count; i++)
+            {
+                points[i] = SnapToGrid(points[i]);
             }
         }
 
@@ -143,6 +159,14 @@ namespace Triangulation
             int x = pointIndex % yCount;
             int y = pointIndex / yCount;
             return x == 0 || x == xCount - 1 || y == 0 || y == yCount - 1;
+        }
+
+        public Vector2 SnapToGrid(Vector2 point/*, out Vector2Int xy*/)
+        {
+            int x = (int)(point.X / cellSize.X + 0.5f);
+            int y = (int)(point.Y / cellSize.Y + 0.5f);
+            //xy = new Vector2Int(x, y);
+            return new Vector2(x * cellSize.X, y * cellSize.Y);
         }
 
         public int GetClosestPointIndex(Vector2 center)
@@ -256,8 +280,8 @@ namespace Triangulation
 
         private bool GetCellXYIndex(Vector2 point, out Vector3Int cellXYI, bool throwException = true)
         {
-            int x = (int)((point.X + cellHalfSize.X) / cellSize.X);
-            int y = (int)((point.Y + cellHalfSize.Y) / cellSize.Y);
+            int x = (int)(point.X / cellSize.X + 0.5f);
+            int y = (int)(point.Y / cellSize.Y + 0.5f);
 
             bool inBounds = GetCellIndex(x, y, out int cellIndex);
             cellXYI = new Vector3Int(x, y, cellIndex);

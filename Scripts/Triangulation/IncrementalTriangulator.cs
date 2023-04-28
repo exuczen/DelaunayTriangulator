@@ -287,6 +287,16 @@ namespace Triangulation
             pointGrid.ClearPoint(pointIndex, points);
         }
 
+        protected override void SetPresortedPoints()
+        {
+            pointGrid.SnapPointsToGrid(points, pointsOffset, pointsCount);
+        }
+
+        protected override void SetPresortedPoints(List<Vector2> pointsList)
+        {
+            pointGrid.SnapPointsToGrid(pointsList, pointsOffset);
+        }
+
         protected override void SetSortedPoints(out Bounds2 bounds)
         {
             pointsCount = pointGrid.SetSortedPoints(points, pointsOffset, pointsCount, out bounds);

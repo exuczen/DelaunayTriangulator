@@ -217,6 +217,8 @@ namespace Triangulation
             }
             Clear();
 
+            SetPresortedPoints(pointsList);
+
             bounds = Bounds2.GetBounds(pointsList, pointsOffset);
             pointsList.Sort(pointsOffset, pointsList.Count - pointsOffset, GetPointsComparer(bounds, out bool xySorted));
 
@@ -234,6 +236,8 @@ namespace Triangulation
             {
                 return false;
             }
+            SetPresortedPoints();
+
             bounds = Bounds2.GetBounds(points, pointsOffset, pointsCount - 1);
             Array.Sort(points, pointsOffset, pointsCount - pointsOffset, GetPointsComparer(bounds, out bool xySorted));
 
@@ -294,6 +298,10 @@ namespace Triangulation
         }
 
         protected virtual void OnFindUnusedPoint(int pointIndex) { }
+
+        protected virtual void SetPresortedPoints() { }
+
+        protected virtual void SetPresortedPoints(List<Vector2> pointsList) { }
 
         protected virtual void SetSortedPoints(out Bounds2 bounds) { bounds = this.bounds; }
 
