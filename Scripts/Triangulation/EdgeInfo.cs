@@ -1192,6 +1192,7 @@ namespace Triangulation
             int extEdgeIndex = GetExternalEdgeIndex(firstExtEdge);
             if (extEdgeIndex >= 0)
             {
+                bool result;
                 var point = points[addedPointIndex];
 
                 extEdgeIndex = GetClosestExternalEdge(point, extEdgeIndex);
@@ -1219,11 +1220,11 @@ namespace Triangulation
                         range.Beg = range.End = end;
                         return false;
                     }
-                    return GetValidatedExtEdgesRange(point, beg, end, out range, out innerDegenerate);
+                    result = GetValidatedExtEdgesRange(point, beg, end, out range, out innerDegenerate);
                 }
                 else
                 {
-                    bool result = GetOppositeExternalEdgesRange(point, extEdgeIndex, true, out range, out pointOnEdge, out innerDegenerate, out bool oppEdgeFound);
+                    result = GetOppositeExternalEdgesRange(point, extEdgeIndex, true, out range, out pointOnEdge, out innerDegenerate, out bool oppEdgeFound);
                     if (pointOnEdge)
                     {
                         return false;
@@ -1236,8 +1237,8 @@ namespace Triangulation
                             return false;
                         }
                     }
-                    return result;
                 }
+                return result;
             }
             else
             {
