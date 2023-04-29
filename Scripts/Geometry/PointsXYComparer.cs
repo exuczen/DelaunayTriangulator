@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define SKIP_Y_COMPARE
+
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -24,14 +26,14 @@ namespace Triangulation
             {
                 return MathF.Sign(delta);
             }
-
+#if !SKIP_Y_COMPARE
             delta = p1.Y - p2.Y;
 
             if (MathF.Abs(delta) > tolerance)
             {
                 return MathF.Sign(delta);
             }
-
+#endif
             return 0;
         }
     }
