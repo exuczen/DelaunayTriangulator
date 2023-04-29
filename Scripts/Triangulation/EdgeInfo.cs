@@ -1450,10 +1450,12 @@ namespace Triangulation
             }
             bool opposite = sign1 != 0 && sign1 != sign2;
 
-            pointOnEdge = extEdge.SetLastPointOnEgdeData(point, points, out bool inRange) || (sign1 == 0 && inRange);
-            extEdges[edgeIndex] = extEdge;
-
-            lastPointExtEdgeIndices.Add(edgeIndex);
+            pointOnEdge = extEdge.IsPointOnEdge(point, points, out bool inRange, opposite) || (sign1 == 0 && inRange);
+            if (opposite)
+            {
+                extEdges[edgeIndex] = extEdge;
+                lastPointExtEdgeIndices.Add(edgeIndex);
+            }
 
             Log.WriteLine(GetType() + ".IsPointOppositeToExternalEdge: edge: " + edgeIndex + " " + extEdge + " pointOnEdge: " + pointOnEdge + " opposite: " + opposite);
             return opposite;
