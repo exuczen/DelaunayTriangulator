@@ -517,7 +517,7 @@ namespace Triangulation
                 Log.WriteLine(GetType() + ".ProcessInternalPoint: cellTrianglesIndices.Count == 0");
                 return false;
             }
-            AddCellTrianglesEdges();
+            AddCellTrianglesEdges(extEdgeIndex);
 
             if (ReplaceEdgesWithTriangles(addedPointIndex, extEdgeIndex))
             {
@@ -751,12 +751,17 @@ namespace Triangulation
             return false;
         }
 
-        private void AddCellTrianglesEdges()
+        private void AddCellTrianglesEdges(int excludeExtEdgeIndex = -1)
         {
             for (int i = 0; i < cellTrianglesIndices.Count; i++)
             {
                 int triangleIndex = cellTrianglesIndices[i];
                 AddTriangleEdges(triangleSet.Triangles[triangleIndex]);
+            }
+            if (excludeExtEdgeIndex >= 0)
+            {
+                int extEdgeKey = edgeInfo.GetExternalEdgeKey(excludeExtEdgeIndex);
+                edgeDict.Remove(extEdgeKey);
             }
             ForEachEdgeInDict((edgeKey, edge) => {
                 //Log.WriteLine(GetType() + ".AddCellTrianglesEdges: " + edge);
@@ -798,7 +803,11 @@ namespace Triangulation
         private bool ReplaceEdgesWithTriangles(int pointIndex, int extEdgeIndex = -1)
         {
             var degenerateTriangle = DegenerateTriangle.None;
-
+            if (extEdgeIndex >= 0)
+            {
+                var extEdge = edgeInfo.GetExternalEdge(extEdgeIndex);
+                degenerateTriangle = new DegenerateTriangle(extEdge, pointIndex);
+            }
             bool result = addedEdgeInfo.ForEachExternalEdge(edge => AddInternalTriangle(edge, pointIndex, ref degenerateTriangle));
             if (result)
             {
