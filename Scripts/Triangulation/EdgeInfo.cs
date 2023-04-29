@@ -1223,14 +1223,14 @@ namespace Triangulation
                 }
                 else
                 {
-                    bool result = GetOppositeExternalEdgesRange(point, extEdgeIndex, true, out range, out pointOnEdge, out innerDegenerate);
+                    bool result = GetOppositeExternalEdgesRange(point, extEdgeIndex, true, out range, out pointOnEdge, out innerDegenerate, out bool oppEdgeFound);
                     if (pointOnEdge)
                     {
                         return false;
                     }
-                    else if (!result)
+                    else if (!result && !oppEdgeFound)
                     {
-                        result = GetOppositeExternalEdgesRange(point, extEdgeIndex, false, out range, out pointOnEdge, out innerDegenerate);
+                        result = GetOppositeExternalEdgesRange(point, extEdgeIndex, false, out range, out pointOnEdge, out innerDegenerate, out _);
                         if (pointOnEdge)
                         {
                             return false;
@@ -1246,19 +1246,21 @@ namespace Triangulation
         }
 
         private bool GetOppositeExternalEdgesRange(Vector2 point, int extEdgeIndex, bool forward,
-            out IndexRange range, out bool pointOnEdge, out bool innerDegenerate)
+            out IndexRange range, out bool pointOnEdge, out bool innerDegenerate, out bool oppEdgeFound)
         {
             int beg, end;
             range = IndexRange.None;
             innerDegenerate = false;
 
             extEdgeIndex = GetFirstEdgeOppositeToExternalPoint(point, extEdgeIndex, forward, out bool isPointOppositeToNext, out pointOnEdge);
+            oppEdgeFound = extEdgeIndex >= 0;
+
             if (pointOnEdge)
             {
                 range.Beg = range.End = extEdgeIndex;
                 return false;
             }
-            if (extEdgeIndex >= 0)
+            if (oppEdgeFound)
             {
                 if (!forward)
                 {
@@ -1709,7 +1711,7 @@ namespace Triangulation
             return extEdges[edgeIndex];
         }
 
-        protected int GetExternalEdgeKey(int edgeIndex)
+        public int GetExternalEdgeKey(int edgeIndex)
         {
             return GetEdgeKey(extEdges[edgeIndex]);
         }
