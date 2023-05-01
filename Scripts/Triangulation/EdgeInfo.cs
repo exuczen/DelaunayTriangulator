@@ -1310,7 +1310,7 @@ namespace Triangulation
                 bool begEdgeValid = IsTerminalExtEdgeValid(point, beg, false, false);
                 bool endEdgeValid = IsTerminalExtEdgeValid(point, end, true, false);
 
-                Log.WriteLine(GetType() + ".GetValidatedExtEdgesRange: begEdgeValid: " + begEdgeValid + " endEdgeValid: " + endEdgeValid);
+                Log.WriteLine(GetType() + ".GetValidatedExtEdgesRange: | begEdgeValid: " + begEdgeValid + " | endEdgeValid: " + endEdgeValid);
                 if (begEdgeValid && endEdgeValid)
                 {
                     range = new IndexRange(beg, end, extEdgeCount);
@@ -1320,7 +1320,7 @@ namespace Triangulation
                         begEdgeValid = IsTerminalExtEdgeValid(point, trimmedRange.Beg, false, true);
                         endEdgeValid = IsTerminalExtEdgeValid(point, trimmedRange.End, true, true);
                     }
-                    Log.WriteLine(GetType() + ".GetValidatedExtEdgesRange: begEdgeValid: " + begEdgeValid + " endEdgeValid: " + endEdgeValid + " | trimmedRange: " + trimmedRange);
+                    Log.WriteLine(GetType() + ".GetValidatedExtEdgesRange: | begEdgeValid: " + begEdgeValid + " | endEdgeValid: " + endEdgeValid + " | trimmedRange: " + trimmedRange);
                     range = begEdgeValid && endEdgeValid ? trimmedRange : IndexRange.None;
                     return range.FullLength > 0;
                 }
@@ -1515,7 +1515,7 @@ namespace Triangulation
             {
                 var extEdge = extEdges[extEdgeInRangeIndex];
                 bool onEdge = extEdge.LastPointDegenerateTriangle;
-                Log.WriteLine(GetType() + ".GetLastPointOnExtEdgeIndex: " + extEdge.ToLastPointDataString());
+                Log.WriteLine(GetType() + ".IsLastPointOnExtEdge: " + extEdge.ToLastPointDataString());
                 extEdgeIndex = onEdge ? extEdgeInRangeIndex : -1;
                 return onEdge;
             }

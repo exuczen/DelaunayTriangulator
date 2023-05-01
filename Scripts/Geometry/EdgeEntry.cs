@@ -111,15 +111,14 @@ namespace Triangulation
 
             bool degenerateAngleA = MathF.Abs(cosAngleA) > Triangle.CosMinAngle;
             bool degenerateAngleB = MathF.Abs(cosAngleB) > Triangle.CosMinAngle;
-            bool onEdge = inRange && ((degenerateAngleA && degenerateAngleB) || (cosAngleC < -Triangle.CosMinAngle));
+            bool degenerateAngleC = cosAngleC < -Triangle.CosMinAngle;
+
+            bool onEdge = inRange && ((degenerateAngleA && degenerateAngleB) || degenerateAngleC);
 
             if (setLastPointData)
             {
-                //bool degenerateAngleC = MathF.Abs(cosAngleC) > Triangle.CosMinAngle;
-                //LastPointDegenerateTriangle = degenerateAngleA || degenerateAngleB || degenerateAngleC;
-                //LastPointDegenerateAngle = cosAngleC > Triangle.CosMinAngle || (!inRange && (degenerateAngleA || degenerateAngleB));
-                LastPointDegenerateAngle = MakesDegenerateAngleWithPoint(point, points);
-                LastPointDegenerateTriangle = degenerateAngleA || degenerateAngleB || LastPointDegenerateAngle;
+                LastPointDegenerateAngle = degenerateAngleC;
+                LastPointDegenerateTriangle = degenerateAngleA || degenerateAngleB || degenerateAngleC;
                 LastPointInRange = inRange;
                 //Log.WriteLine(GetType() + ".IsPointOnEdge: " + ToLastPointDataString());
             }
