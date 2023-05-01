@@ -1516,7 +1516,7 @@ namespace Triangulation
             if (extEdgeInRangeCount == 1 && extEdgeInRangeIndex >= 0)
             {
                 var extEdge = extEdges[extEdgeInRangeIndex];
-                bool onEdge = extEdge.LastPointDegenerateTriangleOrAngle;
+                bool onEdge = extEdge.LastPointDegenerateTriangle || extEdge.LastPointDegenerateAngle;
                 Log.WriteLine(GetType() + ".IsLastPointOnExtEdge: " + extEdge.ToLastPointDataString());
                 extEdgeIndex = onEdge ? extEdgeInRangeIndex : -1;
                 return onEdge;
