@@ -198,7 +198,7 @@ namespace Triangulation
 
         public string ToLastPointDataString()
         {
-            return string.Format("({0}, {1}), degenerateTriangle: {2}, degenerateAngle: {3}, inRange: {4}", A, B, LastPointDegenerateTriangle, LastPointDegenerateAngle, LastPointInRange);
+            return string.Format("({0}, {1}) | degenerateTriangle: {2} | degenerateAngle: {3} | inRange: {4}", A, B, LastPointDegenerateTriangle, LastPointDegenerateAngle, LastPointInRange);
         }
 
         public override string ToString()

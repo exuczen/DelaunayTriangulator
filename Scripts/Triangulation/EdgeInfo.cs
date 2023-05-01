@@ -1238,6 +1238,12 @@ namespace Triangulation
                         }
                     }
                 }
+                pointOnEdge = !result && GetLastPointOnExtEdgeIndex(out extEdgeIndex);
+                if (pointOnEdge)
+                {
+                    range.Beg = range.End = extEdgeIndex;
+                    return false;
+                }
                 return result;
             }
             else
@@ -1457,8 +1463,7 @@ namespace Triangulation
                 extEdges[edgeIndex] = extEdge;
                 lastPointExtEdgeIndices.Add(edgeIndex);
             }
-
-            Log.WriteLine(GetType() + ".IsPointOppositeToExternalEdge: edge: " + edgeIndex + " " + extEdge + " pointOnEdge: " + pointOnEdge + " opposite: " + opposite);
+            Log.WriteLine("{0}.IsPointOppositeToExternalEdge: [{1}] {2} | opposite: {3} | inRange: {4} | pointOnEdge: {5}", GetType(), edgeIndex, extEdge, opposite, inRange, pointOnEdge);
             return opposite;
         }
 
@@ -1490,6 +1495,34 @@ namespace Triangulation
                     Log.WriteLine(GetType() + ".IsTerminalExtEdgeValid: signs: " + sign1 + ", " + sign2 + " for edges: " + extEdge + " " + nextEdge);
                     return sign1 == sign2;
                 }
+            }
+        }
+
+        private bool GetLastPointOnExtEdgeIndex(out int extEdgeIndex)
+        {
+            int extEdgeInRangeCount = 0;
+            int extEdgeInRangeIndex = -1;
+            for (int i = 0; i < lastPointExtEdgeIndices.Count; i++)
+            {
+                int edgeIndex = lastPointExtEdgeIndices[i];
+                if (extEdges[edgeIndex].LastPointInRange)
+                {
+                    extEdgeInRangeCount++;
+                    extEdgeInRangeIndex = edgeIndex;
+                }
+            }
+            if (extEdgeInRangeCount == 1 && extEdgeInRangeIndex >= 0)
+            {
+                var extEdge = extEdges[extEdgeInRangeIndex];
+                bool onEdge = extEdge.LastPointDegenerateTriangle;
+                Log.WriteLine(GetType() + ".GetLastPointOnExtEdgeIndex: " + extEdge.ToLastPointDataString());
+                extEdgeIndex = onEdge ? extEdgeInRangeIndex : -1;
+                return onEdge;
+            }
+            else
+            {
+                extEdgeIndex = -1;
+                return false;
             }
         }
 
