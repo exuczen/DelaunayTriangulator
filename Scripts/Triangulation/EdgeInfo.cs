@@ -1238,7 +1238,7 @@ namespace Triangulation
                         }
                     }
                 }
-                pointOnEdge = !result && GetLastPointOnExtEdgeIndex(out extEdgeIndex);
+                pointOnEdge = !result && IsLastPointOnExtEdge(out extEdgeIndex);
                 if (pointOnEdge)
                 {
                     range.Beg = range.End = extEdgeIndex;
@@ -1498,7 +1498,7 @@ namespace Triangulation
             }
         }
 
-        private bool GetLastPointOnExtEdgeIndex(out int extEdgeIndex)
+        private bool IsLastPointOnExtEdge(out int extEdgeIndex)
         {
             int extEdgeInRangeCount = 0;
             int extEdgeInRangeIndex = -1;
