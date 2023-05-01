@@ -1078,17 +1078,19 @@ namespace Triangulation
         {
             innerDegenerate = false;
 
+            static bool edgeTriangleOrAngleDegenerate(EdgeEntry edge) => edge.LastPointDegenerateTriangle || edge.LastPointDegenerateAngle;
+
             int rangeCount = range.GetIndexCount();
             if (rangeCount == 1)
             {
-                if (extEdges[range.Beg].LastPointDegenerateTriangle)
+                if (edgeTriangleOrAngleDegenerate(extEdges[range.Beg]))
                 {
                     return IndexRange.None;
                 }
             }
             else if (rangeCount > 1)
             {
-                InvokeForExternalEdgesRange(range, edge => edge.LastPointDegenerateTriangle, true, out int degenerateEnd);
+                InvokeForExternalEdgesRange(range, edgeTriangleOrAngleDegenerate, true, out int degenerateEnd);
                 if (degenerateEnd >= 0)
                 {
                     if (degenerateEnd == range.End)
@@ -1100,7 +1102,7 @@ namespace Triangulation
                         range.Beg = extEdges[degenerateEnd].Next;
                     }
                 }
-                InvokeForExternalEdgesRange(range, edge => edge.LastPointDegenerateTriangle, false, out int degenerateBeg);
+                InvokeForExternalEdgesRange(range, edgeTriangleOrAngleDegenerate, false, out int degenerateBeg);
                 if (degenerateBeg >= 0)
                 {
                     if (degenerateBeg == range.Beg)
@@ -1514,7 +1516,7 @@ namespace Triangulation
             if (extEdgeInRangeCount == 1 && extEdgeInRangeIndex >= 0)
             {
                 var extEdge = extEdges[extEdgeInRangeIndex];
-                bool onEdge = extEdge.LastPointDegenerateTriangle;
+                bool onEdge = extEdge.LastPointDegenerateTriangleOrAngle;
                 Log.WriteLine(GetType() + ".IsLastPointOnExtEdge: " + extEdge.ToLastPointDataString());
                 extEdgeIndex = onEdge ? extEdgeInRangeIndex : -1;
                 return onEdge;

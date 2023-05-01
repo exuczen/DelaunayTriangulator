@@ -117,7 +117,7 @@ namespace Triangulation
 
             if (setLastPointData)
             {
-                LastPointDegenerateAngle = degenerateAngleC;
+                LastPointDegenerateAngle = MakesDegenerateAngleWithPoint(point, points);
                 LastPointDegenerateTriangle = degenerateAngleA || degenerateAngleB || degenerateAngleC;
                 LastPointInRange = inRange;
                 //Log.WriteLine(GetType() + ".IsPointOnEdge: " + ToLastPointDataString());
