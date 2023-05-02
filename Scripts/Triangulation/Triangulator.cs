@@ -213,7 +213,7 @@ namespace Triangulation
             }
         }
 
-        protected void AddPointRefIndex(Vector2 point, ref int pointIndex)
+        private void AddPointRefIndex(Vector2 point, ref int pointIndex)
         {
             int unusedIndicesCount = unusedPointIndices.Count;
 
@@ -336,27 +336,22 @@ namespace Triangulation
             }
         }
 
-        protected void OnFindUnusedPoint(int pointIndex)
-        {
-            pointGrid.ClearPoint(pointIndex, points);
-        }
-
-        protected void SetPresortedPoints()
+        private void SetPresortedPoints()
         {
             pointGrid.SnapPointsToGrid(points, pointsOffset, pointsCount);
         }
 
-        protected void SetPresortedPoints(List<Vector2> pointsList)
+        private void SetPresortedPoints(List<Vector2> pointsList)
         {
             pointGrid.SnapPointsToGrid(pointsList, pointsOffset);
         }
 
-        protected void SetSortedPoints(out Bounds2 bounds)
+        private void SetSortedPoints(out Bounds2 bounds)
         {
             pointsCount = pointGrid.SetSortedPoints(points, pointsOffset, pointsCount, out bounds);
         }
 
-        protected void SetSortedPoints(List<Vector2> pointsList)
+        private void SetSortedPoints(List<Vector2> pointsList)
         {
             pointGrid.SetSortedPoints(pointsList, pointsOffset);
             pointsCount = pointsList.Count;
@@ -373,7 +368,7 @@ namespace Triangulation
             //pointsList.CopyTo(points, 0);
         }
 
-        protected int GetClosestPointIndex(Vector2 center)
+        private int GetClosestPointIndex(Vector2 center)
         {
             return pointGrid.GetClosestPointIndex(center);
 
@@ -660,7 +655,7 @@ namespace Triangulation
                 int pointIndex = i - beg;
                 if (Mathv.IsNaN(points[i]))
                 {
-                    OnFindUnusedPoint(pointIndex);
+                    pointGrid.ClearPoint(pointIndex, points);
                     unusedPointIndices.Add(pointIndex);
                     points[pointIndex] = Veconst2.NaN;
                 }
