@@ -33,7 +33,6 @@ namespace Triangulation
         private int addedTrianglesCount = 0;
 
         private TriangleGrid triangleGrid = null;
-        private PointGrid pointGrid = null;
 
         public IncrementalTriangulator(int pointsCapacity, float tolerance, IExceptionThrower exceptionThrower) : base(pointsCapacity, tolerance, exceptionThrower)
         {
@@ -61,8 +60,6 @@ namespace Triangulation
         {
             base.Load(data);
 
-            pointGrid.SetPoints(points, pointsOffset, pointsCount);
-
             AddBaseTrianglesToTriangleSet();
         }
 
@@ -74,19 +71,9 @@ namespace Triangulation
             }
             triangleGrid = new TriangleGrid(triangleSet, gridSize, triangleGridDivs);
 
-            pointGrid = new PointGrid(gridSize, triangleGrid.XYCount * pointGridDivsMlp);
-
-            Circle.MinRadiusForSqrt = 250f * pointGrid.CellSizeMin;
-
-            EdgeEntry.DegenerateDistance = 0.1f * pointGrid.CellSizeMin;
-
-            circleTolerance = 0.01f * pointGrid.CellSizeMin;
+            Initialize(gridSize, triangleGrid.XYCount * pointGridDivsMlp);
 
             cellPolygon.ReakRectTolerance = 0.1f * circleTolerance;
-
-            //Log.WriteLine(GetType() + ".Initialize: circleTolerance: " + circleTolerance);
-
-            SetSuperCircumCirclePoints(Bounds2.MinMax(Vector2.Zero, gridSize), false);
 
             if (triangulate)
             {
@@ -98,23 +85,6 @@ namespace Triangulation
         {
             pointIndex = -1;
             return TryAddPointRefIndex(point, ref pointIndex, findClosestCell);
-        }
-
-        private bool TryAddPointRefIndex(Vector2 point, ref int pointIndex, bool findClosestCell)
-        {
-            int savedIndex = -1;
-            if (findClosestCell && pointGrid.GetClosestClearCell(point, out var cellXYI) ||
-                !findClosestCell && pointGrid.CanAddPoint(point, out cellXYI, out savedIndex))
-            {
-                base.AddPointRefIndex(point, ref pointIndex);
-                pointGrid.AddPoint(pointIndex, points, cellXYI);
-                return true;
-            }
-            else
-            {
-                pointIndex = savedIndex;
-                return false;
-            }
         }
 
         public bool TryRemovePointFromTriangulation(Vector2 point, bool validate, out int pointIndex)
@@ -274,50 +244,6 @@ namespace Triangulation
             triangleGrid.Clear();
             ClearLastPointData();
             base.ClearTriangles();
-        }
-
-        protected override void ClearPoints()
-        {
-            pointGrid.Clear();
-            base.ClearPoints();
-        }
-
-        protected override void OnFindUnusedPoint(int pointIndex)
-        {
-            pointGrid.ClearPoint(pointIndex, points);
-        }
-
-        protected override void SetPresortedPoints()
-        {
-            pointGrid.SnapPointsToGrid(points, pointsOffset, pointsCount);
-        }
-
-        protected override void SetPresortedPoints(List<Vector2> pointsList)
-        {
-            pointGrid.SnapPointsToGrid(pointsList, pointsOffset);
-        }
-
-        protected override void SetSortedPoints(out Bounds2 bounds)
-        {
-            pointsCount = pointGrid.SetSortedPoints(points, pointsOffset, pointsCount, out bounds);
-        }
-
-        protected override void SetSortedPoints(List<Vector2> pointsList)
-        {
-            pointGrid.SetSortedPoints(pointsList, pointsOffset);
-            pointsCount = pointsList.Count;
-            pointsList.CopyTo(points, 0);
-        }
-
-        protected override int GetClosestPointIndex(Vector2 center)
-        {
-            return pointGrid.GetClosestPointIndex(center);
-        }
-
-        protected override void ClearPoint(int pointIndex, bool addToUnused = true)
-        {
-            pointGrid.ClearPoint(pointIndex, points);
-            base.ClearPoint(pointIndex, addToUnused);
         }
 
         private bool TryForceClearPoint(int pointIndex)

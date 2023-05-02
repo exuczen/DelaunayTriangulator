@@ -47,6 +47,8 @@ namespace Triangulation
         protected readonly float pointTolerance = 0f;
         protected float circleTolerance = 0f;
 
+        protected PointGrid pointGrid = null;
+
         protected Bounds2 bounds = default;
         protected Triangle[] debugSuperTriangles = new Triangle[SUPERTRIANGLES_MAX];
 
@@ -75,6 +77,21 @@ namespace Triangulation
 
             triangleSet = new TriangleSet(triangles, points);
             edgeInfo = new EdgeInfo(triangleSet, points, exceptionThrower);
+        }
+
+        public void Initialize(Vector2 gridSize, Vector2Int xyCount)
+        {
+            pointGrid = new PointGrid(gridSize, xyCount);
+
+            Circle.MinRadiusForSqrt = 250f * pointGrid.CellSizeMin;
+
+            EdgeEntry.DegenerateDistance = 0.1f * pointGrid.CellSizeMin;
+
+            circleTolerance = 0.01f * pointGrid.CellSizeMin;
+
+            //Log.WriteLine(GetType() + ".Initialize: circleTolerance: " + circleTolerance);
+
+            SetSuperCircumCirclePoints(Bounds2.MinMax(Vector2.Zero, gridSize), false);
         }
 
         public virtual void Load(SerializedTriangulator data)
@@ -118,6 +135,8 @@ namespace Triangulation
                 triangles[i] = new Triangle(dataTriangles[i], points);
             }
             edgeInfo.AddEdgesToCounterDict(triangles, trianglesCount);
+
+            pointGrid.SetPoints(points, pointsOffset, pointsCount);
         }
 
         public void SetSuperCircumCirclePoints(Bounds2 bounds, bool usePointsOffset)
@@ -175,6 +194,23 @@ namespace Triangulation
         {
             pointIndex = -1;
             AddPointRefIndex(point, ref pointIndex);
+        }
+
+        protected bool TryAddPointRefIndex(Vector2 point, ref int pointIndex, bool findClosestCell)
+        {
+            int savedIndex = -1;
+            if (findClosestCell && pointGrid.GetClosestClearCell(point, out var cellXYI) ||
+                !findClosestCell && pointGrid.CanAddPoint(point, out cellXYI, out savedIndex))
+            {
+                AddPointRefIndex(point, ref pointIndex);
+                pointGrid.AddPoint(pointIndex, points, cellXYI);
+                return true;
+            }
+            else
+            {
+                pointIndex = savedIndex;
+                return false;
+            }
         }
 
         protected void AddPointRefIndex(Vector2 point, ref int pointIndex)
@@ -256,20 +292,23 @@ namespace Triangulation
             edgeInfo.EdgeCounterDict.Clear();
         }
 
-        protected virtual void ClearPoints()
+        protected void ClearPoints()
         {
+            pointGrid.Clear();
             initialPointIndices.Clear();
             unusedPointIndices.Clear();
             pointsCount = pointsOffset;
             centerPointIndex = -1;
         }
 
-        protected virtual void ClearPoint(int pointIndex, bool addToUnused = true)
+        protected void ClearPoint(int pointIndex, bool addToUnused = true)
         {
             if (pointIndex < 0)
             {
                 throw new Exception("ClearPoint: " + pointIndex);
             }
+            pointGrid.ClearPoint(pointIndex, points);
+
             edgeInfo.SetPointExternal(pointIndex, false);
             points[pointIndex] = Veconst2.NaN;
 
@@ -297,45 +336,48 @@ namespace Triangulation
             }
         }
 
-        protected virtual void OnFindUnusedPoint(int pointIndex) { }
-
-        protected virtual void SetPresortedPoints() { }
-
-        protected virtual void SetPresortedPoints(List<Vector2> pointsList) { }
-
-        protected virtual void SetSortedPoints(out Bounds2 bounds) { bounds = this.bounds; }
-
-        protected virtual void SetSortedPoints(List<Vector2> pointsList)
+        protected void OnFindUnusedPoint(int pointIndex)
         {
-            for (int i = pointsList.Count - 1; i >= pointsOffset; i--)
-            {
-                if (Mathv.Equals(pointsList[i], pointsList[i - 1], pointTolerance))
-                {
-                    pointsList.RemoveAt(i);
-                }
-            }
+            pointGrid.ClearPoint(pointIndex, points);
+        }
+
+        protected void SetPresortedPoints()
+        {
+            pointGrid.SnapPointsToGrid(points, pointsOffset, pointsCount);
+        }
+
+        protected void SetPresortedPoints(List<Vector2> pointsList)
+        {
+            pointGrid.SnapPointsToGrid(pointsList, pointsOffset);
+        }
+
+        protected void SetSortedPoints(out Bounds2 bounds)
+        {
+            pointsCount = pointGrid.SetSortedPoints(points, pointsOffset, pointsCount, out bounds);
+        }
+
+        protected void SetSortedPoints(List<Vector2> pointsList)
+        {
+            pointGrid.SetSortedPoints(pointsList, pointsOffset);
             pointsCount = pointsList.Count;
             pointsList.CopyTo(points, 0);
+
+            //for (int i = pointsList.Count - 1; i >= pointsOffset; i--)
+            //{
+            //    if (Mathv.Equals(pointsList[i], pointsList[i - 1], pointTolerance))
+            //    {
+            //        pointsList.RemoveAt(i);
+            //    }
+            //}
+            //pointsCount = pointsList.Count;
+            //pointsList.CopyTo(points, 0);
         }
 
-        protected virtual int GetClosestPointIndex(Vector2 center)
+        protected int GetClosestPointIndex(Vector2 center)
         {
-            return Maths.GetClosestPointIndex(center, points, pointsOffset, pointsCount - 1);
-        }
+            return pointGrid.GetClosestPointIndex(center);
 
-        protected bool RemoveUnusedPoint(int pointIndex)
-        {
-            int index = unusedPointIndices.IndexOf(pointIndex);
-            if (index >= 0)
-            {
-                if (pointIndex == pointsCount - 1)
-                {
-                    pointsCount--;
-                }
-                unusedPointIndices.RemoveAt(index);
-                return true;
-            }
-            return false;
+            //return Maths.GetClosestPointIndex(center, points, pointsOffset, pointsCount - 1);
         }
 
         protected void ClearDebugSuperTriangles()

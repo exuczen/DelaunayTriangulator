@@ -37,6 +37,21 @@ namespace Triangulation
             }
         }
 
+        private bool RemoveUnusedPoint(int pointIndex)
+        {
+            int index = unusedPointIndices.IndexOf(pointIndex);
+            if (index >= 0)
+            {
+                if (pointIndex == pointsCount - 1)
+                {
+                    pointsCount--;
+                }
+                unusedPointIndices.RemoveAt(index);
+                return true;
+            }
+            return false;
+        }
+
         //private void DeprecatedFindUnusedPoints()
         //{
         //    var usedPointIndices = new List<int>();
