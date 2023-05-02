@@ -40,20 +40,11 @@ namespace Triangulation
 
         public float SqrLength => x * x + y * y + z * z;
 
-        public static Vector3Int operator *(int mlp, Vector3Int v)
-        {
-            return new Vector3Int(v.x * mlp, v.y * mlp, v.z * mlp);
-        }
+        public static Vector3Int operator *(int mlp, Vector3Int v) => new Vector3Int(v.x * mlp, v.y * mlp, v.z * mlp);
 
-        public static Vector3Int operator *(Vector3Int v, int mlp)
-        {
-            return mlp * v;
-        }
+        public static Vector3Int operator *(Vector3Int v, int mlp) => mlp * v;
 
-        public Vector3Int(int x, int y, int z) : this()
-        {
-            Set(x, y, z);
-        }
+        public Vector3Int(int x, int y, int z) : this() => Set(x, y, z);
 
         public void Set(int x, int y, int z)
         {

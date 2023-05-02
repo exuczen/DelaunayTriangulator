@@ -38,35 +38,19 @@ namespace Triangulation
 
         public float SqrLength => x * x + y * y;
 
-        public static Vector2 operator *(Vector2Int v1, Vector2 v2)
-        {
-            return new Vector2(v1.x * v2.X, v1.y * v2.Y);
-        }
+        public static Vector2 operator *(Vector2 v1, Vector2Int v2) => v2 * v1;
 
-        public static Vector2Int operator *(Vector2Int v1, Vector2Int v2)
-        {
-            return new Vector2Int(v1.x * v2.x, v1.y * v2.y);
-        }
+        public static Vector2 operator *(Vector2Int v1, Vector2 v2) => new Vector2(v1.x * v2.X, v1.y * v2.Y);
 
-        public static Vector2Int operator *(int mlp, Vector2Int v)
-        {
-            return new Vector2Int(v.x * mlp, v.y * mlp);
-        }
+        public static Vector2Int operator *(Vector2Int v1, Vector2Int v2) => new Vector2Int(v1.x * v2.x, v1.y * v2.y);
 
-        public static Vector2Int operator *(Vector2Int v, int mlp)
-        {
-            return mlp * v;
-        }
+        public static Vector2Int operator *(int mlp, Vector2Int v) => new Vector2Int(v.x * mlp, v.y * mlp);
 
-        public Vector2Int(Vector2 v) : this()
-        {
-            Set((int)v.X, (int)v.Y);
-        }
+        public static Vector2Int operator *(Vector2Int v, int mlp) => mlp * v;
 
-        public Vector2Int(int x, int y) : this()
-        {
-            Set(x, y);
-        }
+        public Vector2Int(Vector2 v) : this() => Set((int)v.X, (int)v.Y);
+
+        public Vector2Int(int x, int y) : this() => Set(x, y);
 
         public void Set(int x, int y)
         {
