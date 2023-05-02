@@ -47,7 +47,7 @@ namespace Triangulation
             {
                 if (!BaseOnly)
                 {
-                    AddBaseTrianglesToTriangleSet();
+                    AddBaseTrianglesToTriangleSet(true);
                 }
                 ValidateTriangulation(false, PointsValidation);
 
@@ -60,7 +60,7 @@ namespace Triangulation
         {
             base.Load(data);
 
-            AddBaseTrianglesToTriangleSet();
+            AddBaseTrianglesToTriangleSet(false);
         }
 
         public void Initialize(Vector2 gridSize, int triangleGridDivs, int pointGridDivsMlp, bool triangulate)
@@ -516,7 +516,7 @@ namespace Triangulation
             }
         }
 
-        private void AddBaseTrianglesToTriangleSet()
+        private void AddBaseTrianglesToTriangleSet(bool clipConcavePeaks)
         {
             if (trianglesCount <= 0)
             {
@@ -538,18 +538,18 @@ namespace Triangulation
 
             if (!InternalOnly)
             {
-                if (edgeInfo.FindExternalEdges(pointsCount, out _))
+                if (!edgeInfo.FindExternalEdges(pointsCount, out _))
+                {
+                    Log.WriteWarning(GetType() + ".AddBaseTrianglesToTriangleSet: Clear on fail of FindExternalEdges");
+                    Clear();
+                }
+                else if (clipConcavePeaks)
                 {
                     cellPolygon.SetFromExternalEdges(edgeInfo, points);
 
                     addedTrianglesCount = cellPolygon.ClipConcavePeaks(addedTriangles, points, edgeInfo);
 
                     AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Triangle.DefaultColor);
-                }
-                else
-                {
-                    Log.WriteWarning(GetType() + ".AddBaseTrianglesToTriangleSet: Clear on fail of FindExternalEdges");
-                    Clear();
                 }
                 //edgeInfo.PrintPointsExternal(pointsCount);
             }
