@@ -3,8 +3,9 @@ using System.Numerics;
 
 namespace Triangulation
 {
-    public struct Vector2Int
+    public struct Vector2Int : IEquatable<Vector2Int>
     {
+        public static readonly Vector2Int Zero = new Vector2Int(0, 0);
         public static readonly Vector2Int One = new Vector2Int(1, 1);
         public static readonly Vector2Int Up = new Vector2Int(0, 1);
         public static readonly Vector2Int Right = new Vector2Int(1, 0);
@@ -38,6 +39,14 @@ namespace Triangulation
 
         public float SqrLength => x * x + y * y;
 
+        public static bool operator ==(Vector2Int v1, Vector2Int v2) => v1.Equals(v2);
+
+        public static bool operator !=(Vector2Int v1, Vector2Int v2) => !v1.Equals(v2);
+
+        public static Vector2Int operator -(Vector2Int v1, Vector2Int v2) => new Vector2Int(v1.x - v2.x, v1.y - v2.y);
+
+        public static Vector2Int operator +(Vector2Int v1, Vector2Int v2) => new Vector2Int(v1.x + v2.x, v1.y + v2.y);
+
         public static Vector2 operator *(Vector2 v1, Vector2Int v2) => v2 * v1;
 
         public static Vector2 operator *(Vector2Int v1, Vector2 v2) => new Vector2(v1.x * v2.X, v1.y * v2.Y);
@@ -47,6 +56,16 @@ namespace Triangulation
         public static Vector2Int operator *(int mlp, Vector2Int v) => new Vector2Int(v.x * mlp, v.y * mlp);
 
         public static Vector2Int operator *(Vector2Int v, int mlp) => mlp * v;
+
+        public static Vector2Int Max(Vector2Int v1, Vector2Int v2)
+        {
+            return new Vector2Int(Math.Max(v1.x, v2.x), Math.Max(v1.y, v2.y));
+        }
+
+        public static Vector2Int Min(Vector2Int v1, Vector2Int v2)
+        {
+            return new Vector2Int(Math.Min(v1.x, v2.x), Math.Min(v1.y, v2.y));
+        }
 
         public Vector2Int(Vector2 v) : this() => Set((int)v.X, (int)v.Y);
 
@@ -60,9 +79,24 @@ namespace Triangulation
 
         public Vector2 ToVector2() => new Vector2(x, y);
 
+        public bool Equals(Vector2Int other)
+        {
+            return x == other.x && y == other.y;
+        }
+
         public override string ToString()
         {
             return string.Format("({0}, {1})", x, y);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }
