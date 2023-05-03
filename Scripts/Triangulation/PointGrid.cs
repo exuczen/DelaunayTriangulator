@@ -27,6 +27,8 @@ namespace Triangulation
         private readonly int[] clearIndices = null;
         private readonly int[] indices = null;
 
+        private readonly Vector2Int[] pointsXY = null;
+
         public PointGrid(Vector2 size, Vector2Int xyCount)
         {
             this.size = size;
@@ -47,11 +49,31 @@ namespace Triangulation
             {
                 indices[i] = clearIndices[i] = -1;
             }
+            pointsXY = new Vector2Int[indices.Length << 2];
         }
 
         public void Clear()
         {
             ClearIndices();
+        }
+
+        public int SetGridPoints(Vector2[] points, int offset, int pointsCount, PointsSortingOrder sortingOrder, out Bounds2 bounds, out bool xySort)
+        {
+            if (pointsCount <= 0)
+            {
+                bounds = default;
+                xySort = true;
+                return 0;
+            }
+            SnapPointsToGrid(pointsXY, points, offset, pointsCount);
+
+            // Sort grid points
+            {
+                var xyBounds = Bounds2Int.GetBounds(pointsXY, offset, pointsCount - 1);
+                var pointsComparer = GetPointsComparer(xyBounds, sortingOrder, out xySort);
+                Array.Sort(pointsXY, points, offset, pointsCount - offset, pointsComparer);
+            }
+            return SetSortedPoints(pointsXY, points, offset, pointsCount, out bounds);
         }
 
         public void SetPoints(Vector2[] points, int offset, int pointsCount)
@@ -65,63 +87,6 @@ namespace Triangulation
             for (int i = offset; i < pointsCount; i++)
             {
                 TryAddPoint(i, points, out _, out _);
-            }
-        }
-
-        public void SnapPointsToGrid(Vector2[] points, int offset, int pointsCount)
-        {
-            for (int i = offset; i < pointsCount; i++)
-            {
-                points[i] = SnapToGrid(points[i]);
-            }
-        }
-
-        public void SnapPointsToGrid(List<Vector2> points, int offset)
-        {
-            for (int i = offset; i < points.Count; i++)
-            {
-                points[i] = SnapToGrid(points[i]);
-            }
-        }
-
-        public int SetSortedPoints(Vector2[] points, int offset, int pointsCount, out Bounds2 bounds)
-        {
-            if (pointsCount <= 0)
-            {
-                bounds = default;
-                return 0;
-            }
-            ClearIndices();
-
-            int count = 0;
-            var min = points[offset];
-            var max = min;
-
-            for (int i = offset; i < pointsCount; i++)
-            {
-                if (TryAddPoint(i, points, out var xyi, out _))
-                {
-                    var point = points[i];
-                    indices[xyi.z] = offset + count;
-                    points[pointsCount + count++] = point;
-                    min = Vector2.Min(min, point);
-                    max = Vector2.Max(max, point);
-                }
-            }
-            bounds = Bounds2.MinMax(min, max);
-            Array.Copy(points, pointsCount, points, offset, count);
-            return offset + count;
-        }
-
-        public void SetSortedPoints(List<Vector2> points, int offset)
-        {
-            Clear();
-            for (int i = offset; i < points.Count; i++)
-            {
-                if (!TryAddPoint(i, points, out _, out _))
-                {
-                    points.RemoveAt(i--);
-                }
             }
         }
 
@@ -161,11 +126,11 @@ namespace Triangulation
             return x == 0 || x == xCount - 1 || y == 0 || y == yCount - 1;
         }
 
-        public Vector2 SnapToGrid(Vector2 point/*, out Vector2Int xy*/)
+        public Vector2 SnapToGrid(Vector2 point, out Vector2Int xy)
         {
             int x = (int)(point.X / cellSize.X + 0.5f);
             int y = (int)(point.Y / cellSize.Y + 0.5f);
-            //xy = new Vector2Int(x, y);
+            xy = new Vector2Int(x, y);
             return new Vector2(x * cellSize.X, y * cellSize.Y);
         }
 
@@ -206,6 +171,72 @@ namespace Triangulation
                 return GridUtils.FindClosestCellWithPredicate(cellXYI.x, cellXYI.y, xCount, yCount, out cellXYI, predicate);
             }
             return false;
+        }
+
+        private IComparer<Vector2Int> GetPointsComparer(Bounds2Int bounds, PointsSortingOrder sortingOrder, out bool xySort)
+        {
+            Vector2Int boundsSize = bounds.Size;
+            switch (sortingOrder)
+            {
+                case PointsSortingOrder.Default:
+                    xySort = boundsSize.x > boundsSize.y;
+                    break;
+                case PointsSortingOrder.XY:
+                    xySort = true;
+                    break;
+                case PointsSortingOrder.YX:
+                    xySort = false;
+                    break;
+                default:
+                    xySort = true;
+                    break;
+            }
+            return xySort ? new GridPointXYComparer() : new GridPointsYXComparer();
+        }
+
+        private void SnapPointsToGrid(Vector2Int[] pointsXY, Vector2[] points, int offset, int pointsCount)
+        {
+            for (int i = offset; i < pointsCount; i++)
+            {
+                points[i] = SnapToGrid(points[i], out pointsXY[i]);
+            }
+        }
+
+        private int SetSortedPoints(Vector2Int[] pointsXY, Vector2[] points, int offset, int pointsCount, out Bounds2 bounds)
+        {
+            if (pointsCount <= 0)
+            {
+                bounds = default;
+                return 0;
+            }
+            ClearIndices();
+
+            int count = 0;
+            var minXY = pointsXY[offset];
+            var maxXY = minXY;
+            var prevXY = -1 * Vector2Int.One;
+
+            for (int i = offset; i < pointsCount; i++)
+            {
+                var xy = pointsXY[i];
+                if (xy != prevXY && GetCellIndex(xy, out int index))
+                {
+                    var point = points[i];
+                    indices[index] = offset + count;
+                    points[pointsCount + count++] = point;
+                    minXY = Vector2Int.Min(minXY, xy);
+                    maxXY = Vector2Int.Max(maxXY, xy);
+                }
+                prevXY = xy;
+            }
+            bounds = Bounds2.MinMax(minXY * cellSize, maxXY * cellSize);
+
+            Array.Copy(points, pointsCount, points, offset, count);
+
+            //Log.PrintArray(pointsXY, pointsCount, "SetGridPoints: pointsXY");
+            //Log.PrintArray(points, pointsCount, "SetGridPoints: points");
+
+            return offset + count;
         }
 
         private bool TryAddPoint(int pointIndex, Vector2[] points, out Vector3Int cellXYI, out int savedIndex)
@@ -255,9 +286,9 @@ namespace Triangulation
             return -1;
         }
 
-        private int GetCellIndex(Vector2Int cellXY)
+        private bool GetCellIndex(Vector2Int cellXY, out int index)
         {
-            return GetCellIndex(cellXY.x, cellXY.y);
+            return GetCellIndex(cellXY.x, cellXY.y, out index);
         }
 
         private int GetCellIndex(int x, int y)

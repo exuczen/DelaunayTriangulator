@@ -253,13 +253,15 @@ namespace Triangulation
             }
             Clear();
 
-            SetPresortedPoints(pointsList);
+            pointsList.CopyTo(points);
 
-            bounds = Bounds2.GetBounds(pointsList, pointsOffset);
-            pointsList.Sort(pointsOffset, pointsList.Count - pointsOffset, GetPointsComparer(bounds, out bool xySorted));
+            pointsCount = pointGrid.SetGridPoints(points, pointsOffset, pointsCount, PointsSortingOrder, out bounds, out bool xySorted);
 
-            SetSortedPoints(pointsList);
-
+            pointsList.Clear();
+            for (int i = 0; i < pointsCount; i++)
+            {
+                pointsList.Add(points[i]);
+            }
             return Triangulate(bounds, xySorted);
         }
 
@@ -272,12 +274,7 @@ namespace Triangulation
             {
                 return false;
             }
-            SetPresortedPoints();
-
-            bounds = Bounds2.GetBounds(points, pointsOffset, pointsCount - 1);
-            Array.Sort(points, pointsOffset, pointsCount - pointsOffset, GetPointsComparer(bounds, out bool xySorted));
-
-            SetSortedPoints(out bounds);
+            pointsCount = pointGrid.SetGridPoints(points, pointsOffset, pointsCount, PointsSortingOrder, out bounds, out bool xySorted);
 
             return Triangulate(bounds, xySorted);
         }
@@ -336,43 +333,9 @@ namespace Triangulation
             }
         }
 
-        private void SetPresortedPoints()
-        {
-            pointGrid.SnapPointsToGrid(points, pointsOffset, pointsCount);
-        }
-
-        private void SetPresortedPoints(List<Vector2> pointsList)
-        {
-            pointGrid.SnapPointsToGrid(pointsList, pointsOffset);
-        }
-
-        private void SetSortedPoints(out Bounds2 bounds)
-        {
-            pointsCount = pointGrid.SetSortedPoints(points, pointsOffset, pointsCount, out bounds);
-        }
-
-        private void SetSortedPoints(List<Vector2> pointsList)
-        {
-            pointGrid.SetSortedPoints(pointsList, pointsOffset);
-            pointsCount = pointsList.Count;
-            pointsList.CopyTo(points, 0);
-
-            //for (int i = pointsList.Count - 1; i >= pointsOffset; i--)
-            //{
-            //    if (Mathv.Equals(pointsList[i], pointsList[i - 1], pointTolerance))
-            //    {
-            //        pointsList.RemoveAt(i);
-            //    }
-            //}
-            //pointsCount = pointsList.Count;
-            //pointsList.CopyTo(points, 0);
-        }
-
         private int GetClosestPointIndex(Vector2 center)
         {
             return pointGrid.GetClosestPointIndex(center);
-
-            //return Maths.GetClosestPointIndex(center, points, pointsOffset, pointsCount - 1);
         }
 
         protected void ClearDebugSuperTriangles()
@@ -438,27 +401,6 @@ namespace Triangulation
             {
                 return superpointsCount;
             }
-        }
-
-        private IComparer<Vector2> GetPointsComparer(Bounds2 bounds, out bool xySort)
-        {
-            Vector2 boundsSize = bounds.Size;
-            switch (PointsSortingOrder)
-            {
-                case PointsSortingOrder.Default:
-                    xySort = boundsSize.X > boundsSize.Y;
-                    break;
-                case PointsSortingOrder.XY:
-                    xySort = true;
-                    break;
-                case PointsSortingOrder.YX:
-                    xySort = false;
-                    break;
-                default:
-                    xySort = true;
-                    break;
-            }
-            return xySort ? new PointsXYComparer(pointTolerance) : new PointsYXComparer(pointTolerance);
         }
 
         private bool Triangulate(Bounds2 bounds, bool xySorted)
