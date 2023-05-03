@@ -1240,11 +1240,13 @@ namespace Triangulation
                         }
                     }
                 }
-                pointOnEdge = !result && IsLastPointOnExtEdge(out extEdgeIndex);
-                if (pointOnEdge)
+                if (!result && IsLastPointOverSingleExtEdge(out extEdgeIndex))
                 {
-                    range.Beg = range.End = extEdgeIndex;
-                    return false;
+                    ref var extEdge = ref extEdges[extEdgeIndex];
+                    extEdge.LastPointDegenerateAngle = false;
+                    extEdge.LastPointDegenerateTriangle = false;
+                    range = new IndexRange(extEdgeIndex, extEdgeIndex, extEdgeCount);
+                    return true;
                 }
                 return result;
             }
@@ -1500,7 +1502,7 @@ namespace Triangulation
             }
         }
 
-        private bool IsLastPointOnExtEdge(out int extEdgeIndex)
+        private bool IsLastPointOverSingleExtEdge(out int extEdgeIndex)
         {
             int extEdgeInRangeCount = 0;
             int extEdgeInRangeIndex = -1;
@@ -1516,10 +1518,10 @@ namespace Triangulation
             if (extEdgeInRangeCount == 1 && extEdgeInRangeIndex >= 0)
             {
                 var extEdge = extEdges[extEdgeInRangeIndex];
-                bool onEdge = extEdge.LastPointDegenerateTriangle || extEdge.LastPointDegenerateAngle;
-                Log.WriteLine(GetType() + ".IsLastPointOnExtEdge: " + extEdge.ToLastPointDataString());
-                extEdgeIndex = onEdge ? extEdgeInRangeIndex : -1;
-                return onEdge;
+                bool overEdge = extEdge.LastPointDegenerateTriangle || extEdge.LastPointDegenerateAngle;
+                Log.WriteLine(GetType() + ".IsLastPointOverSingleExtEdge: " + extEdge.ToLastPointDataString());
+                extEdgeIndex = overEdge ? extEdgeInRangeIndex : -1;
+                return overEdge;
             }
             else
             {

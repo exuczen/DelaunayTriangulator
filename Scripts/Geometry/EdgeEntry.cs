@@ -99,9 +99,9 @@ namespace Triangulation
             float dotRayEdgeA = Vector2.Dot(pointRayA, edge);
             inRange = dotRayEdgeA > 0f && dotRayEdgeA < edgeLength;
 
-            //var pointRayNormal = pointRayA - dotRayEdgeA * edge;
-            //float sqrDist = pointRayNormal.LengthSquared();
-            //bool onLine = sqrDist < DegenerateDistanceSqr;
+            //var pointRayN = pointRayA - dotRayEdgeA * edge;
+            //float distSqr = pointRayN.LengthSquared();
+            //bool onLine = distSqr < DegenerateDistanceSqr;
 
             pointRayA = pointRayA.Normalized();
             pointRayB = pointRayB.Normalized();
