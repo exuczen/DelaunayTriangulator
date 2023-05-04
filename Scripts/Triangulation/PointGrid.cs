@@ -191,7 +191,7 @@ namespace Triangulation
                     xySort = true;
                     break;
             }
-            return xySort ? new GridPointXYComparer() : new GridPointsYXComparer();
+            return xySort ? new GridPointsXYComparer() : new GridPointsYXComparer();
         }
 
         private void SnapPointsToGrid(Vector2Int[] pointsXY, Vector2[] points, int offset, int pointsCount)

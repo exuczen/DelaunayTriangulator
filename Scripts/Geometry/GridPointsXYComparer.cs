@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Triangulation
 {
-    public struct GridPointXYComparer : IComparer<Vector2Int>
+    public struct GridPointsXYComparer : IComparer<Vector2Int>
     {
         public int Compare(Vector2Int p1, Vector2Int p2)
         {
