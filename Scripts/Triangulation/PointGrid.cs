@@ -99,6 +99,13 @@ namespace Triangulation
             }
         }
 
+        public bool CanAddPoint(Vector2Int xy, out int index)
+        {
+            bool onGrid = GetCellIndex(xy, out index);
+            int savedIndex = onGrid ? indices[index] : -1;
+            return onGrid && savedIndex < 0;
+        }
+
         public bool CanAddPoint(Vector2 point, out Vector3Int cellXYI, out int savedIndex, bool throwOffGridException = true)
         {
             bool onGrid = GetCellXYIndex(point, out cellXYI, throwOffGridException);
@@ -214,20 +221,17 @@ namespace Triangulation
             int count = 0;
             var minXY = pointsXY[offset];
             var maxXY = minXY;
-            var prevXY = -1 * Vector2Int.One;
 
             for (int i = offset; i < pointsCount; i++)
             {
                 var xy = pointsXY[i];
-                if (xy != prevXY && GetCellIndex(xy, out int index))
+                if (CanAddPoint(xy, out int index))
                 {
-                    var point = points[i];
                     indices[index] = offset + count;
-                    points[pointsCount + count++] = point;
+                    points[pointsCount + count++] = points[i]; //xy * cellSize;
                     minXY = Vector2Int.Min(minXY, xy);
                     maxXY = Vector2Int.Max(maxXY, xy);
                 }
-                prevXY = xy;
             }
             bounds = Bounds2.MinMax(minXY * cellSize, maxXY * cellSize);
 
