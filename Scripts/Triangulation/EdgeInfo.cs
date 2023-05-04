@@ -1240,13 +1240,16 @@ namespace Triangulation
                         }
                     }
                 }
-                if (!result && IsLastPointOverSingleExtEdge(out extEdgeIndex))
+                if (!result && IsLastPointOverSingleExtEdge(out extEdgeIndex, out pointOnEdge))
                 {
-                    ref var extEdge = ref extEdges[extEdgeIndex];
-                    extEdge.LastPointDegenerateAngle = false;
-                    extEdge.LastPointDegenerateTriangle = false;
+                    if (!pointOnEdge)
+                    {
+                        ref var extEdge = ref extEdges[extEdgeIndex];
+                        extEdge.LastPointDegenerateAngle = false;
+                        extEdge.LastPointDegenerateTriangle = false;
+                    }
                     range = new IndexRange(extEdgeIndex, extEdgeIndex, extEdgeCount);
-                    return true;
+                    return !pointOnEdge;
                 }
                 return result;
             }
@@ -1502,7 +1505,7 @@ namespace Triangulation
             }
         }
 
-        private bool IsLastPointOverSingleExtEdge(out int extEdgeIndex)
+        private bool IsLastPointOverSingleExtEdge(out int extEdgeIndex, out bool pointOnEdge)
         {
             int extEdgeInRangeCount = 0;
             int extEdgeInRangeIndex = -1;
@@ -1519,12 +1522,14 @@ namespace Triangulation
             {
                 var extEdge = extEdges[extEdgeInRangeIndex];
                 bool overEdge = extEdge.LastPointDegenerateTriangle || extEdge.LastPointDegenerateAngle;
-                Log.WriteLine(GetType() + ".IsLastPointOverSingleExtEdge: " + extEdge.ToLastPointDataString());
+                pointOnEdge = overEdge && lastPointExtEdgeIndices.Count == 1;
                 extEdgeIndex = overEdge ? extEdgeInRangeIndex : -1;
+                Log.WriteLine(GetType() + ".IsLastPointOverSingleExtEdge: " + extEdge.ToLastPointDataString() + " | pointOnEdge: " + pointOnEdge);
                 return overEdge;
             }
             else
             {
+                pointOnEdge = false;
                 extEdgeIndex = -1;
                 return false;
             }
