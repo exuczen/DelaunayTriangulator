@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define SKIP_X_COMPARE
+
+using System;
 using System.Collections.Generic;
 
 namespace Triangulation
@@ -12,11 +14,13 @@ namespace Triangulation
             {
                 return Math.Sign(delta);
             }
+#if !SKIP_X_COMPARE
             delta = p1.x - p2.x;
             if (delta != 0)
             {
                 return Math.Sign(delta);
             }
+#endif
             return 0;
         }
     }
