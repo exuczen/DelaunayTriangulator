@@ -1,9 +1,9 @@
 ﻿using System;
-using UnityEngine;
+using System.Numerics;
 
 namespace Triangulation
 {
-    public struct Bounds2Int : IEquatable<Bounds2Int>
+    public struct Bounds2Int
     {
         public Vector2Int Size => max - min + Vector2Int.One;
 
@@ -50,7 +50,7 @@ namespace Triangulation
 
         public bool Contains(Vector2 pos)
         {
-            return pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y;
+            return pos.X >= min.x && pos.X <= max.x && pos.Y >= min.y && pos.Y <= max.y;
         }
 
         public bool Equals(Bounds2Int other)
