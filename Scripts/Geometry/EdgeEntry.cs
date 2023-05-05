@@ -134,6 +134,13 @@ namespace Triangulation
             return degenerateDistA || degenerateDistB;
         }
 
+        public void SetLastPointData(EdgeEntry other)
+        {
+            LastPointDegenerateAngle = other.LastPointDegenerateAngle;
+            LastPointDegenerateTriangle = other.LastPointDegenerateTriangle;
+            LastPointInRange = other.LastPointInRange;
+        }
+
         public Vector2 GetNormalizedVector(Vector2[] points, out float edgeLength)
         {
             var edge = GetVector(points);

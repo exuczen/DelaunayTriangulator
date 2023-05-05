@@ -371,6 +371,42 @@ namespace Triangulation
             return GetFirstEdgeWithPredicate(triangle, IsEdgeExternal, out externalEdge, out _);
         }
 
+        public bool GetFirstExternalEdgeOppositeToExternalPoint(Vector2 point, Triangle triangle, out int extEdgeIndex, out bool pointOnEdge, string logPrefix)
+        {
+            triangle.GetEdges(edgeBuffer);
+            for (int i = 0; i < 3; i++)
+            {
+                var extEdge = edgeBuffer[i];
+                if (IsEdgeExternal(extEdge))
+                {
+                    bool opposite = IsPointOppositeToExternalEdge(point, extEdge, -1, out pointOnEdge, logPrefix);
+                    if (opposite || pointOnEdge)
+                    {
+                        extEdgeIndex = GetExternalEdgeIndex(extEdge);
+                        return true;
+                    }
+                }
+            }
+            extEdgeIndex = -1;
+            pointOnEdge = false;
+            return false;
+        }
+
+        public bool GetFirstEdgeWithPredicate(Triangle triangle, Predicate<EdgeEntry> predicate, out EdgeEntry edge)
+        {
+            triangle.GetEdges(edgeBuffer);
+            for (int i = 0; i < 3; i++)
+            {
+                if (predicate(edgeBuffer[i]))
+                {
+                    edge = edgeBuffer[i];
+                    return true;
+                }
+            }
+            edge = EdgeEntry.None;
+            return false;
+        }
+
         public bool GetFirstEdgeWithPredicate(Triangle triangle, Predicate<int> predicate, out EdgeEntry edge, out int edgeKey)
         {
             triangle.GetEdges(edgeBuffer);
@@ -1189,9 +1225,9 @@ namespace Triangulation
             }
         }
 
-        public bool GetOppositeExternalEdgesRange(int addedPointIndex, EdgeEntry firstExtEdge, out IndexRange range, out bool pointOnEdge, out bool innerDegenerate)
+        public bool GetOppositeExternalEdgesRange(int addedPointIndex, int firstExtEdgeIndex, out IndexRange range, out bool pointOnEdge, out bool innerDegenerate)
         {
-            int extEdgeIndex = GetExternalEdgeIndex(firstExtEdge);
+            int extEdgeIndex = firstExtEdgeIndex;
             if (extEdgeIndex >= 0)
             {
                 bool result;
@@ -1255,7 +1291,7 @@ namespace Triangulation
             }
             else
             {
-                throw new Exception("!GetFirstExternalEdge");
+                throw new ArgumentOutOfRangeException("GetOppositeExternalEdgesRange: firstExtEdgeIndex: " + firstExtEdgeIndex);
             }
         }
 
@@ -1452,8 +1488,12 @@ namespace Triangulation
 
         private bool IsPointOppositeToExternalEdge(Vector2 point, int edgeIndex, out bool pointOnEdge, string logPrefix = null)
         {
-            var extEdge = extEdges[edgeIndex];
-            var extTriangle = GetExternalTriangle(edgeIndex);
+            return IsPointOppositeToExternalEdge(point, extEdges[edgeIndex], edgeIndex, out pointOnEdge, logPrefix);
+        }
+
+        private bool IsPointOppositeToExternalEdge(Vector2 point, EdgeEntry extEdge, int edgeIndex, out bool pointOnEdge, string logPrefix = null)
+        {
+            var extTriangle = GetExternalTriangle(extEdge);
 
             var edge = extEdge.GetVector(points);
             var oppVert = extTriangle.GetOppositeVertex(extEdge, points, out _);
@@ -1465,11 +1505,12 @@ namespace Triangulation
                 throw new Exception("IsPointOppositeToExternalEdge: signs: " + sign1 + ", " + sign2 + " for edge: " + extEdge);
             }
             bool opposite = sign1 != 0 && sign1 != sign2;
+            bool setLastPointData = opposite && edgeIndex >= 0;
 
-            pointOnEdge = extEdge.IsPointOnEdge(point, points, out bool inRange, opposite) || (sign1 == 0 && inRange);
-            if (opposite)
+            pointOnEdge = extEdge.IsPointOnEdge(point, points, out bool inRange, setLastPointData) || (sign1 == 0 && inRange);
+            if (setLastPointData)
             {
-                extEdges[edgeIndex] = extEdge;
+                extEdges[edgeIndex].SetLastPointData(extEdge);
                 lastPointExtEdgeIndices.Add(edgeIndex);
             }
             logPrefix = string.IsNullOrEmpty(logPrefix) ? GetType().Name : string.Format("{0}.{1}", logPrefix, GetType().Name);

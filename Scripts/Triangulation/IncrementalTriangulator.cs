@@ -456,15 +456,17 @@ namespace Triangulation
 
         private bool ProcessExternalPoint(Vector2Int cellXY, int addedPointIndex)
         {
-            var firstExtEdge = EdgeEntry.None;
+            var addedPoint = points[addedPointIndex];
+            int firstExtEdgeIndex = -1;
+            bool pointOnExtEdge = false;
 
-            bool cellPredicate(TriangleCell c)
+            bool cellPredicate(TriangleCell cell)
             {
-                return triangleGrid.GetFirstExternalEdgeInCell(c, edgeInfo, out firstExtEdge, out _);
+                return triangleGrid.GetFirstOppositeExternalEdgeInCell(addedPoint, cell, edgeInfo, out firstExtEdgeIndex, out pointOnExtEdge);
             }
-            if (triangleGrid.FindClosestCellWithPredicate(cellXY.x, cellXY.y, out var cell, cellPredicate))
+            if (triangleGrid.FindClosestCellWithPredicate(cellXY.x, cellXY.y, out var cell, cellPredicate) && !pointOnExtEdge)
             {
-                if (edgeInfo.GetOppositeExternalEdgesRange(addedPointIndex, firstExtEdge, out IndexRange extEdgesRange, out bool pointOnExtEdge, out bool innerDegenerate))
+                if (edgeInfo.GetOppositeExternalEdgesRange(addedPointIndex, firstExtEdgeIndex, out IndexRange extEdgesRange, out pointOnExtEdge, out bool innerDegenerate))
                 {
                     if (AddExternalPointTriangles(addedPointIndex, extEdgesRange, innerDegenerate, out EdgePeak loopPeak, out bool processInternal))
                     {
@@ -488,6 +490,10 @@ namespace Triangulation
                 {
                     return ProcessInternalPoint(addedPointIndex, extEdgesRange.Beg);
                 }
+            }
+            else if (pointOnExtEdge)
+            {
+                return ProcessInternalPoint(addedPointIndex, firstExtEdgeIndex);
             }
             return false;
         }
