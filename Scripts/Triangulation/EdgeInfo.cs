@@ -1368,6 +1368,7 @@ namespace Triangulation
             int counter = 0;
             while (sqrDist < minSqrDist && counter < extEdgeCount)
             {
+                //Log.WriteLine(GetType() + ".GetNextClosestExternalEdge: " + extEdges[extEdgeIndex] + " -> " + extEdges[nextEdgeIndex]);
                 extEdgeIndex = nextEdgeIndex;
                 minSqrDist = sqrDist;
                 nextEdgeIndex = getNextEdgeIndex(nextEdgeIndex);
@@ -1382,7 +1383,8 @@ namespace Triangulation
             int next = GetNextClosestExternalEdge(point, extEdgeIndex, true, out float nextSqrDist);
             int prev = GetNextClosestExternalEdge(point, extEdgeIndex, false, out float prevSqrDist);
             extEdgeIndex = nextSqrDist < prevSqrDist ? next : prev;
-            Log.WriteLine(GetType() + ".GetClosestExternalEdge: " + extEdges[extEdgeIndex] + " " + extEdgeIndex);
+            //Log.WriteLine(GetType() + ".GetClosestExternalEdge: " + extEdges[next] + " OR " + extEdges[prev]);
+            Log.WriteLine("{0}.GetClosestExternalEdge: [{1}] {2}", GetType(), extEdgeIndex, extEdges[extEdgeIndex]);
             return extEdgeIndex;
         }
 
@@ -1448,7 +1450,7 @@ namespace Triangulation
             }
         }
 
-        private bool IsPointOppositeToExternalEdge(Vector2 point, int edgeIndex, out bool pointOnEdge)
+        private bool IsPointOppositeToExternalEdge(Vector2 point, int edgeIndex, out bool pointOnEdge, string logPrefix = null)
         {
             var extEdge = extEdges[edgeIndex];
             var extTriangle = GetExternalTriangle(edgeIndex);
@@ -1470,7 +1472,8 @@ namespace Triangulation
                 extEdges[edgeIndex] = extEdge;
                 lastPointExtEdgeIndices.Add(edgeIndex);
             }
-            Log.WriteLine("{0}.IsPointOppositeToExternalEdge: [{1}] {2} | opposite: {3} | inRange: {4} | pointOnEdge: {5}", GetType(), edgeIndex, extEdge, opposite, inRange, pointOnEdge);
+            logPrefix = string.IsNullOrEmpty(logPrefix) ? GetType().Name : string.Format("{0}.{1}", logPrefix, GetType().Name);
+            Log.WriteLine("{0}.IsPointOppositeToExternalEdge: [{1}] {2} | opposite: {3} | inRange: {4} | pointOnEdge: {5}", logPrefix, edgeIndex, extEdge, opposite, inRange, pointOnEdge);
             return opposite;
         }
 
