@@ -1262,18 +1262,10 @@ namespace Triangulation
                 }
                 else
                 {
-                    result = GetOppositeExternalEdgesRange(point, extEdgeIndex, true, out range, out pointOnEdge, out innerDegenerate, out bool oppEdgeFound);
+                    result = GetOppositeExternalEdgesRange(point, extEdgeIndex, out range, out pointOnEdge, out innerDegenerate);
                     if (pointOnEdge)
                     {
                         return false;
-                    }
-                    else if (!result && !oppEdgeFound)
-                    {
-                        result = GetOppositeExternalEdgesRange(point, extEdgeIndex, false, out range, out pointOnEdge, out innerDegenerate, out _);
-                        if (pointOnEdge)
-                        {
-                            return false;
-                        }
                     }
                 }
                 if (!result && IsLastPointOverSingleExtEdge(out extEdgeIndex, out pointOnEdge))
@@ -1295,46 +1287,48 @@ namespace Triangulation
             }
         }
 
-        private bool GetOppositeExternalEdgesRange(Vector2 point, int extEdgeIndex, bool forward,
-            out IndexRange range, out bool pointOnEdge, out bool innerDegenerate, out bool oppEdgeFound)
+        private bool GetOppositeExternalEdgesRange(Vector2 point, int extEdgeIndex, out IndexRange range, out bool pointOnEdge, out bool innerDegenerate)
         {
-            int beg, end;
+            int beg = -1;
+            int end = -1;
             range = IndexRange.None;
             innerDegenerate = false;
 
-            extEdgeIndex = GetFirstEdgeOppositeToExternalPoint(point, extEdgeIndex, forward, out bool isPointOppositeToNext, out pointOnEdge);
-            oppEdgeFound = extEdgeIndex >= 0;
-
+            bool oppEdgeFound = GetFirstEdgesOppositeToExternalPoint(point, extEdgeIndex, out int oppNext, out int oppPrev, out pointOnEdge);
             if (pointOnEdge)
             {
+                extEdgeIndex = oppNext >= 0 ? oppNext : oppPrev;
                 range.Beg = range.End = extEdgeIndex;
                 return false;
             }
             if (oppEdgeFound)
             {
-                if (!forward)
+                if (oppNext >= 0)
                 {
-                    isPointOppositeToNext = !isPointOppositeToNext;
+                    if (beg < 0)
+                    {
+                        beg = oppNext;
+                    }
+                    end = GetLastEdgeOppositeToExternalPoint(point, oppNext, true, true, out pointOnEdge);
+                    if (pointOnEdge)
+                    {
+                        range.Beg = range.End = end;
+                        return false;
+                    }
                 }
-                end = GetLastEdgeOppositeToExternalPoint(point, extEdgeIndex, isPointOppositeToNext, true, out pointOnEdge);
-                if (pointOnEdge)
+                if (oppPrev >= 0)
                 {
-                    range.Beg = range.End = end;
-                    return false;
+                    if (end < 0)
+                    {
+                        end = oppPrev;
+                    }
+                    beg = GetLastEdgeOppositeToExternalPoint(point, oppPrev, false, true, out pointOnEdge);
+                    if (pointOnEdge)
+                    {
+                        range.Beg = range.End = beg;
+                        return false;
+                    }
                 }
-                if (isPointOppositeToNext)
-                {
-                    beg = extEdgeIndex;
-                }
-                else
-                {
-                    beg = end;
-                    end = extEdgeIndex;
-                }
-            }
-            else
-            {
-                beg = end = -1;
             }
             return GetValidatedExtEdgesRange(point, beg, end, out range, out innerDegenerate);
         }
@@ -1448,42 +1442,44 @@ namespace Triangulation
             }
         }
 
-        private int GetFirstEdgeOppositeToExternalPoint(Vector2 point, int extEdgeIndex, bool forward, out bool isPointOppositeToNext, out bool pointOnEdge)
+        private bool GetFirstEdgesOppositeToExternalPoint(Vector2 point, int extEdgeIndex, out int oppNext, out int oppPrev, out bool pointOnEdge)
         {
-            var getNextEdgeIndex = GetNextExtEdgeIndex(forward);
-            var getPrevEdgeIndex = GetNextExtEdgeIndex(!forward);
+            var getNextEdgeIndex = GetNextExtEdgeIndex(true);
+            var getPrevEdgeIndex = GetNextExtEdgeIndex(false);
             int nextEdgeIndex = extEdgeIndex;
             int prevEdgeIndex = extEdgeIndex;
-            bool isPointOpposite = false;
-            isPointOppositeToNext = false;
             pointOnEdge = false;
 
             int counter = 0;
-            while (!isPointOpposite && counter < extEdgeCount)
+            while (counter < extEdgeCount)
             {
                 nextEdgeIndex = getNextEdgeIndex(nextEdgeIndex);
                 prevEdgeIndex = getPrevEdgeIndex(prevEdgeIndex);
-                isPointOppositeToNext = IsPointOppositeToExternalEdge(point, nextEdgeIndex, out pointOnEdge);
+                bool oppositeToNext = IsPointOppositeToExternalEdge(point, nextEdgeIndex, out pointOnEdge);
                 if (pointOnEdge)
                 {
-                    return nextEdgeIndex;
+                    oppPrev = -1;
+                    oppNext = nextEdgeIndex;
+                    return false;
                 }
-                isPointOpposite = isPointOppositeToNext || IsPointOppositeToExternalEdge(point, prevEdgeIndex, out pointOnEdge);
-                if (!isPointOppositeToNext && pointOnEdge)
+                bool oppositeToPrev = IsPointOppositeToExternalEdge(point, prevEdgeIndex, out pointOnEdge);
+                if (pointOnEdge)
                 {
-                    return prevEdgeIndex;
+                    oppPrev = prevEdgeIndex;
+                    oppNext = -1;
+                    return false;
+                }
+                if (oppositeToNext || oppositeToPrev)
+                {
+                    oppNext = oppositeToNext ? nextEdgeIndex : -1;
+                    oppPrev = oppositeToPrev ? prevEdgeIndex : -1;
+                    return true;
                 }
                 counter++;
             }
-            if (!isPointOpposite)
-            {
-                Log.WriteLine(GetType() + "GetFirstEdgeOppositeToExternalPoint: OPPOSITE EDGE NOT FOUND " + counter);
-                return -1;
-            }
-            else
-            {
-                return isPointOppositeToNext ? nextEdgeIndex : prevEdgeIndex;
-            }
+            Log.WriteLine(GetType() + "GetFirstEdgesOppositeToExternalPoint: OPPOSITE EDGE NOT FOUND " + counter);
+            oppNext = oppPrev = -1;
+            return false;
         }
 
         private bool IsPointOppositeToExternalEdge(Vector2 point, int edgeIndex, out bool pointOnEdge, string logPrefix = null)
