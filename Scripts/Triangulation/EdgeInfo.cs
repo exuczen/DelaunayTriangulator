@@ -1114,19 +1114,19 @@ namespace Triangulation
         {
             innerDegenerate = false;
 
-            static bool edgeTriangleOrAngleDegenerate(EdgeEntry edge) => edge.LastPointDegenerateTriangle || edge.LastPointDegenerateAngle;
+            static bool edgeInvalid(EdgeEntry edge) => edge.LastPointDegenerateTriangle || edge.LastPointDegenerateAngle || !edge.LastPointOpposite;
 
             int rangeCount = range.GetIndexCount();
             if (rangeCount == 1)
             {
-                if (edgeTriangleOrAngleDegenerate(extEdges[range.Beg]))
+                if (edgeInvalid(extEdges[range.Beg]))
                 {
                     return IndexRange.None;
                 }
             }
             else if (rangeCount > 1)
             {
-                InvokeForExternalEdgesRange(range, edgeTriangleOrAngleDegenerate, true, out int degenerateEnd);
+                InvokeForExternalEdgesRange(range, edgeInvalid, true, out int degenerateEnd);
                 if (degenerateEnd >= 0)
                 {
                     if (degenerateEnd == range.End)
@@ -1138,7 +1138,7 @@ namespace Triangulation
                         range.Beg = extEdges[degenerateEnd].Next;
                     }
                 }
-                InvokeForExternalEdgesRange(range, edgeTriangleOrAngleDegenerate, false, out int degenerateBeg);
+                InvokeForExternalEdgesRange(range, edgeInvalid, false, out int degenerateBeg);
                 if (degenerateBeg >= 0)
                 {
                     if (degenerateBeg == range.Beg)
@@ -1149,6 +1149,12 @@ namespace Triangulation
                     {
                         range.End = extEdges[degenerateBeg].Prev;
                     }
+                }
+                bool notOppositeEdge = !InvokeForExternalEdgesRange(range, edge => edge.LastPointOpposite, true, out _);
+                if (notOppositeEdge)
+                {
+                    Log.WriteLine(GetType() + ".TrimExternalEdgesRange: NotOppositeEdge");
+                    return IndexRange.None;
                 }
                 rangeCount = range.GetIndexCount();
                 if (rangeCount > 2)
