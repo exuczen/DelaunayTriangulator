@@ -610,7 +610,7 @@ namespace Triangulation
             {
                 loopPeak = edgeInfo.GetExternalEdgesRangeLoopPeak(addedPointIndex, extEdgesRange);
                 bool addExternalTriangle(EdgeEntry edge) => AddExternalTriangle(edge, addedPointIndex);
-                bool result = edgeInfo.InvokeForExternalEdgesRange(extEdgesRange, addExternalTriangle, true, out _);
+                bool result = edgeInfo.InvokeForExternalEdgesRange(extEdgesRange, addExternalTriangle, true, out _, out _);
                 if (!result)
                 {
                     if (extEdgesRange.GetIndexCount() == 1 && cellTrianglesIndices.Count > 0)

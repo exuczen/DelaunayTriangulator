@@ -1059,7 +1059,7 @@ namespace Triangulation
             action(extEdges[range.End]);
         }
 
-        public bool InvokeForExternalEdgesRange(IndexRange range, Predicate<EdgeEntry> action, bool forward, out int lastIndex)
+        public bool InvokeForExternalEdgesRange(IndexRange range, Predicate<EdgeEntry> action, bool forward, out int lastValidIndex, out int invalidIndex)
         {
             var getNextEdgeIndex = GetNextExtEdgeIndex(forward);
             int edgeIndex, beg, end;
@@ -1074,24 +1074,32 @@ namespace Triangulation
                 end = range.Beg;
             }
             edgeIndex = beg;
-            lastIndex = -1;
+            invalidIndex = -1;
+            lastValidIndex = -1;
 
             while (edgeIndex != end)
             {
                 //Log.WriteLine(GetType() + ".InvokeForExternalEdgesRange: [" + edgeIndex + "] " + extEdges[edgeIndex].ToLastPointDataString());
                 if (!action(extEdges[edgeIndex]))
                 {
+                    invalidIndex = edgeIndex;
                     return false;
                 }
-                lastIndex = edgeIndex;
+                lastValidIndex = edgeIndex;
                 edgeIndex = getNextEdgeIndex(edgeIndex);
             }
             if (!action(extEdges[end]))
             {
+                invalidIndex = end;
                 return false;
             }
-            lastIndex = end;
+            lastValidIndex = end;
             return true;
+        }
+
+        private bool GetFirstExtEdgeInRange(IndexRange range, Predicate<EdgeEntry> predicate, bool forward, out int extEdgeIndex)
+        {
+            return !InvokeForExternalEdgesRange(range, edge => !predicate(edge), forward, out _, out extEdgeIndex);
         }
 
         private bool GetFirstExtEdgeWithPredicate(Predicate<EdgeEntry> predicate, out EdgeEntry extEdge, out int extEdgeIndex)
@@ -1126,7 +1134,7 @@ namespace Triangulation
             }
             else if (rangeCount > 1)
             {
-                InvokeForExternalEdgesRange(range, edgeInvalid, true, out int degenerateEnd);
+                InvokeForExternalEdgesRange(range, edgeInvalid, true, out int degenerateEnd, out _);
                 if (degenerateEnd >= 0)
                 {
                     if (degenerateEnd == range.End)
@@ -1138,7 +1146,7 @@ namespace Triangulation
                         range.Beg = extEdges[degenerateEnd].Next;
                     }
                 }
-                InvokeForExternalEdgesRange(range, edgeInvalid, false, out int degenerateBeg);
+                InvokeForExternalEdgesRange(range, edgeInvalid, false, out int degenerateBeg, out _);
                 if (degenerateBeg >= 0)
                 {
                     if (degenerateBeg == range.Beg)
@@ -1150,7 +1158,7 @@ namespace Triangulation
                         range.End = extEdges[degenerateBeg].Prev;
                     }
                 }
-                bool notOppositeEdge = !InvokeForExternalEdgesRange(range, edge => edge.LastPointOpposite, true, out _);
+                bool notOppositeEdge = GetFirstExtEdgeInRange(range, edge => !edge.LastPointOpposite, true, out _);
                 if (notOppositeEdge)
                 {
                     Log.WriteLine(GetType() + ".TrimExternalEdgesRange: NotOppositeEdge");
@@ -1162,7 +1170,7 @@ namespace Triangulation
                     int beg = range.Beg;
                     int end = range.End;
                     var innerRange = new IndexRange(extEdges[beg].Next, extEdges[end].Prev, range.FullLength);
-                    innerDegenerate = !InvokeForExternalEdgesRange(innerRange, edge => !edge.LastPointDegenerateTriangle, true, out _);
+                    innerDegenerate = GetFirstExtEdgeInRange(innerRange, edge => edge.LastPointDegenerateTriangle, true, out _);
                 }
             }
             return range;
