@@ -17,6 +17,7 @@ namespace Triangulation
         public bool IsValid => Count > 0 && A != B && A >= 0 && B >= 0;
         public bool IsTerminal => Prev < 0 || Next < 0;
 
+        public bool LastPointOpposite;
         public bool LastPointDegenerateTriangle;
         public bool LastPointDegenerateAngle;
         public bool LastPointInRange;
@@ -72,6 +73,7 @@ namespace Triangulation
 
         public void ClearLastPointData()
         {
+            LastPointOpposite = false;
             LastPointDegenerateTriangle = false;
             LastPointDegenerateAngle = false;
             LastPointInRange = false;
@@ -136,6 +138,7 @@ namespace Triangulation
 
         public void SetLastPointData(EdgeEntry other)
         {
+            LastPointOpposite = other.LastPointOpposite;
             LastPointDegenerateAngle = other.LastPointDegenerateAngle;
             LastPointDegenerateTriangle = other.LastPointDegenerateTriangle;
             LastPointInRange = other.LastPointInRange;
@@ -204,7 +207,7 @@ namespace Triangulation
 
         public string ToLastPointDataString()
         {
-            return string.Format("({0}, {1}) | degenerateTriangle: {2} | degenerateAngle: {3} | inRange: {4}", A, B, LastPointDegenerateTriangle, LastPointDegenerateAngle, LastPointInRange);
+            return string.Format("({0}, {1}) | degenerateTriangle: {2} | degenerateAngle: {3} | inRange: {4} | opposite: {5}", A, B, LastPointDegenerateTriangle, LastPointDegenerateAngle, LastPointInRange, LastPointOpposite);
         }
 
         public override string ToString()

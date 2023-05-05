@@ -1078,7 +1078,7 @@ namespace Triangulation
 
             while (edgeIndex != end)
             {
-                //Log.WriteLine(GetType() + ".InvokeForExternalEdgesRange: " + edgeIndex + " " + extEdges[edgeIndex].LastPointDegenerateAngle);
+                //Log.WriteLine(GetType() + ".InvokeForExternalEdgesRange: [" + edgeIndex + "] " + extEdges[edgeIndex].ToLastPointDataString());
                 if (!action(extEdges[edgeIndex]))
                 {
                     return false;
@@ -1501,7 +1501,8 @@ namespace Triangulation
                 throw new Exception("IsPointOppositeToExternalEdge: signs: " + sign1 + ", " + sign2 + " for edge: " + extEdge);
             }
             bool opposite = sign1 != 0 && sign1 != sign2;
-            bool setLastPointData = opposite && edgeIndex >= 0;
+            bool setLastPointData = edgeIndex >= 0;
+            extEdge.LastPointOpposite = opposite;
 
             pointOnEdge = extEdge.IsPointOnEdge(point, points, out bool inRange, setLastPointData) || (sign1 == 0 && inRange);
             if (setLastPointData)
@@ -1547,32 +1548,35 @@ namespace Triangulation
 
         private bool IsLastPointOverSingleExtEdge(out int extEdgeIndex, out bool pointOnEdge)
         {
-            int extEdgeInRangeCount = 0;
-            int extEdgeInRangeIndex = -1;
+            int oppositeInRangeCount = 0;
+            pointOnEdge = false;
+            extEdgeIndex = -1;
+
             for (int i = 0; i < lastPointExtEdgeIndices.Count; i++)
             {
                 int edgeIndex = lastPointExtEdgeIndices[i];
-                if (extEdges[edgeIndex].LastPointInRange)
+                var extEdge = extEdges[edgeIndex];
+                if (extEdge.LastPointOpposite && extEdge.LastPointInRange)
                 {
-                    extEdgeInRangeCount++;
-                    extEdgeInRangeIndex = edgeIndex;
+                    oppositeInRangeCount++;
+                    extEdgeIndex = edgeIndex;
                 }
             }
-            if (extEdgeInRangeCount == 1 && extEdgeInRangeIndex >= 0)
+            if (oppositeInRangeCount == 1 && extEdgeIndex >= 0)
             {
-                var extEdge = extEdges[extEdgeInRangeIndex];
+                var extEdge = extEdges[extEdgeIndex];
                 bool overEdge = extEdge.LastPointDegenerateTriangle || extEdge.LastPointDegenerateAngle;
-                pointOnEdge = overEdge && lastPointExtEdgeIndices.Count == 1;
-                extEdgeIndex = overEdge ? extEdgeInRangeIndex : -1;
                 Log.WriteLine(GetType() + ".IsLastPointOverSingleExtEdge: " + extEdge.ToLastPointDataString() + " | pointOnEdge: " + pointOnEdge);
+                extEdgeIndex = overEdge ? extEdgeIndex : -1;
                 return overEdge;
+                //extEdgeIndex = extEdgeInRangeIndex;
+                //return true;
             }
             else
             {
-                pointOnEdge = false;
                 extEdgeIndex = -1;
-                return false;
             }
+            return false;
         }
 
         protected void ForEachInternalEdge(Triangle triangle, Action<int, EdgeEntry> action)
