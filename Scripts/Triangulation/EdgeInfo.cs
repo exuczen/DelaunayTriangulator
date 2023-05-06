@@ -1542,7 +1542,7 @@ namespace Triangulation
             if (trimmed)
             {
                 float angleB = edgePeak.GetPointRayAngleB(addedPoint, points);
-                Log.WriteLine(GetType() + ".IsTerminalExtEdgeValid: angle between: " + edgePeak.EdgeB + " and pointRay from " + edgePeak.PeakVertex + ": " + angleB.ToStringF2());
+                Log.WriteLine(GetType() + ".IsTerminalExtEdgeValid: angle between: " + edgePeak.EdgeB + " and pointRay from (" + edgePeak.PeakVertex + "): " + angleB.ToStringF2());
                 return angleB > 170f;
             }
             else
@@ -1553,12 +1553,12 @@ namespace Triangulation
                 if (sign2 == 0)
                 {
                     float rayDotEdgeB = Vector2.Dot(edgePeak.EdgeVecB, pointRay);
-                    Log.WriteLine(GetType() + ".IsTerminalExtEdgeValid: signs: " + sign1 + ", " + sign2 + " for edges: " + extEdge + " " + nextEdge + " rayDotEdgeB: " + rayDotEdgeB.ToStringF2());
+                    Log.WriteLine(GetType() + ".IsTerminalExtEdgeValid: signs: (" + sign1 + ", " + sign2 + ") for edges: " + extEdge + " " + nextEdge + " rayDotEdgeB: " + rayDotEdgeB.ToStringF2());
                     return rayDotEdgeB < 0f;
                 }
                 else
                 {
-                    Log.WriteLine(GetType() + ".IsTerminalExtEdgeValid: signs: " + sign1 + ", " + sign2 + " for edges: " + extEdge + " " + nextEdge);
+                    Log.WriteLine(GetType() + ".IsTerminalExtEdgeValid: signs: (" + sign1 + ", " + sign2 + ") for edges: " + extEdge + " " + nextEdge);
                     return sign1 == sign2;
                 }
             }
@@ -1592,6 +1592,7 @@ namespace Triangulation
             }
             else
             {
+                Log.WriteLine(GetType() + ".IsLastPointOverSingleExtEdge: FALSE | oppositeInRangeCount: " + oppositeInRangeCount);
                 extEdgeIndex = -1;
             }
             return false;
