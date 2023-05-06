@@ -1260,13 +1260,13 @@ namespace Triangulation
                 }
                 if (isPointOpposite)
                 {
-                    int beg = GetLastEdgeOppositeToExternalPoint(point, extEdgeIndex, false, true, out pointOnEdge);
+                    int beg = GetLastEdgeOppositeToExternalPoint(point, extEdgeIndex, false, out pointOnEdge);
                     if (pointOnEdge)
                     {
                         range.Beg = range.End = beg;
                         return false;
                     }
-                    int end = GetLastEdgeOppositeToExternalPoint(point, extEdgeIndex, true, true, out pointOnEdge);
+                    int end = GetLastEdgeOppositeToExternalPoint(point, extEdgeIndex, true, out pointOnEdge);
                     if (pointOnEdge)
                     {
                         range.Beg = range.End = end;
@@ -1323,7 +1323,7 @@ namespace Triangulation
                     {
                         beg = oppNext;
                     }
-                    end = GetLastEdgeOppositeToExternalPoint(point, oppNext, true, true, out pointOnEdge);
+                    end = GetLastEdgeOppositeToExternalPoint(point, oppNext, true, out pointOnEdge);
                     if (pointOnEdge)
                     {
                         range.Beg = range.End = end;
@@ -1336,7 +1336,7 @@ namespace Triangulation
                     {
                         end = oppPrev;
                     }
-                    beg = GetLastEdgeOppositeToExternalPoint(point, oppPrev, false, true, out pointOnEdge);
+                    beg = GetLastEdgeOppositeToExternalPoint(point, oppPrev, false, out pointOnEdge);
                     if (pointOnEdge)
                     {
                         range.Beg = range.End = beg;
@@ -1383,10 +1383,11 @@ namespace Triangulation
             }
         }
 
-        private int GetLastEdgeOppositeToExternalPoint(Vector2 point, int extEdgeIndex, bool forward, bool skipFirstCheck, out bool pointOnEdge)
+        private int GetLastEdgeOppositeToExternalPoint(Vector2 point, int extEdgeIndex, bool forward, out bool pointOnEdge)
         {
             var getNextEdgeIndex = GetNextExtEdgeIndex(forward);
             int next = extEdgeIndex;
+            bool skipFirstCheck = true;
             pointOnEdge = false;
 
             while (skipFirstCheck || IsPointOppositeToExternalEdge(point, next, out pointOnEdge))
