@@ -1317,30 +1317,37 @@ namespace Triangulation
             }
             if (oppEdgeFound)
             {
-                if (oppNext >= 0)
+                if (oppNext == oppPrev)
                 {
-                    end = GetLastEdgeOppositeToExternalPoint(point, oppNext, true, out pointOnEdge, oppPrev);
-                    if (beg < 0)
-                    {
-                        beg = oppNext;
-                    }
-                    if (pointOnEdge)
-                    {
-                        range.Beg = range.End = end;
-                        return false;
-                    }
+                    beg = end = oppNext;
                 }
-                if (oppPrev >= 0)
+                else
                 {
-                    beg = GetLastEdgeOppositeToExternalPoint(point, oppPrev, false, out pointOnEdge, end);
-                    if (end < 0)
+                    if (oppNext >= 0)
                     {
-                        end = oppPrev;
+                        end = GetLastEdgeOppositeToExternalPoint(point, oppNext, true, out pointOnEdge, oppPrev);
+                        if (pointOnEdge)
+                        {
+                            range.Beg = range.End = end;
+                            return false;
+                        }
+                        if (beg < 0)
+                        {
+                            beg = oppNext;
+                        }
                     }
-                    if (pointOnEdge)
+                    if (oppPrev >= 0)
                     {
-                        range.Beg = range.End = beg;
-                        return false;
+                        beg = GetLastEdgeOppositeToExternalPoint(point, oppPrev, false, out pointOnEdge, end);
+                        if (pointOnEdge)
+                        {
+                            range.Beg = range.End = beg;
+                            return false;
+                        }
+                        if (end < 0)
+                        {
+                            end = oppPrev;
+                        }
                     }
                 }
             }
@@ -1361,7 +1368,7 @@ namespace Triangulation
                 bool begEdgeValid = IsTerminalExtEdgeValid(point, beg, false, false);
                 bool endEdgeValid = IsTerminalExtEdgeValid(point, end, true, false);
 
-                Log.WriteLine(GetType() + ".GetValidatedExtEdgesRange: | begEdgeValid: " + begEdgeValid + " | endEdgeValid: " + endEdgeValid);
+                Log.WriteLine("{0}.GetValidatedExtEdgesRange: | begEdgeValid: {1} | endEdgeValid: {2} | {3} - {4} | {5} - {6}", GetType(), begEdgeValid, endEdgeValid, extEdges[beg].ToShortString(), extEdges[end].ToShortString(), beg, end);
                 if (begEdgeValid && endEdgeValid)
                 {
                     range = new IndexRange(beg, end, extEdgeCount);
@@ -1371,7 +1378,7 @@ namespace Triangulation
                         begEdgeValid = IsTerminalExtEdgeValid(point, trimmedRange.Beg, false, true);
                         endEdgeValid = IsTerminalExtEdgeValid(point, trimmedRange.End, true, true);
                     }
-                    Log.WriteLine(GetType() + ".GetValidatedExtEdgesRange: | begEdgeValid: " + begEdgeValid + " | endEdgeValid: " + endEdgeValid + " | trimmedRange: " + trimmedRange);
+                    Log.WriteLine("{0}.GetValidatedExtEdgesRange: | begEdgeValid: {1} | endEdgeValid: {2} | trimmedRange: {3}", GetType(), begEdgeValid, endEdgeValid, trimmedRange);
                     range = begEdgeValid && endEdgeValid ? trimmedRange : IndexRange.None;
                     return range.FullLength > 0;
                 }
