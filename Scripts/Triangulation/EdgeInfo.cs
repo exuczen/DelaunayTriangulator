@@ -366,6 +366,17 @@ namespace Triangulation
             return GetFirstEdgeWithPredicate(triangle, IsEdgeInternal, out internalEdge, out _);
         }
 
+        public bool GetFirstExternalEdgeIndex(Triangle triangle, out int edgeIndex)
+        {
+            if (GetFirstExternalEdge(triangle, out var extEdge))
+            {
+                edgeIndex = GetExternalEdgeIndex(extEdge);
+                return true;
+            }
+            edgeIndex = -1;
+            return false;
+        }
+
         public bool GetFirstExternalEdge(Triangle triangle, out EdgeEntry externalEdge)
         {
             return GetFirstEdgeWithPredicate(triangle, IsEdgeExternal, out externalEdge, out _);

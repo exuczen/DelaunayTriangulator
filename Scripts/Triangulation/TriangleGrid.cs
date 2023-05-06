@@ -333,6 +333,21 @@ namespace Triangulation
             return result;
         }
 
+        public bool GetFirstExternalEdgeInCell(TriangleCell cell, EdgeInfo edgeInfo, out int extEdgeIndex)
+        {
+            foreach (var key in cell.TriangleKeys)
+            {
+                ref var triangle = ref GetTriangleRef(key, out _);
+
+                if (edgeInfo.GetFirstExternalEdgeIndex(triangle, out extEdgeIndex))
+                {
+                    return true;
+                }
+            }
+            extEdgeIndex = -1;
+            return false;
+        }
+
         public bool GetFirstOppositeExternalEdgeInCell(Vector2 point, TriangleCell cell, EdgeInfo edgeInfo, out int extEdgeIndex, out bool pointOnEdge)
         {
             foreach (var key in cell.TriangleKeys)
