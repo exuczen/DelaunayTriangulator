@@ -1519,14 +1519,15 @@ namespace Triangulation
             bool setLastPointData = edgeIndex >= 0;
             extEdge.LastPointOpposite = opposite;
 
-            pointOnEdge = extEdge.IsPointOnEdge(point, points, out bool inRange, setLastPointData) || (sign1 == 0 && inRange);
+            pointOnEdge = extEdge.IsPointOnEdge(point, points, out bool inRange) || (sign1 == 0 && inRange);
             if (setLastPointData)
             {
+                extEdge.SetLastPointDegenerateAngle(point, points);
                 extEdges[edgeIndex].SetLastPointData(extEdge);
                 lastPointExtEdgeIndices.Add(edgeIndex);
             }
             logPrefix = string.IsNullOrEmpty(logPrefix) ? GetType().Name : string.Format("{0}.{1}", logPrefix, GetType().Name);
-            Log.WriteLine("{0}.IsPointOppositeToExternalEdge: [{1}] {2} | opposite: {3} | inRange: {4} | pointOnEdge: {5}", logPrefix, edgeIndex, extEdge, opposite, inRange, pointOnEdge);
+            Log.WriteLine("{0}.IsPointOppositeToExternalEdge: [{1}] {2} | pointOnEdge: {3}", logPrefix, edgeIndex, extEdge.ToLastPointDataString(false), pointOnEdge);
             return opposite;
         }
 

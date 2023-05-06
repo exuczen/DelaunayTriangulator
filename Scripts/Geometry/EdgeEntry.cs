@@ -89,10 +89,10 @@ namespace Triangulation
 
         public bool SetLastPointOnEgdeData(Vector2 point, Vector2[] points, out bool inRange)
         {
-            return IsPointOnEdge(point, points, out inRange, true);
+            return IsPointOnEdge(point, points, out inRange);
         }
 
-        public bool IsPointOnEdge(Vector2 point, Vector2[] points, out bool inRange, bool setLastPointData)
+        public bool IsPointOnEdge(Vector2 point, Vector2[] points, out bool inRange)
         {
             var pointRayA = point - points[A];
             var pointRayB = point - points[B];
@@ -117,14 +117,15 @@ namespace Triangulation
 
             bool onEdge = inRange && ((degenerateAngleA && degenerateAngleB) || degenerateAngleC);
 
-            if (setLastPointData)
-            {
-                LastPointDegenerateAngle = MakesDegenerateAngleWithPoint(point, points);
-                LastPointDegenerateTriangle = degenerateAngleA || degenerateAngleB || degenerateAngleC;
-                LastPointInRange = inRange;
-                //Log.WriteLine(GetType() + ".IsPointOnEdge: " + ToLastPointDataString());
-            }
+            LastPointDegenerateTriangle = degenerateAngleA || degenerateAngleB || degenerateAngleC;
+            LastPointInRange = inRange;
+
             return onEdge;
+        }
+
+        public void SetLastPointDegenerateAngle(Vector2 point, Vector2[] points)
+        {
+            LastPointDegenerateAngle = MakesDegenerateAngleWithPoint(point, points);
         }
 
         public bool MakesDegenerateAngleWithPoint(Vector2 point, Vector2[] points)
@@ -205,16 +206,22 @@ namespace Triangulation
             return string.Format("({0}, {1})", A, B);
         }
 
-        public string ToLastPointDataString()
+        public string ToLastPointDataString(bool withDegenerates)
         {
-            return string.Format("({0}, {1}) | degenerateTriangle: {2} | degenerateAngle: {3} | inRange: {4} | opposite: {5}", A, B, LastPointDegenerateTriangle, LastPointDegenerateAngle, LastPointInRange, LastPointOpposite);
+            if (withDegenerates)
+            {
+                return string.Format("({0}, {1}) | opposite: {2} | inRange: {3} | degenerateTriangle: {4} | degenerateAngle: {5}", A, B, LastPointOpposite, LastPointInRange, LastPointDegenerateTriangle, LastPointDegenerateAngle);
+            }
+            else
+            {
+                return string.Format("({0}, {1}) | opposite: {2} | inRange: {3}", A, B, LastPointOpposite, LastPointInRange);
+            }
         }
 
         public override string ToString()
         {
             return string.Format("({0}, {1} count: {2})", A, B, Count);
             //return string.Format("({0}, {1} count: {2}, prev: {3}, next: {4})", A, B, Count, Prev, Next);
-            //return string.Format("({0}, {1} count: {2}, {3}, {4})", A, B, Count, LastPointOnEdge, LastPointDegenerateTriangle);
         }
     }
 
