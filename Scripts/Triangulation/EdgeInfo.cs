@@ -1319,11 +1319,11 @@ namespace Triangulation
             {
                 if (oppNext >= 0)
                 {
+                    end = GetLastEdgeOppositeToExternalPoint(point, oppNext, true, out pointOnEdge, oppPrev);
                     if (beg < 0)
                     {
                         beg = oppNext;
                     }
-                    end = GetLastEdgeOppositeToExternalPoint(point, oppNext, true, out pointOnEdge);
                     if (pointOnEdge)
                     {
                         range.Beg = range.End = end;
@@ -1332,11 +1332,11 @@ namespace Triangulation
                 }
                 if (oppPrev >= 0)
                 {
+                    beg = GetLastEdgeOppositeToExternalPoint(point, oppPrev, false, out pointOnEdge, end);
                     if (end < 0)
                     {
                         end = oppPrev;
                     }
-                    beg = GetLastEdgeOppositeToExternalPoint(point, oppPrev, false, out pointOnEdge);
                     if (pointOnEdge)
                     {
                         range.Beg = range.End = beg;
@@ -1383,21 +1383,23 @@ namespace Triangulation
             }
         }
 
-        private int GetLastEdgeOppositeToExternalPoint(Vector2 point, int extEdgeIndex, bool forward, out bool pointOnEdge)
+        private int GetLastEdgeOppositeToExternalPoint(Vector2 point, int extEdgeIndex, bool forward, out bool pointOnEdge, int end = -1)
         {
             var getNextEdgeIndex = GetNextExtEdgeIndex(forward);
-            int next = extEdgeIndex;
-            bool skipFirstCheck = true;
+            int next = getNextEdgeIndex(extEdgeIndex);
             pointOnEdge = false;
 
-            while (skipFirstCheck || IsPointOppositeToExternalEdge(point, next, out pointOnEdge))
+            if (end < 0)
+            {
+                end = extEdgeIndex;
+            }
+            while (next != end && IsPointOppositeToExternalEdge(point, next, out pointOnEdge))
             {
                 if (pointOnEdge)
                 {
                     return next;
                 }
                 next = getNextEdgeIndex(extEdgeIndex = next);
-                skipFirstCheck = false;
             }
             return extEdgeIndex;
         }
