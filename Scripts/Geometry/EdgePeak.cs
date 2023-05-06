@@ -114,6 +114,7 @@ namespace Triangulation
             int signB = MathF.Sign(Mathv.Cross(pointRay, EdgeVecB));
             pointRay = pointRay.Normalized();
             float cosB = Vector2.Dot(pointRay, EdgeVecB.Normalized());
+            cosB = Math.Clamp(cosB, -1f, 1f);
             float angle = MathF.Acos(cosB);
 
             if (signA == signB)
