@@ -1543,7 +1543,7 @@ namespace Triangulation
             {
                 float angleB = edgePeak.GetPointRayAngleB(addedPoint, points);
                 Log.WriteLine(GetType() + ".IsTerminalExtEdgeValid: angle between: " + edgePeak.EdgeB + " and pointRay from (" + edgePeak.PeakVertex + "): " + angleB.ToStringF2());
-                return angleB > 170f;
+                return angleB > 150f;
             }
             else
             {
@@ -1583,12 +1583,11 @@ namespace Triangulation
             if (oppositeInRangeCount == 1 && extEdgeIndex >= 0)
             {
                 var extEdge = extEdges[extEdgeIndex];
-                bool overEdge = extEdge.LastPointDegenerateTriangle || extEdge.LastPointDegenerateAngle;
-                Log.WriteLine(GetType() + ".IsLastPointOverSingleExtEdge: " + extEdge.ToLastPointDataString() + " | pointOnEdge: " + pointOnEdge);
-                extEdgeIndex = overEdge ? extEdgeIndex : -1;
-                return overEdge;
-                //extEdgeIndex = extEdgeInRangeIndex;
-                //return true;
+                Log.WriteLine(GetType() + ".IsLastPointOverSingleExtEdge: " + extEdge.ToLastPointDataString(true));
+                //bool overEdge = extEdge.LastPointDegenerateTriangle || extEdge.LastPointDegenerateAngle;
+                //extEdgeIndex = overEdge ? extEdgeIndex : -1;
+                //return overEdge;
+                return true;
             }
             else
             {
