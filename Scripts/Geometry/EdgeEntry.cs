@@ -17,10 +17,10 @@ namespace Triangulation
         public bool IsValid => Count > 0 && A != B && A >= 0 && B >= 0;
         public bool IsTerminal => Prev < 0 || Next < 0;
 
-        public bool LastPointOpposite;
-        public bool LastPointDegenerateTriangle;
-        public bool LastPointDegenerateAngle;
-        public bool LastPointInRange;
+        public bool LastPointOpposite { get; set; }
+        public bool LastPointDegenerateTriangle { get; private set; }
+        public bool LastPointDegenerateAngle { get; private set; }
+        public bool LastPointInRange { get; private set; }
 
         public int Next;
         public int Prev;
@@ -71,6 +71,12 @@ namespace Triangulation
             Next = Prev = -1;
         }
 
+        public void ClearLastPointDegenerate()
+        {
+            LastPointDegenerateTriangle = false;
+            LastPointDegenerateAngle = false;
+        }
+
         public void ClearLastPointData()
         {
             LastPointOpposite = false;
@@ -89,7 +95,9 @@ namespace Triangulation
 
         public bool SetLastPointOnEgdeData(Vector2 point, Vector2[] points, out bool inRange)
         {
-            return IsPointOnEdge(point, points, out inRange);
+            bool onEdge = IsPointOnEdge(point, points, out inRange);
+            SetLastPointDegenerateAngle(point, points);
+            return onEdge;
         }
 
         public bool IsPointOnEdge(Vector2 point, Vector2[] points, out bool inRange)
@@ -126,6 +134,11 @@ namespace Triangulation
         public void SetLastPointDegenerateAngle(Vector2 point, Vector2[] points)
         {
             LastPointDegenerateAngle = MakesDegenerateAngleWithPoint(point, points);
+
+            if (!LastPointDegenerateAngle && LastPointOpposite && LastPointInRange)
+            {
+                LastPointDegenerateTriangle = false;
+            }
         }
 
         public bool MakesDegenerateAngleWithPoint(Vector2 point, Vector2[] points)

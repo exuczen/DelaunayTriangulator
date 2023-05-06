@@ -1090,7 +1090,7 @@ namespace Triangulation
 
             while (edgeIndex != end)
             {
-                //Log.WriteLine(GetType() + ".InvokeForExternalEdgesRange: [" + edgeIndex + "] " + extEdges[edgeIndex].ToLastPointDataString());
+                //Log.WriteLine(GetType() + ".InvokeForExternalEdgesRange: [" + edgeIndex + "] " + extEdges[edgeIndex].ToLastPointDataString(true));
                 if (!action(extEdges[edgeIndex]))
                 {
                     invalidIndex = edgeIndex;
@@ -1169,10 +1169,10 @@ namespace Triangulation
                         range.End = extEdges[degenerateBeg].Prev;
                     }
                 }
-                bool notOppositeEdge = GetFirstExtEdgeInRange(range, edge => !edge.LastPointOpposite, true, out _);
+                bool notOppositeEdge = GetFirstExtEdgeInRange(range, edge => !edge.LastPointOpposite, true, out int notOppEdgeIndex);
                 if (notOppositeEdge)
                 {
-                    Log.WriteLine(GetType() + ".TrimExternalEdgesRange: NotOppositeEdge");
+                    Log.WriteLine(GetType() + ".TrimExternalEdgesRange: NotOppositeEdge: [" + notOppEdgeIndex + "] " + extEdges[notOppEdgeIndex]);
                     return IndexRange.None;
                 }
                 rangeCount = range.GetIndexCount();
@@ -1297,9 +1297,7 @@ namespace Triangulation
                 {
                     if (!pointOnEdge)
                     {
-                        ref var extEdge = ref extEdges[extEdgeIndex];
-                        extEdge.LastPointDegenerateAngle = false;
-                        extEdge.LastPointDegenerateTriangle = false;
+                        extEdges[extEdgeIndex].ClearLastPointDegenerate();
                     }
                     range = new IndexRange(extEdgeIndex, extEdgeIndex, extEdgeCount);
                     return !pointOnEdge;
