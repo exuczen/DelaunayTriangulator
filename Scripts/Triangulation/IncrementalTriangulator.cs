@@ -63,7 +63,7 @@ namespace Triangulation
             AddBaseTrianglesToTriangleSet(false);
         }
 
-        public void Initialize(Vector2 gridSize, int triangleGridDivs, int pointGridDivsMlp, bool triangulate)
+        public void Initialize(Vector2 gridSize, int triangleGridDivs = TriangleGrid.MinDivsCount, int pointGridDivsMlp = 5)
         {
             if (triangleSet == null)
             {
@@ -75,10 +75,7 @@ namespace Triangulation
 
             cellPolygon.ReakRectTolerance = 0.1f * circleTolerance;
 
-            if (triangulate)
-            {
-                Triangulate();
-            }
+            Triangulate();
         }
 
         public bool TryAddPoint(Vector2 point, out int pointIndex, bool findClosestCell)

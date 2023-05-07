@@ -14,11 +14,6 @@ namespace Triangulation
             this.triangulator = triangulator;
         }
 
-        public void Initialize(Vector2 viewSize, int triangleGridDivs = TriangleGrid.MinDivsCount, int pointGridDivsMlp = 5)
-        {
-            triangulator.Initialize(viewSize, triangleGridDivs, pointGridDivsMlp, true);
-        }
-
         public override void UpdateTriangulation(TriangulationType type, Vector2 point)
         {
             switch (type)
