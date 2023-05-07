@@ -9,7 +9,7 @@ namespace Triangulation
 {
     public class Polygon
     {
-        private const float Lower180 = 179.999f;
+        private const float Lower180 = 179.95f;
 
         public float ReakRectTolerance { get; set; }
         public int PeakCount => edgePeaks.Count;
