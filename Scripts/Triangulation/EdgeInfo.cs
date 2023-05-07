@@ -1527,8 +1527,8 @@ namespace Triangulation
             var edge = extEdge.GetVector(points);
             var oppVert = extTriangle.GetOppositeVertex(extEdge, points, out _);
             var edgeVertA = points[extEdge.A];
-            int sign1 = MathF.Sign(Mathv.Cross(point - edgeVertA, edge));
-            int sign2 = MathF.Sign(Mathv.Cross(oppVert - edgeVertA, edge));
+            int sign1 = Mathv.GetAngleSign(point - edgeVertA, edge);
+            int sign2 = Mathv.GetAngleSign(oppVert - edgeVertA, edge);
             if (sign2 == 0)
             {
                 throw new Exception("IsPointOppositeToExternalEdge: signs: " + sign1 + ", " + sign2 + " for edge: " + extEdge);
@@ -1564,7 +1564,7 @@ namespace Triangulation
             {
                 var pointRay = addedPoint - points[edgePeak.PeakVertex];
                 int sign1 = edgePeak.AngleSign;
-                int sign2 = MathF.Sign(Mathv.Cross(edgePeak.EdgeVecB, pointRay));
+                int sign2 = Mathv.GetAngleSign(edgePeak.EdgeVecB, pointRay);
                 if (sign2 == 0)
                 {
                     float rayDotEdgeB = Vector2.Dot(edgePeak.EdgeVecB, pointRay);

@@ -42,6 +42,11 @@ namespace Triangulation
             }
         }
 
+        public static int GetAngleSign(Vector2 v1, Vector2 v2, int crossDigits = 4)
+        {
+            return MathF.Sign(MathF.Round(Cross(v1, v2), crossDigits));
+        }
+
         public static float Cross(Vector2 v1, Vector2 v2)
         {
             return v1.X * v2.Y - v1.Y * v2.X;

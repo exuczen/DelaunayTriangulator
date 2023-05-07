@@ -38,8 +38,7 @@ namespace Triangulation
             }
             EdgeVecA = edge1.GetVector(points, PeakVertex == edge1.B); // PeakVertex to VertexA vector
             EdgeVecB = edge2.GetVector(points, PeakVertex == edge2.B); // PeakVertex to VertexB vector
-            float cross = Mathv.Cross(EdgeVecB, EdgeVecA);
-            AngleSign = MathF.Sign(cross);
+            AngleSign = Mathv.GetAngleSign(EdgeVecB, EdgeVecA);
         }
 
         public EdgePeak Invalidate()
@@ -110,8 +109,8 @@ namespace Triangulation
         public float GetPointRayAngleB(Vector2 point, Vector2[] points)
         {
             var pointRay = point - points[PeakVertex];
-            int signA = MathF.Sign(Mathv.Cross(pointRay, EdgeVecA));
-            int signB = MathF.Sign(Mathv.Cross(pointRay, EdgeVecB));
+            int signA = Mathv.GetAngleSign(pointRay, EdgeVecA);
+            int signB = Mathv.GetAngleSign(pointRay, EdgeVecB);
             pointRay = pointRay.Normalized();
             float cosB = Vector2.Dot(pointRay, EdgeVecB.Normalized());
             cosB = Math.Clamp(cosB, -1f, 1f);
