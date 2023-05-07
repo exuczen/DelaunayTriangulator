@@ -1,11 +1,37 @@
 ﻿using System;
 using System.Drawing;
+using System.Numerics;
 
 namespace Triangulation
 {
     public readonly struct GridUtils
     {
         private static readonly Color[] DebugColors = { Color.Red, Color.Green, Color.Blue, Color.Yellow };
+
+        public static Vector2Int GetXYCount(Vector2 size, out Vector2 cellSize, int minDivsCount)
+        {
+            int xCount, yCount;
+            if (size.X == size.Y)
+            {
+                xCount = yCount = minDivsCount;
+                cellSize = size / xCount;
+            }
+            else if (size.Y < size.X)
+            {
+                yCount = minDivsCount;
+                cellSize.Y = size.Y / yCount;
+                xCount = (int)(size.X / cellSize.Y + 0.5f);
+                cellSize.X = size.X / xCount;
+            }
+            else
+            {
+                xCount = minDivsCount;
+                cellSize.X = size.X / xCount;
+                yCount = (int)(size.Y / cellSize.X + 0.5f);
+                cellSize.Y = size.Y / yCount;
+            }
+            return new Vector2Int(xCount, yCount);
+        }
 
         public static bool FindClosestCellWithPredicate(Vector2Int cXY, Vector2Int xyCount, out Vector3Int cellXYI,
 #if DEBUG_CLOSEST_CELLS

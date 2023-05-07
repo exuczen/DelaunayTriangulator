@@ -42,55 +42,14 @@ namespace Triangulation
         private TriangleCell selectedCell = null;
         private Vector2Int selectedCellXY = default;
 
-        public static Vector2Int GetXYCount(Vector2 size, out Vector2 cellSize, int minDivsCount = MinDivsCount)
-        {
-            int xCount, yCount;
-            if (size.X == size.Y)
-            {
-                xCount = yCount = minDivsCount;
-                cellSize = size / xCount;
-            }
-            else if (size.Y < size.X)
-            {
-                yCount = minDivsCount;
-                cellSize.Y = size.Y / yCount;
-                xCount = (int)(size.X / cellSize.Y + 0.5f);
-                cellSize.X = size.X / xCount;
-            }
-            else
-            {
-                xCount = minDivsCount;
-                cellSize.X = size.X / xCount;
-                yCount = (int)(size.Y / cellSize.X + 0.5f);
-                cellSize.Y = size.Y / yCount;
-            }
-            return new Vector2Int(xCount, yCount);
-        }
-
         public TriangleGrid(TriangleSet triangleSet, Vector2 size, int minDivsCount = MinDivsCount)
         {
             this.triangleSet = triangleSet;
             this.size = size;
 
-            if (size.X == size.Y)
-            {
-                xCount = yCount = minDivsCount;
-                cellSize = size / xCount;
-            }
-            else if (size.Y < size.X)
-            {
-                yCount = minDivsCount;
-                cellSize.Y = size.Y / yCount;
-                xCount = (int)(size.X / cellSize.Y + 0.5f);
-                cellSize.X = size.X / xCount;
-            }
-            else
-            {
-                xCount = minDivsCount;
-                cellSize.X = size.X / xCount;
-                yCount = (int)(size.Y / cellSize.X + 0.5f);
-                cellSize.Y = size.Y / yCount;
-            }
+            var xyCount = GridUtils.GetXYCount(size, out cellSize, minDivsCount);
+            xCount = xyCount.x;
+            yCount = xyCount.y;
             cellHalfSize = 0.5f * cellSize;
 
             float minCellSize = CellSizeMin;
