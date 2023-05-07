@@ -34,7 +34,7 @@ namespace Triangulation
 
         private TriangleGrid triangleGrid = null;
 
-        public IncrementalTriangulator(int pointsCapacity, float tolerance, IExceptionThrower exceptionThrower) : base(pointsCapacity, tolerance, exceptionThrower)
+        public IncrementalTriangulator(int pointsCapacity, IExceptionThrower exceptionThrower) : base(pointsCapacity, exceptionThrower)
         {
             baseEdgeFlipper = new EdgeFlipper(triangleSet, edgeInfo, points);
             addedTriangles = new Triangle[triangles.Length];

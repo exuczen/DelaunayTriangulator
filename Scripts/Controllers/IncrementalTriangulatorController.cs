@@ -9,9 +9,9 @@ namespace Triangulation
 
         protected new IncrementalTriangulator triangulator = null;
 
-        public IncrementalTriangulatorController(IParticles particles, IExceptionThrower exceptionThrower) : base(particles, false, exceptionThrower)
+        public IncrementalTriangulatorController(IParticles particles, IncrementalTriangulator triangulator) : base(particles, triangulator)
         {
-            base.triangulator = triangulator = new IncrementalTriangulator(particles.Capacity, Mathv.Epsilon, exceptionThrower);
+            this.triangulator = triangulator;
         }
 
         public void Initialize(Vector2 viewSize, int triangleGridDivs = TriangleGrid.MinDivsCount, int pointGridDivsMlp = 5)

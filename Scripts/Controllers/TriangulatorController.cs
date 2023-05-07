@@ -17,13 +17,10 @@ namespace Triangulation
 
         protected readonly Stopwatch stopwatch = new Stopwatch();
 
-        public TriangulatorController(IParticles particles, bool createTriangulator, IExceptionThrower exceptionThrower)
+        public TriangulatorController(IParticles particles, Triangulator triangulator)
         {
             this.particles = particles;
-            if (createTriangulator)
-            {
-                triangulator = new Triangulator(particles.Capacity, Mathv.Epsilon, exceptionThrower);
-            }
+            this.triangulator = triangulator;
         }
 
         public SerializedTriangulator CreateSerializedTriangulator()

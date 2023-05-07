@@ -61,9 +61,9 @@ namespace Triangulation
         private int superTrianglesCount = 1;
         private Circle superCircumCircle = default;
 
-        public Triangulator(int pointsCapacity, float tolerance, IExceptionThrower exceptionThrower)
+        public Triangulator(int pointsCapacity, IExceptionThrower exceptionThrower)
         {
-            pointTolerance = tolerance > 0f ? tolerance : Mathv.Epsilon;
+            pointTolerance = Mathv.Epsilon;
             circleTolerance = pointTolerance;
 
             points = new Vector2[pointsCapacity];

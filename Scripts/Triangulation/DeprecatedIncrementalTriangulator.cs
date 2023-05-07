@@ -5,7 +5,7 @@ namespace Triangulation
 {
     public class DeprecatedIncrementalTriangulator : IncrementalTriangulator
     {
-        public DeprecatedIncrementalTriangulator(int pointsCapacity, float tolerance, IExceptionThrower exceptionThrower) : base(pointsCapacity, tolerance, exceptionThrower)
+        public DeprecatedIncrementalTriangulator(int pointsCapacity, IExceptionThrower exceptionThrower) : base(pointsCapacity, exceptionThrower)
         {
         }
 
