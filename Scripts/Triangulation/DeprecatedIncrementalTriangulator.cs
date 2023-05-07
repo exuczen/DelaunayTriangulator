@@ -9,6 +9,22 @@ namespace Triangulation
         {
         }
 
+        private bool TryForceClearPoint(int pointIndex)
+        {
+            if (edgeInfo.GetExternalTrianglesCount() == trianglesCount)
+            {
+                //Log.WriteLine(GetType() + ".TryForceClearPoint: " + pointIndex);
+                ClearPoint(pointIndex);
+                Triangulate();
+                if (trianglesCount <= 0)
+                {
+                    ClearPoints();
+                }
+                return true;
+            }
+            return false;
+        }
+
         private Triangle GetFirstTriangleWithVertex(int pointIndex)
         {
             for (int i = 0; i < trianglesCount; i++)

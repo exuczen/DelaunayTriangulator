@@ -122,12 +122,7 @@ namespace Triangulation
             {
                 var point = points[pointIndex];
 
-                if (TryForceClearPoint(pointIndex))
-                {
-                    reset = true;
-                    return;
-                }
-                else if (triangleGrid.GetCell(point, out var cell, out var cellXY))
+                if (triangleGrid.GetCell(point, out var cell, out var cellXY))
                 {
                     //Log.WriteLine(GetType() + ".RemovePointFromTriangulation: cellXY: " + cellXY + " point: " + point + " pointIndex: " + pointIndex);
                     ClearLastPointData();
@@ -183,7 +178,7 @@ namespace Triangulation
 
                 if (!TryAddPointRefIndex(point, ref pointIndex, findClosestCell))
                 {
-                    if (pointIndex >= 0 && !TryForceClearPoint(pointIndex))
+                    if (pointIndex >= 0)
                     {
                         ProcessClearPoint(pointIndex, cell);
                     }
@@ -244,22 +239,6 @@ namespace Triangulation
             triangleGrid.Clear();
             ClearLastPointData();
             base.ClearTriangles();
-        }
-
-        private bool TryForceClearPoint(int pointIndex)
-        {
-            if (edgeInfo.GetExternalTrianglesCount() == trianglesCount)
-            {
-                //Log.WriteLine(GetType() + ".TryForceClearPoint: " + pointIndex);
-                ClearPoint(pointIndex);
-                Triangulate();
-                if (trianglesCount <= 0)
-                {
-                    ClearPoints();
-                }
-                return true;
-            }
-            return false;
         }
 
         private void ClearPoints(List<int> pointsIndices)
