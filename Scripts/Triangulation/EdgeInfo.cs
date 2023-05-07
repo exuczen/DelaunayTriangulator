@@ -1537,10 +1537,9 @@ namespace Triangulation
             bool setLastPointData = edgeIndex >= 0;
             extEdge.LastPointOpposite = opposite;
 
-            pointOnEdge = extEdge.IsPointOnEdge(point, points, out bool inRange) || (sign1 == 0 && inRange);
+            pointOnEdge = extEdge.IsPointOnEdge(point, points, setLastPointData, out bool inRange) || (sign1 == 0 && inRange);
             if (setLastPointData)
             {
-                extEdge.SetLastPointDegenerateAngle(point, points);
                 extEdges[edgeIndex].SetLastPointData(extEdge);
                 lastPointExtEdgeIndices.Add(edgeIndex);
             }

@@ -18,5 +18,24 @@
         //{
         //    return IsPointOnEdge(point, points, out inRange, false);
         //}
+
+        //public void SetLastPointDegenerateAngle(Vector2 point, Vector2[] points)
+        //{
+        //    LastPointDegenerateAngle = MakesDegenerateAngleWithPoint(point, points);
+        //
+        //    if (!LastPointDegenerateAngle && LastPointOpposite && LastPointInRange)
+        //    {
+        //        LastPointDegenerateTriangle = false;
+        //    }
+        //}
+
+        //public bool MakesDegenerateAngleWithPoint(Vector2 point, Vector2[] points)
+        //{
+        //    var midPoint = GetMidPoint(points);
+        //    var midRay = (midPoint - point).Normalized();
+        //    bool degenerateDistA = points[A].GetSqrDistToLine(point, midRay) < DegenerateDistanceSqr;
+        //    bool degenerateDistB = points[B].GetSqrDistToLine(point, midRay) < DegenerateDistanceSqr;
+        //    return degenerateDistA || degenerateDistB;
+        //}
     }
 }

@@ -85,7 +85,7 @@ namespace Triangulation
 
             Circle.MinRadiusForSqrt = 250f * pointGrid.CellSizeMin;
 
-            EdgeEntry.DegenerateDistance = 0.2f * pointGrid.CellSizeMin;
+            EdgeEntry.DegenerateDistance = 0.12f * pointGrid.CellSizeMin;
 
             circleTolerance = 0.01f * pointGrid.CellSizeMin;
 

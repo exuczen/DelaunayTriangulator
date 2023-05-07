@@ -95,12 +95,11 @@ namespace Triangulation
 
         public bool SetLastPointOnEgdeData(Vector2 point, Vector2[] points, out bool inRange)
         {
-            bool onEdge = IsPointOnEdge(point, points, out inRange);
-            SetLastPointDegenerateAngle(point, points);
+            bool onEdge = IsPointOnEdge(point, points, true, out inRange);
             return onEdge;
         }
 
-        public bool IsPointOnEdge(Vector2 point, Vector2[] points, out bool inRange)
+        public bool IsPointOnEdge(Vector2 point, Vector2[] points, bool setLastPointData, out bool inRange)
         {
             var pointRayA = point - points[A];
             var pointRayB = point - points[B];
@@ -125,29 +124,24 @@ namespace Triangulation
 
             bool onEdge = inRange && ((degenerateAngleA && degenerateAngleB) || degenerateAngleC);
 
-            LastPointDegenerateTriangle = degenerateAngleA || degenerateAngleB || degenerateAngleC;
-            LastPointInRange = inRange;
-
-            return onEdge;
-        }
-
-        public void SetLastPointDegenerateAngle(Vector2 point, Vector2[] points)
-        {
-            LastPointDegenerateAngle = MakesDegenerateAngleWithPoint(point, points);
-
-            if (!LastPointDegenerateAngle && LastPointOpposite && LastPointInRange)
+            if (setLastPointData)
             {
-                LastPointDegenerateTriangle = false;
-            }
-        }
+                LastPointDegenerateTriangle = degenerateAngleA || degenerateAngleB || degenerateAngleC;
+                LastPointInRange = inRange;
+                // LastPointDegenerateAngle
+                {
+                    var bisector = -(pointRayA + pointRayB).Normalized();
+                    bool degenerateDistA = points[A].GetSqrDistToLine(point, bisector) < DegenerateDistanceSqr;
+                    bool degenerateDistB = points[B].GetSqrDistToLine(point, bisector) < DegenerateDistanceSqr;
+                    LastPointDegenerateAngle = degenerateDistA || degenerateDistB;
 
-        public bool MakesDegenerateAngleWithPoint(Vector2 point, Vector2[] points)
-        {
-            var midPoint = GetMidPoint(points);
-            var midRay = (midPoint - point).Normalized();
-            bool degenerateDistA = points[A].GetSqrDistToLine(point, midRay) < DegenerateDistanceSqr;
-            bool degenerateDistB = points[B].GetSqrDistToLine(point, midRay) < DegenerateDistanceSqr;
-            return degenerateDistA || degenerateDistB;
+                    if (!LastPointDegenerateAngle && LastPointOpposite && LastPointInRange)
+                    {
+                        LastPointDegenerateTriangle = false;
+                    }
+                }
+            }
+            return onEdge;
         }
 
         public void SetLastPointData(EdgeEntry other)
