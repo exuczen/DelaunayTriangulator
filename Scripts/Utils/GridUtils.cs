@@ -8,11 +8,16 @@ namespace Triangulation
     {
         private static readonly Color[] DebugColors = { Color.Red, Color.Green, Color.Blue, Color.Yellow };
 
-        public static Vector2 SnapToGrid(Vector2 point, Vector2 cellSize, out Vector2Int xy)
+        public static Vector2Int SnapToGrid(Vector2 point, Vector2 cellSize)
         {
             int x = (int)(point.X / cellSize.X + 0.5f);
             int y = (int)(point.Y / cellSize.Y + 0.5f);
-            xy = new Vector2Int(x, y);
+            return new Vector2Int(x, y);
+        }
+
+        public static Vector2 SnapToGrid(Vector2 point, Vector2 cellSize, out Vector2Int xy)
+        {
+            xy = SnapToGrid(point, cellSize);
             return xy * cellSize;
         }
 

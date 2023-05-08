@@ -10,6 +10,8 @@ namespace Triangulation
         public static readonly Vector2Int Up = new Vector2Int(0, 1);
         public static readonly Vector2Int Right = new Vector2Int(1, 0);
 
+        public static readonly Vector2Int NegativeOne = new Vector2Int(-1, -1);
+
         public int x;
         public int y;
 

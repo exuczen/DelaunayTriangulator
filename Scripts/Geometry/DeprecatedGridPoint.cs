@@ -17,7 +17,7 @@ namespace Triangulation
         public DeprecatedGridPoint(Vector2 point)
         {
             p = point;
-            xy = -1 * Vector2Int.One;
+            xy = Vector2Int.NegativeOne;
         }
     }
 }
