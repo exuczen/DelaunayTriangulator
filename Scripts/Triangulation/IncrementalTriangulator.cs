@@ -8,8 +8,6 @@ namespace Triangulation
     public class IncrementalTriangulator : Triangulator
     {
         public TriangleGrid TriangleGrid => triangleGrid;
-        public PointGrid PointGrid => pointGrid;
-        public EdgeInfo EdgeInfo => edgeInfo;
         public List<int> CellPointsIndices => cellPointsIndices;
         public Polygon CellPolygon => cellPolygon;
         public bool InternalOnly => Supermanent;

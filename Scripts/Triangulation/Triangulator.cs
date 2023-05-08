@@ -10,6 +10,8 @@ namespace Triangulation
     {
         private const int SUPERTRIANGLES_MAX = 16;
 
+        public PointGrid PointGrid => pointGrid;
+        public EdgeInfo EdgeInfo => edgeInfo;
         public int TrianglesCount => trianglesCount;
         public int PointsOffset => pointsOffset;
         public int PointsCount { get => pointsCount; set => pointsCount = Math.Max(pointsOffset, value); }
