@@ -8,6 +8,14 @@ namespace Triangulation
     {
         private static readonly Color[] DebugColors = { Color.Red, Color.Green, Color.Blue, Color.Yellow };
 
+        public static Vector2 SnapToGrid(Vector2 point, Vector2 cellSize, out Vector2Int xy)
+        {
+            int x = (int)(point.X / cellSize.X + 0.5f);
+            int y = (int)(point.Y / cellSize.Y + 0.5f);
+            xy = new Vector2Int(x, y);
+            return xy * cellSize;
+        }
+
         public static Vector2Int GetXYCount(Vector2 size, out Vector2 cellSize, int minDivsCount)
         {
             int xCount, yCount;
