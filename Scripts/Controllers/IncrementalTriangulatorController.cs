@@ -9,9 +9,10 @@ namespace Triangulation
 
         protected new IncrementalTriangulator triangulator = null;
 
-        public IncrementalTriangulatorController(IParticles particles, IncrementalTriangulator triangulator) : base(particles, triangulator)
+        public IncrementalTriangulatorController(IParticles particles, IExceptionThrower exceptionThrower)
         {
-            this.triangulator = triangulator;
+            this.particles = particles;
+            base.triangulator = triangulator = new IncrementalTriangulator(particles.Capacity, exceptionThrower);
         }
 
         public override void UpdateTriangulation(TriangulationType type, Vector2 point)

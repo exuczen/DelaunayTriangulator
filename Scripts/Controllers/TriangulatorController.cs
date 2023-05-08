@@ -13,14 +13,16 @@ namespace Triangulation
 
         protected Triangulator triangulator = null;
 
-        protected readonly IParticles particles = null;
+        protected IParticles particles = null;
 
         protected readonly Stopwatch stopwatch = new Stopwatch();
 
-        public TriangulatorController(IParticles particles, Triangulator triangulator)
+        public TriangulatorController() { }
+
+        public TriangulatorController(IParticles particles, IExceptionThrower exceptionThrower)
         {
             this.particles = particles;
-            this.triangulator = triangulator;
+            triangulator = new Triangulator(particles.Capacity, exceptionThrower);
         }
 
         public SerializedTriangulator CreateSerializedTriangulator()
