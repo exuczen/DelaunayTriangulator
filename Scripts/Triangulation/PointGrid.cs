@@ -65,7 +65,7 @@ namespace Triangulation
                 xySort = true;
                 return 0;
             }
-            SetGridPointsXY(pointsXY, points, offset, pointsCount);
+            SetGridPointsXY(points, offset, pointsCount);
 
             // Sort grid points
             {
@@ -73,7 +73,7 @@ namespace Triangulation
                 var pointsComparer = GetPointsComparer(xyBounds, sortingOrder, out xySort);
                 Array.Sort(pointsXY, points, offset, pointsCount - offset, pointsComparer);
             }
-            return SetSortedPoints(pointsXY, points, offset, pointsCount, out bounds);
+            return SetSortedPoints(points, offset, pointsCount, out bounds);
         }
 
         public void SetPoints(Vector2[] points, int offset, int pointsCount)
@@ -95,7 +95,8 @@ namespace Triangulation
             if (GetCellXYIndex(points[pointIndex], out var cellXYI, false))
             {
                 indices[cellXYI.z] = -1;
-                points[pointIndex] = default;
+                points[pointIndex] = Veconst2.NaN;
+                pointsXY[pointIndex] = Vector2Int.NegativeOne;
             }
         }
 
@@ -115,8 +116,14 @@ namespace Triangulation
 
         public void AddPoint(int pointIndex, Vector2[] points, Vector3Int cellXYI)
         {
-            indices[cellXYI.z] = pointIndex;
-            points[pointIndex] = new Vector2(cellXYI.x * cellSize.X, cellXYI.y * cellSize.Y);
+            AddPoint(pointIndex, points, cellXYI, cellXYI.z);
+        }
+
+        private void AddPoint(int pointIndex, Vector2[] points, Vector2Int cellXY, int cellIndex)
+        {
+            indices[cellIndex] = pointIndex;
+            points[pointIndex] = cellXY * cellSize;
+            pointsXY[pointIndex] = cellXY;
         }
 
         public bool GetPointIndex(Vector2 point, out int pointIndex)
@@ -172,7 +179,7 @@ namespace Triangulation
             return false;
         }
 
-        private IComparer<Vector2Int> GetPointsComparer(Bounds2Int bounds, PointsSortingOrder sortingOrder, out bool xySort)
+        private static IComparer<Vector2Int> GetPointsComparer(Bounds2Int bounds, PointsSortingOrder sortingOrder, out bool xySort)
         {
             Vector2Int boundsSize = bounds.Size;
             switch (sortingOrder)
@@ -193,7 +200,7 @@ namespace Triangulation
             return xySort ? new GridPointsXYComparer() : new GridPointsYXComparer();
         }
 
-        private void SetGridPointsXY(Vector2Int[] pointsXY, Vector2[] points, int offset, int pointsCount)
+        private void SetGridPointsXY(Vector2[] points, int offset, int pointsCount)
         {
             for (int i = 0; i < offset; i++)
             {
@@ -205,7 +212,7 @@ namespace Triangulation
             }
         }
 
-        private int SetSortedPoints(Vector2Int[] pointsXY, Vector2[] points, int offset, int pointsCount, out Bounds2 bounds)
+        private int SetSortedPoints(Vector2[] points, int offset, int pointsCount, out Bounds2 bounds)
         {
             if (pointsCount <= 0)
             {
@@ -223,15 +230,11 @@ namespace Triangulation
                 var xy = pointsXY[i];
                 if (CanAddPoint(xy, out int index))
                 {
-                    int pointIndex = count++;
-                    indices[index] = pointIndex;
-                    pointsXY[pointIndex] = xy;
-                    points[pointIndex] = xy * cellSize;
+                    AddPoint(count++, points, xy, index);
                     minXY = Vector2Int.Min(minXY, xy);
                     maxXY = Vector2Int.Max(maxXY, xy);
                 }
             }
-
             for (int i = count; i < pointsCount; i++)
             {
                 pointsXY[i] = Vector2Int.NegativeOne;
@@ -245,52 +248,52 @@ namespace Triangulation
             return count;
         }
 
+        //private bool TryAddPoint(int pointIndex, Vector2[] points, out Vector3Int cellXYI, out int savedIndex)
+        //{
+        //    return TryAddPoint(pointIndex, points[pointIndex], point => points[pointIndex] = point, out cellXYI, out savedIndex);
+        //}
+
+        //private bool TryAddPoint(int pointIndex, List<Vector2> points, out Vector3Int cellXYI, out int savedIndex)
+        //{
+        //    return TryAddPoint(pointIndex, points[pointIndex], point => points[pointIndex] = point, out cellXYI, out savedIndex);
+        //}
+
         private bool TryAddPoint(int pointIndex, Vector2[] points, out Vector3Int cellXYI, out int savedIndex)
         {
-            return TryAddPoint(pointIndex, points[pointIndex], point => points[pointIndex] = point, out cellXYI, out savedIndex);
-        }
+            var point = points[pointIndex];
 
-        private bool TryAddPoint(int pointIndex, List<Vector2> points, out Vector3Int cellXYI, out int savedIndex)
-        {
-            return TryAddPoint(pointIndex, points[pointIndex], point => points[pointIndex] = point, out cellXYI, out savedIndex);
-        }
-
-        private bool TryAddPoint(int pointIndex, Vector2 point, Action<Vector2> setPoint, out Vector3Int cellXYI, out int savedIndex)
-        {
             if (Mathv.IsNaN(point))
             {
                 cellXYI = -1 * Vector3Int.One;
                 savedIndex = -1;
                 return false;
             }
-            bool result = CanAddPoint(point, out cellXYI, out savedIndex);
-            if (result)
+            if (CanAddPoint(point, out cellXYI, out savedIndex))
             {
-                int cellIndex = cellXYI.z;
-                indices[cellIndex] = pointIndex;
-                setPoint(new Vector2(cellXYI.x * cellSize.X, cellXYI.y * cellSize.Y));
+                AddPoint(pointIndex, points, cellXYI);
                 //Log.WriteLine(GetType() + ".TryAddPoint: " + cellXYI + ", " + savedIndex + " " + result + " " + point);
+                return true;
             }
             //else
             //{
-            //    //Log.WriteWarning(GetType() + ".TryAddPoint: " + cellXYI + ", " + savedIndex + " " + result + " " + point);
+            //    Log.WriteWarning(GetType() + ".TryAddPoint failed: " + cellXYI + ", " + savedIndex + " " + point);
             //}
-            return result;
+            return false;
         }
 
-        private int GetPointIndex(Vector2Int cellXY)
-        {
-            return GetPointIndex(cellXY.x, cellXY.y);
-        }
+        //private int GetPointIndex(Vector2Int cellXY)
+        //{
+        //    return GetPointIndex(cellXY.x, cellXY.y);
+        //}
 
-        private int GetPointIndex(int x, int y)
-        {
-            if (GetCellIndex(x, y, out int cellIndex))
-            {
-                return indices[cellIndex];
-            }
-            return -1;
-        }
+        //private int GetPointIndex(int x, int y)
+        //{
+        //    if (GetCellIndex(x, y, out int cellIndex))
+        //    {
+        //        return indices[cellIndex];
+        //    }
+        //    return -1;
+        //}
 
         private bool GetCellIndex(Vector2Int cellXY, out int index)
         {

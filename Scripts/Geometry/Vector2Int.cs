@@ -41,6 +41,8 @@ namespace Triangulation
 
         public float SqrLength => x * x + y * y;
 
+        public static implicit operator Vector2Int(Vector3Int v) => new Vector2Int(v.x, v.y);
+
         public static bool operator ==(Vector2Int v1, Vector2Int v2) => v1.Equals(v2);
 
         public static bool operator !=(Vector2Int v1, Vector2Int v2) => !v1.Equals(v2);
