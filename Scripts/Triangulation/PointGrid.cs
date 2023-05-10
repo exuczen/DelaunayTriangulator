@@ -88,7 +88,7 @@ namespace Triangulation
                 if (GetCellIndex(gridPoint.X, gridPoint.Y, out int cellIndex))
                 {
                     int pointIndex = gridPoint.Index;
-                    var cellXY = gridPoint.ToVector2Int();
+                    var cellXY = gridPoint.GetXY();
                     AddPoint(pointIndex, points, cellXY, cellIndex);
                 }
             }

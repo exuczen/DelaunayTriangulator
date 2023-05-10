@@ -116,7 +116,7 @@ namespace Triangulation
             for (int i = 0; i < pointsOffset; i++)
             {
                 edgeInfo.SetPointExternal(i, false);
-                points[i] = dataSuperPoints[i].ToVector2();
+                points[i] = dataSuperPoints[i].GetXY();
                 pointsXY[i] = Vector2Int.NegativeOne;
             }
             for (int i = pointsOffset; i < pointsCount; i++)

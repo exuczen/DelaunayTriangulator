@@ -22,7 +22,7 @@ namespace Triangulation
             Index = index;
         }
 
-        public Vector2Int ToVector2Int() => new Vector2Int(X, Y);
+        public Vector2Int GetXY() => new Vector2Int(X, Y);
 
         public override string ToString()
         {
