@@ -98,29 +98,35 @@ namespace Triangulation
 
         public virtual void Load(SerializedTriangulator data)
         {
-            var dataPoints = data.Points;
+            var dataGridPoints = data.GridPoints;
+            var dataSuperPoints = data.SuperPoints;
             var dataTriangles = data.Triangles;
-            if (dataPoints.Length == 0)
+            if (dataGridPoints.Length == 0 || dataSuperPoints.Length == 0)
             {
                 return;
             }
             Clear();
 
-            int usedPointsCount = dataPoints.Length;
-            pointsOffset = data.PointsOffset;
-            pointsCount = dataPoints[^1].Index + 1;
+            pointsOffset = dataSuperPoints.Length;
+            pointsCount = dataGridPoints[^1].Index + 1;
             trianglesCount = dataTriangles.Length;
 
-            for (int i = 0; i < pointsCount; i++)
+            var pointsXY = pointGrid.PointsXY;
+
+            for (int i = 0; i < pointsOffset; i++)
+            {
+                edgeInfo.SetPointExternal(i, false);
+                points[i] = dataSuperPoints[i].ToVector2();
+                pointsXY[i] = Vector2Int.NegativeOne;
+            }
+            for (int i = pointsOffset; i < pointsCount; i++)
             {
                 edgeInfo.SetPointExternal(i, false);
                 points[i] = Veconst2.NaN;
+                pointsXY[i] = Vector2Int.NegativeOne;
             }
-            for (int i = 0; i < usedPointsCount; i++)
-            {
-                int pointIndex = dataPoints[i].Index;
-                points[pointIndex] = dataPoints[i].ToVector2();
-            }
+            pointGrid.SetGridPoints(dataGridPoints, points);
+
             for (int i = 0; i < pointsCount; i++)
             {
                 if (Mathv.IsNaN(points[i]))
@@ -137,8 +143,6 @@ namespace Triangulation
                 triangles[i] = new Triangle(dataTriangles[i], points);
             }
             edgeInfo.AddEdgesToCounterDict(triangles, trianglesCount);
-
-            pointGrid.SetPoints(points, pointsOffset, pointsCount);
         }
 
         public void SetSuperCircumCirclePoints(Bounds2 bounds, bool usePointsOffset)

@@ -18,6 +18,7 @@ namespace Triangulation
         public Vector2 CellSize => cellSize;
         public Vector2 Size => size;
         public int[] Indices => indices;
+        public Vector2Int[] PointsXY => pointsXY;
 
         private readonly int xCount, yCount = 0;
         private readonly Vector2 cellSize = default;
@@ -76,17 +77,20 @@ namespace Triangulation
             return SetSortedPoints(points, offset, pointsCount, out bounds);
         }
 
-        public void SetPoints(Vector2[] points, int offset, int pointsCount)
+        public void SetGridPoints(SerializedGridPoint2[] gridPoints, Vector2[] points)
         {
-            if (pointsCount <= 0)
-            {
-                return;
-            }
             ClearIndices();
 
-            for (int i = offset; i < pointsCount; i++)
+            int gridPointsCount = gridPoints.Length;
+            for (int i = 0; i < gridPointsCount; i++)
             {
-                TryAddPoint(i, points, out _, out _);
+                var gridPoint = gridPoints[i];
+                if (GetCellIndex(gridPoint.X, gridPoint.Y, out int cellIndex))
+                {
+                    int pointIndex = gridPoint.Index;
+                    var cellXY = gridPoint.ToVector2Int();
+                    AddPoint(pointIndex, points, cellXY, cellIndex);
+                }
             }
         }
 
@@ -237,8 +241,8 @@ namespace Triangulation
             }
             for (int i = count; i < pointsCount; i++)
             {
-                pointsXY[i] = Vector2Int.NegativeOne;
                 points[i] = Veconst2.NaN;
+                pointsXY[i] = Vector2Int.NegativeOne;
             }
             bounds = Bounds2.MinMax(minXY * cellSize, maxXY * cellSize);
 
@@ -258,28 +262,28 @@ namespace Triangulation
         //    return TryAddPoint(pointIndex, points[pointIndex], point => points[pointIndex] = point, out cellXYI, out savedIndex);
         //}
 
-        private bool TryAddPoint(int pointIndex, Vector2[] points, out Vector3Int cellXYI, out int savedIndex)
-        {
-            var point = points[pointIndex];
-
-            if (Mathv.IsNaN(point))
-            {
-                cellXYI = -1 * Vector3Int.One;
-                savedIndex = -1;
-                return false;
-            }
-            if (CanAddPoint(point, out cellXYI, out savedIndex))
-            {
-                AddPoint(pointIndex, points, cellXYI);
-                //Log.WriteLine(GetType() + ".TryAddPoint: " + cellXYI + ", " + savedIndex + " " + result + " " + point);
-                return true;
-            }
-            //else
-            //{
-            //    Log.WriteWarning(GetType() + ".TryAddPoint failed: " + cellXYI + ", " + savedIndex + " " + point);
-            //}
-            return false;
-        }
+        //private bool TryAddPoint(int pointIndex, Vector2[] points, out Vector3Int cellXYI, out int savedIndex)
+        //{
+        //    var point = points[pointIndex];
+        //
+        //    if (Mathv.IsNaN(point))
+        //    {
+        //        cellXYI = -1 * Vector3Int.One;
+        //        savedIndex = -1;
+        //        return false;
+        //    }
+        //    if (CanAddPoint(point, out cellXYI, out savedIndex))
+        //    {
+        //        AddPoint(pointIndex, points, cellXYI);
+        //        //Log.WriteLine(GetType() + ".TryAddPoint: " + cellXYI + ", " + savedIndex + " " + result + " " + point);
+        //        return true;
+        //    }
+        //    //else
+        //    //{
+        //    //    Log.WriteWarning(GetType() + ".TryAddPoint failed: " + cellXYI + ", " + savedIndex + " " + point);
+        //    //}
+        //    return false;
+        //}
 
         //private int GetPointIndex(Vector2Int cellXY)
         //{

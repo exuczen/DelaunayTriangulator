@@ -6,39 +6,45 @@ namespace Triangulation
     public class SerializedTriangulator
     {
 #if UNITY
-        public SerializedPoint2[] Points;
+        public SerializedPoint2[] SuperPoints;
+        public SerializedGridPoint2[] GridPoints;
         public SerializedTriangle[] Triangles;
-        public int PointsOffset;
 #else
-        public SerializedPoint2[] Points { get; set; }
+        public SerializedPoint2[] SuperPoints { get; set; }
+        public SerializedGridPoint2[] GridPoints { get; set; }
         public SerializedTriangle[] Triangles { get; set; }
-        public int PointsOffset { get; set; }
 #endif
 
         public SerializedTriangulator() { }
 
         public SerializedTriangulator(Triangulator triangulator)
         {
+            var pointsXY = triangulator.PointGrid.PointsXY;
             var points = triangulator.Points;
             var triangles = triangulator.Triangles;
 
-            Points = new SerializedPoint2[triangulator.UsedPointsCount];
+            SuperPoints = new SerializedPoint2[triangulator.PointsOffset];
+            GridPoints = new SerializedGridPoint2[triangulator.UsedPointsCount - SuperPoints.Length];
             Triangles = new SerializedTriangle[triangulator.TrianglesCount];
 
             int pointsCount = triangulator.PointsCount;
-            int count = 0;
-            for (int i = 0; i < pointsCount; i++)
+            int gridCount = 0;
+
+            for (int i = 0; i < SuperPoints.Length; i++)
+            {
+                SuperPoints[i] = new SerializedPoint2(points[i], i);
+            }
+            for (int i = SuperPoints.Length; i < pointsCount; i++)
             {
                 if (!Mathv.IsNaN(points[i]))
                 {
-                    Points[count++] = new SerializedPoint2(points[i], i);
+                    GridPoints[gridCount++] = new SerializedGridPoint2(pointsXY[i], i);
                 }
             }
             for (int i = 0; i < Triangles.Length; i++)
             {
                 Triangles[i] = new SerializedTriangle(triangles[i]);
             }
-            PointsOffset = triangulator.PointsOffset;
         }
     }
 }
