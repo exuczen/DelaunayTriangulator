@@ -77,7 +77,7 @@ namespace Triangulation
             return triangleIndex >= 0;
         }
 
-        public void RemoveTriangleWithKey(long triangleKey, ref int trianglesCount, EdgeInfo edgeInfo)
+        public void RemoveTriangleWithKey(long triangleKey, ref int trianglesCount, IncrementalEdgeInfo edgeInfo)
         {
             if (!ContainsTriangle(triangleKey))
             {
@@ -86,13 +86,13 @@ namespace Triangulation
             RemoveTriangle(trianglesDict[triangleKey], ref trianglesCount, edgeInfo);
         }
 
-        public void RemoveTriangle(int triangleIndex, ref int trianglesCount, EdgeInfo edgeInfo)
+        public void RemoveTriangle(int triangleIndex, ref int trianglesCount, IncrementalEdgeInfo edgeInfo)
         {
             RemoveTriangle(triangleIndex, edgeInfo);
             trianglesCount = Count;
         }
 
-        public void RemoveTriangle(int triangleIndex, EdgeInfo edgeInfo)
+        public void RemoveTriangle(int triangleIndex, IncrementalEdgeInfo edgeInfo)
         {
             int trianglesCount = Count;
             if (triangleIndex >= trianglesCount || trianglesCount <= 0 || triangleIndex < 0)

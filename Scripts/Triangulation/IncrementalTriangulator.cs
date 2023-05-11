@@ -7,6 +7,7 @@ namespace Triangulation
 {
     public class IncrementalTriangulator : Triangulator
     {
+        public new IncrementalEdgeInfo EdgeInfo => edgeInfo;
         public TriangleGrid TriangleGrid => triangleGrid;
         public List<int> CellPointsIndices => cellPointsIndices;
         public Polygon CellPolygon => cellPolygon;
@@ -18,6 +19,9 @@ namespace Triangulation
         public bool PointsValidation = false;
         public bool EdgesValidation = false;
 
+        protected TriangleSet triangleSet = null;
+        protected new IncrementalEdgeInfo edgeInfo = null;
+
         private readonly List<int> cellPointsIndices = new List<int>();
         private readonly List<int> cellTrianglesIndices = new List<int>();
         private readonly Polygon cellPolygon = new Polygon(true);
@@ -26,7 +30,7 @@ namespace Triangulation
 
         private readonly EdgeFlipper baseEdgeFlipper = null;
         private readonly Triangle[] addedTriangles = null;
-        private readonly EdgeInfo addedEdgeInfo = null;
+        private readonly IncrementalEdgeInfo addedEdgeInfo = null;
 
         private int addedTrianglesCount = 0;
 
@@ -36,7 +40,13 @@ namespace Triangulation
         {
             baseEdgeFlipper = new EdgeFlipper(triangleSet, edgeInfo, points);
             addedTriangles = new Triangle[triangles.Length];
-            addedEdgeInfo = new EdgeInfo(points, exceptionThrower);
+            addedEdgeInfo = new IncrementalEdgeInfo(points, exceptionThrower);
+        }
+
+        protected override void SetupEdgeInfo()
+        {
+            triangleSet = new TriangleSet(triangles, points);
+            base.edgeInfo = edgeInfo = new IncrementalEdgeInfo(triangleSet, points, exceptionThrower);
         }
 
         public override bool Triangulate()

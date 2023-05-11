@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace Triangulation
 {
-    public class DeprecatedEdgeInfo : EdgeInfo
+    public class DeprecatedEdgeInfo : IncrementalEdgeInfo
     {
         private readonly List<int> edgeIndexPool = new List<int>();
 

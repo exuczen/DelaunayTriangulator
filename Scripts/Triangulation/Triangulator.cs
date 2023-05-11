@@ -31,8 +31,8 @@ namespace Triangulation
 
         protected readonly IExceptionThrower exceptionThrower = null;
 
-        protected readonly TriangleSet triangleSet = null;
-        protected readonly EdgeInfo edgeInfo = null;
+        protected EdgeInfo edgeInfo = null;
+        protected PointGrid pointGrid = null;
 
         protected readonly Triangle[] triangles = null;
         protected readonly Vector2[] points = null;
@@ -48,8 +48,6 @@ namespace Triangulation
 
         protected readonly float pointTolerance = 0f;
         protected float circleTolerance = 0f;
-
-        protected PointGrid pointGrid = null;
 
         protected Bounds2 bounds = default;
         protected Triangle[] debugSuperTriangles = new Triangle[SUPERTRIANGLES_MAX];
@@ -77,8 +75,12 @@ namespace Triangulation
 
             this.exceptionThrower = exceptionThrower;
 
-            triangleSet = new TriangleSet(triangles, points);
-            edgeInfo = new EdgeInfo(triangleSet, points, exceptionThrower);
+            SetupEdgeInfo();
+        }
+
+        protected virtual void SetupEdgeInfo()
+        {
+            edgeInfo = new EdgeInfo(points, exceptionThrower);
         }
 
         public void Initialize(Vector2 gridSize, Vector2Int xyCount)
@@ -310,7 +312,6 @@ namespace Triangulation
                 throw new Exception("ClearPoint: " + pointIndex);
             }
             pointGrid.ClearPoint(pointIndex, points);
-
             edgeInfo.SetPointExternal(pointIndex, false);
             points[pointIndex] = Veconst2.NaN;
 

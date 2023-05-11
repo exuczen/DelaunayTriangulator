@@ -292,7 +292,7 @@ namespace Triangulation
             return result;
         }
 
-        public bool GetFirstExternalEdgeInCell(TriangleCell cell, EdgeInfo edgeInfo, out int extEdgeIndex)
+        public bool GetFirstExternalEdgeInCell(TriangleCell cell, IncrementalEdgeInfo edgeInfo, out int extEdgeIndex)
         {
             foreach (var key in cell.TriangleKeys)
             {
@@ -307,7 +307,7 @@ namespace Triangulation
             return false;
         }
 
-        public bool GetFirstOppositeExternalEdgeInCell(Vector2 point, TriangleCell cell, EdgeInfo edgeInfo, out int extEdgeIndex, out bool pointOnEdge)
+        public bool GetFirstOppositeExternalEdgeInCell(Vector2 point, TriangleCell cell, IncrementalEdgeInfo edgeInfo, out int extEdgeIndex, out bool pointOnEdge)
         {
             foreach (var key in cell.TriangleKeys)
             {

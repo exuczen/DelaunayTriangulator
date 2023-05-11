@@ -57,7 +57,7 @@ namespace Triangulation
             other.concaveRanges.AddRange(concaveRanges);
         }
 
-        public void SetFromExternalEdges(EdgeInfo edgeInfo, Vector2[] points)
+        public void SetFromExternalEdges(IncrementalEdgeInfo edgeInfo, Vector2[] points)
         {
             Clear();
             float angleSum = 0f;
@@ -112,7 +112,7 @@ namespace Triangulation
 #endif
         }
 
-        public int ClipConcavePeaks(Triangle[] triangles, Vector2[] points, EdgeInfo edgeInfo)
+        public int ClipConcavePeaks(Triangle[] triangles, Vector2[] points, IncrementalEdgeInfo edgeInfo)
         {
             int trianglesCount = 0;
 
@@ -205,7 +205,7 @@ namespace Triangulation
             }
         }
 
-        public int TriangulateFromConcavePeaks(EdgePeak peak, IndexRange extEdgesRange, EdgeInfo baseEdgeInfo, Triangle[] triangles, EdgeInfo addedEdgeInfo)
+        public int TriangulateFromConcavePeaks(EdgePeak peak, IndexRange extEdgesRange, IncrementalEdgeInfo baseEdgeInfo, Triangle[] triangles, IncrementalEdgeInfo addedEdgeInfo)
         {
             int trianglesCount = 0;
 
@@ -221,7 +221,7 @@ namespace Triangulation
             return trianglesCount;
         }
 
-        private bool TriangulateFromConcavePeaks(IndexRange validRange, EdgeInfo baseEdgeInfo, Triangle[] triangles, out int trianglesCount)
+        private bool TriangulateFromConcavePeaks(IndexRange validRange, IncrementalEdgeInfo baseEdgeInfo, Triangle[] triangles, out int trianglesCount)
         {
             trianglesCount = 0;
 
@@ -311,7 +311,7 @@ namespace Triangulation
             }
         }
 
-        private void AddExternalEdgesFromConcaveRanges(IndexRange validRange, EdgeInfo addedEdgeInfo)
+        private void AddExternalEdgesFromConcaveRanges(IndexRange validRange, IncrementalEdgeInfo addedEdgeInfo)
         {
             int rangesCount = concaveRanges.Count;
             int edgeCount = 0;
@@ -474,7 +474,7 @@ namespace Triangulation
             return result;
         }
 
-        private void TriangulateFromConcavePeak(int concavePeakIndex, bool forward, EdgeInfo baseEdgeInfo, Triangle[] triangles, ref int trianglesCount, out int endPeakIndex)
+        private void TriangulateFromConcavePeak(int concavePeakIndex, bool forward, IncrementalEdgeInfo baseEdgeInfo, Triangle[] triangles, ref int trianglesCount, out int endPeakIndex)
         {
             int peakEnd = endPeakIndex = GetMaxAnglePeakFromPeak(concavePeakIndex, forward, baseEdgeInfo);
             int peakBeg;
@@ -573,7 +573,7 @@ namespace Triangulation
 #endif
         }
 
-        private int GetMaxAnglePeakFromPeak(int begPeakIndex, bool forward, EdgeInfo baseEdgeInfo)
+        private int GetMaxAnglePeakFromPeak(int begPeakIndex, bool forward, IncrementalEdgeInfo baseEdgeInfo)
         {
             var points = baseEdgeInfo.Points;
             var begPeak = edgePeaks[begPeakIndex];

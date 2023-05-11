@@ -13,7 +13,7 @@ namespace Triangulation
         private readonly long[] triangleKeys = new long[2];
         private readonly int[] indexBuffer = new int[3];
 
-        private readonly EdgeInfo edgeInfo = null;
+        private readonly IncrementalEdgeInfo edgeInfo = null;
         private readonly TriangleSet triangleSet = null;
         private readonly Vector2[] points = null;
         private readonly Dictionary<int, bool> nonDelaunayEdgeDict = new Dictionary<int, bool>();
@@ -21,7 +21,7 @@ namespace Triangulation
         private readonly List<long> addedTriangleKeys = new List<long>();
         private readonly List<long> removedTriangleKeys = new List<long>();
 
-        public EdgeFlipper(TriangleSet triangleSet, EdgeInfo edgeInfo, Vector2[] points)
+        public EdgeFlipper(TriangleSet triangleSet, IncrementalEdgeInfo edgeInfo, Vector2[] points)
         {
             this.points = points;
             this.triangleSet = triangleSet;
