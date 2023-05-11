@@ -93,10 +93,9 @@ namespace Triangulation
             return dotRayEdge > 0f && dotRayEdge < edgeLength;
         }
 
-        public bool SetLastPointOnEgdeData(Vector2 point, Vector2[] points, out bool inRange)
+        public bool IsPointOnEdge(int pointIndex, Vector2[] points, out bool inRange)
         {
-            bool onEdge = IsPointOnEdge(point, points, true, out inRange);
-            return onEdge;
+            return IsPointOnEdge(points[pointIndex], points, false, out inRange);
         }
 
         public bool IsPointOnEdge(Vector2 point, Vector2[] points, bool setLastPointData, out bool inRange)

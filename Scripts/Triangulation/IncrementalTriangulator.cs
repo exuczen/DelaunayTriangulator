@@ -745,15 +745,7 @@ namespace Triangulation
 
         private bool AddInternalTriangle(EdgeEntry edge, int pointIndex, ref DegenerateTriangle degenerateTriangle)
         {
-            edge.SetLastPointOnEgdeData(points[pointIndex], points, out _);
-
-            if (!edge.LastPointDegenerateTriangle)
-            {
-                AddTriangleToProcess(edge, pointIndex);
-                //Log.WriteLine(GetType() + ".AddInternalTriangle: " + addedTriangles[addedTrianglesCount - 1]);
-                return true;
-            }
-            else if (edge.LastPointInRange && edgeInfo.IsEdgeExternal(edge))
+            if (edgeInfo.IsEdgeExternal(edge) && edge.IsPointOnEdge(pointIndex, points, out _))
             {
                 if (!degenerateTriangle.IsValid)
                 {
@@ -769,8 +761,9 @@ namespace Triangulation
             }
             else
             {
-                Log.WriteLine(GetType() + ".AddInternalTriangle: SKIPPED INTERNAL DEGENERATE TRIANGLE: " + edge + " pointIndex: " + pointIndex + Log.KIND_OF_FAKAP);
-                return false;
+                AddTriangleToProcess(edge, pointIndex);
+                //Log.WriteLine(GetType() + ".AddInternalTriangle: " + addedTriangles[addedTrianglesCount - 1]);
+                return true;
             }
         }
 
