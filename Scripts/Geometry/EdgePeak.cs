@@ -19,7 +19,7 @@ namespace Triangulation
         public int PeakVertex { get; private set; }
         public int VertexA => EdgeA.GetOtherVertex(PeakVertex);
         public int VertexB => EdgeB.GetOtherVertex(PeakVertex);
-        public bool IsConvex => Angle <= 180f;
+        public bool IsConvex => Angle < 180f;
 
         public EdgePeak(bool valid = false) : this()
         {
