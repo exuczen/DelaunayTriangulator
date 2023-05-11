@@ -64,14 +64,16 @@ namespace Triangulation
             switch (type)
             {
                 case TriangulationType.None:
-                    AddParticle(point);
+                    TryAddParticle(point);
                     break;
                 case TriangulationType.Increment:
                 case TriangulationType.Decrement:
                     throw new ArgumentException("UpdateTriangulation: " + type);
                 case TriangulationType.Entire:
-                    AddParticle(point);
-                    UpdateTriangulation();
+                    if (TryAddParticle(point))
+                    {
+                        UpdateTriangulation();
+                    }
                     break;
                 default:
                     break;
@@ -84,7 +86,7 @@ namespace Triangulation
             {
                 for (int x = 0; x < width; ++x)
                 {
-                    AddParticle(new Vector2(x * scale, y * scale));
+                    TryAddParticle(new Vector2(x * scale, y * scale));
                 }
             }
             if (triangulate)
@@ -111,10 +113,14 @@ namespace Triangulation
             InvokeTriangulateAction(() => triangulator.Triangulate());
         }
 
-        protected virtual void AddParticle(Vector2 point)
+        protected bool TryAddParticle(Vector2 point)
         {
-            triangulator.AddPoint(point, out int i);
-            SetParticle(true, i);
+            if (triangulator.TryAddPoint(point, out int i, false))
+            {
+                SetParticle(true, i);
+                return true;
+            }
+            return false;
         }
 
         protected void SetParticle(bool active, int i)

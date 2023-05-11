@@ -76,12 +76,6 @@ namespace Triangulation
             Triangulate();
         }
 
-        public bool TryAddPoint(Vector2 point, out int pointIndex, bool findClosestCell)
-        {
-            pointIndex = -1;
-            return TryAddPointRefIndex(point, ref pointIndex, findClosestCell);
-        }
-
         public bool TryRemovePointFromTriangulation(Vector2 point, bool validate, out int pointIndex)
         {
             if (pointGrid.GetPointIndex(point, out pointIndex) && pointIndex >= 0)

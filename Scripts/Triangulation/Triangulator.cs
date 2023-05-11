@@ -196,10 +196,10 @@ namespace Triangulation
             indices.AddRange(initialPointIndices);
         }
 
-        public void AddPoint(Vector2 point, out int pointIndex)
+        public bool TryAddPoint(Vector2 point, out int pointIndex, bool findClosestCell)
         {
             pointIndex = -1;
-            AddPointRefIndex(point, ref pointIndex);
+            return TryAddPointRefIndex(point, ref pointIndex, findClosestCell);
         }
 
         protected bool TryAddPointRefIndex(Vector2 point, ref int pointIndex, bool findClosestCell)
@@ -208,8 +208,7 @@ namespace Triangulation
             if (findClosestCell && pointGrid.GetClosestClearCell(point, out var cellXYI) ||
                 !findClosestCell && pointGrid.CanAddPoint(point, out cellXYI, out savedIndex))
             {
-                AddPointRefIndex(point, ref pointIndex);
-                pointGrid.AddPoint(pointIndex, points, cellXYI);
+                AddPointRefIndex(cellXYI, ref pointIndex);
                 return true;
             }
             else
@@ -219,7 +218,7 @@ namespace Triangulation
             }
         }
 
-        private void AddPointRefIndex(Vector2 point, ref int pointIndex)
+        private void AddPointRefIndex(Vector3Int cellXYI, ref int pointIndex)
         {
             int unusedIndicesCount = unusedPointIndices.Count;
 
@@ -242,7 +241,7 @@ namespace Triangulation
             {
                 pointIndex = pointsCount++;
             }
-            points[pointIndex] = point;
+            pointGrid.AddPoint(pointIndex, points, cellXYI);
         }
 
         public void Clear()

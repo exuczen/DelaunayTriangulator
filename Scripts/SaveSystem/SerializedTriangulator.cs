@@ -14,6 +14,7 @@ namespace Triangulation
         public SerializedGridPoint2[] GridPoints { get; set; }
         public SerializedTriangle[] Triangles { get; set; }
 #endif
+        public int PointsLength => SuperPoints.Length + GridPoints.Length;
 
         public SerializedTriangulator() { }
 

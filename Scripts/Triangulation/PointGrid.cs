@@ -137,6 +137,8 @@ namespace Triangulation
             return result;
         }
 
+        public Vector2 GetPosition(Vector2Int xy) => xy * cellSize;
+
         public bool IsPointBoundary(int pointIndex)
         {
             int x = pointIndex % yCount;
