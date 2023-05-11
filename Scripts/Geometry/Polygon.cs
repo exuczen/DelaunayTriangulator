@@ -177,10 +177,14 @@ namespace Triangulation
             {
                 return false;
             }
+            else if (IsLastSortedPeakConvex())
+            {
+                return true;
+            }
             else
             {
                 float minDistToOppEdge = GetOtherPeakMinDistToOppEdge(peakIndex, points);
-                bool result = minDistToOppEdge > pointCellSize * 0.5f || IsLastSortedPeakConvex();
+                bool result = minDistToOppEdge > pointCellSize * 0.5f;
 #if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".CanClipPeak: " + result + " | minDistToOppEdge / pointCellSize = " + (minDistToOppEdge / pointCellSize).ToString("f2"));
 #endif
@@ -908,7 +912,7 @@ namespace Triangulation
                 return false;
             }
             var concavePeak = sortedPeaks[sortedLast];
-            if (concavePeak.Angle < 180f)
+            if (concavePeak.IsConvex)
             {
 #if LOGS_ENABLED
                 Log.WriteLine(GetType() + ".SortConcavePeaksByDistToOppEdge: Last peak is convex: " + concavePeak);
