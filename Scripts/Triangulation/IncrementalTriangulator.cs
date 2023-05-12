@@ -137,18 +137,18 @@ namespace Triangulation
             }
         }
 
-        public bool AddPointToTriangulation(Vector2 point, int pointIndex, bool findClosestCell)
+        public bool AddPointToTriangulation(Vector2 point, int pointIndex, bool findClosestCell, bool validate)
         {
-            return AddPointToTriangulationRefIndex(point, ref pointIndex, findClosestCell);
+            return AddPointToTriangulationRefIndex(point, ref pointIndex, findClosestCell, validate);
         }
 
-        public bool AddPointToTriangulation(Vector2 point, out int pointIndex, bool findClosestCell)
+        public bool AddPointToTriangulation(Vector2 point, out int pointIndex, bool findClosestCell, bool validate)
         {
             pointIndex = -1;
-            return AddPointToTriangulationRefIndex(point, ref pointIndex, findClosestCell);
+            return AddPointToTriangulationRefIndex(point, ref pointIndex, findClosestCell, validate);
         }
 
-        protected bool AddPointToTriangulationRefIndex(Vector2 point, ref int pointIndex, bool findClosestCell)
+        protected bool AddPointToTriangulationRefIndex(Vector2 point, ref int pointIndex, bool findClosestCell, bool validate)
         {
             if (trianglesCount <= 0 || NotEnoughPoints(pointsCount))
             {
@@ -219,8 +219,10 @@ namespace Triangulation
                 }
                 //Log.PrintArray(triangles, trianglesCount, "AddPointToTriangulation: ");
                 //edgeInfo.PrintPointsExternal(pointsCount);
-
-                ValidateTriangulation(EdgesValidation, PointsValidation);
+                if (validate)
+                {
+                    ValidateTriangulation(EdgesValidation, PointsValidation);
+                }
             }
             else
             {

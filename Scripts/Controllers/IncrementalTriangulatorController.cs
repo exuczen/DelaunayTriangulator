@@ -22,7 +22,7 @@ namespace Triangulation
                 case TriangulationType.None:
                     break;
                 case TriangulationType.Increment:
-                    InvokeTriangulateAction(() => AddParticleToTriangulation(point));
+                    InvokeTriangulateAction(() => AddParticleToTriangulation(point, false, true));
                     break;
                 case TriangulationType.Decrement:
                     InvokeTriangulateAction(() => TryRemoveParticleFromTriangulation(point, true));
@@ -39,9 +39,15 @@ namespace Triangulation
             triangulator.TriangleGrid.SetSelectedCell(point);
         }
 
-        public void AddParticleToTriangulation(Vector2 point)
+        public void AddParticleToTriangulation(Vector2 point, int i, bool findClosestCell, bool validate)
         {
-            bool active = triangulator.AddPointToTriangulation(point, out int i, false);
+            bool active = triangulator.AddPointToTriangulation(point, i, findClosestCell, validate);
+            SetParticle(active, i);
+        }
+
+        public void AddParticleToTriangulation(Vector2 point, bool findClosestCell, bool validate)
+        {
+            bool active = triangulator.AddPointToTriangulation(point, out int i, findClosestCell, validate);
             SetParticle(active, i);
         }
 
