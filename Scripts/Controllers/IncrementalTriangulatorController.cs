@@ -25,7 +25,7 @@ namespace Triangulation
                     InvokeTriangulateAction(() => AddParticleToTriangulation(point));
                     break;
                 case TriangulationType.Decrement:
-                    InvokeTriangulateAction(() => TryRemoveParticleFromTriangulation(point));
+                    InvokeTriangulateAction(() => TryRemoveParticleFromTriangulation(point, true));
                     break;
                 case TriangulationType.Entire:
                     if (TryAddParticle(point))
@@ -39,15 +39,21 @@ namespace Triangulation
             triangulator.TriangleGrid.SetSelectedCell(point);
         }
 
-        private void AddParticleToTriangulation(Vector2 point)
+        public void AddParticleToTriangulation(Vector2 point)
         {
             bool active = triangulator.AddPointToTriangulation(point, out int i, false);
             SetParticle(active, i);
         }
 
-        private void TryRemoveParticleFromTriangulation(Vector2 point)
+        public void RemoveParticleFromTriangulation(int i, bool validate)
         {
-            if (triangulator.TryRemovePointFromTriangulation(point, true, out int i))
+            triangulator.RemovePointFromTriangulation(i, validate);
+            SetParticle(false, i);
+        }
+
+        private void TryRemoveParticleFromTriangulation(Vector2 point, bool validate)
+        {
+            if (triangulator.TryRemovePointFromTriangulation(point, validate, out int i))
             {
                 SetParticle(false, i);
             }

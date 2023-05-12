@@ -90,15 +90,14 @@ namespace Triangulation
         {
             if (pointGrid.GetPointIndex(point, out pointIndex) && pointIndex >= 0)
             {
-                RemovePointFromTriangulation(pointIndex, validate, out _);
+                RemovePointFromTriangulation(pointIndex, validate);
                 return true;
             }
             return false;
         }
 
-        public void RemovePointFromTriangulation(int pointIndex, bool validate, out bool reset)
+        public void RemovePointFromTriangulation(int pointIndex, bool validate)
         {
-            reset = false;
             if (pointIndex < 0 || pointIndex >= pointsCount)
             {
                 throw new ArgumentOutOfRangeException("RemovePoint: " + pointIndex + " pointsCount: " + pointsCount);
