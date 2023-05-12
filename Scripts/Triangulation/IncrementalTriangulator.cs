@@ -204,7 +204,9 @@ namespace Triangulation
                     {
                         if (InternalOnly)
                         {
-                            throw new Exception(GetType() + ".AddPoints: InternalOnly && !isInTriangle");
+                            Log.WriteError(GetType() + ".AddPoints: InternalOnly && PointOutsideTriangles");
+                            exceptionThrower.ThrowException(GetType() + ".AddPoints: InternalOnly && PointOutsideTriangles", ErrorCode.PointOutsideTriangles, pointIndex);
+                            return false;
                         }
                         result = ProcessExternalPoint(cellXY, pointIndex);
                     }

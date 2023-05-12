@@ -37,6 +37,8 @@ namespace Triangulation
 
         public static void WriteLine(string value) { }
 
+        public static void WriteLine(string format, params object[] args) { }
+
         public static void PrintList<T>(List<T> list, string prefix = null) { }
 
         public static void PrintArrayToString<T>(T[] array, int count, Func<T, string> toString, string prefix) { }

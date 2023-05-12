@@ -9,6 +9,7 @@
         InvalidTriangulation,
         InternalEdgeExists,
         ExternalEdgesBrokenLoop,
+        PointOutsideTriangles,
     }
 
     public readonly struct ErrorData
