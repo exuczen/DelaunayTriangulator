@@ -125,7 +125,7 @@ namespace Triangulation
 
         protected void SetParticle(bool active, int i)
         {
-            particles.SetParticleActive(i, true);
+            particles.SetParticleActive(i, active);
             if (active)
             {
                 particles.SetParticlePosition(i, triangulator.GetPoint(i));
