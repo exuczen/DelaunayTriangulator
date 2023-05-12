@@ -119,7 +119,7 @@ namespace Triangulation
             EdgePeak concavePeak;
             int sortedLast = sortedPeaks.Count - 1;
 
-            while (sortedLast > 1 && (concavePeak = sortedPeaks[sortedLast]).Angle > 182.5f)
+            while (sortedLast > 1 && (concavePeak = sortedPeaks[sortedLast]).Angle > 185f)
             {
                 int peakIndex = GetPeakIndex(concavePeak.PeakVertex);
 
