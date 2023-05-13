@@ -151,6 +151,10 @@ namespace Triangulation
 
         public void AddTriangle(Triangle triangle)
         {
+            if (triangleCellsDict.ContainsKey(triangle.Key))
+            {
+                return;
+            }
             var cc = triangle.CircumCircle;
             var ccBounds = cc.Bounds;
             ccBounds.min -= Vector2.One * cellTolerance;

@@ -15,7 +15,8 @@ namespace Triangulation
         public int TrianglesCount => trianglesCount;
         public int PointsOffset => pointsOffset;
         public int PointsCount { get => pointsCount; set => pointsCount = Math.Max(pointsOffset, value); }
-        public int UsedPointsCount => PointsCount - unusedPointIndices.Count;
+        public int UsedPointsCount => PointsCount - UnusedPointsCount;
+        public int UnusedPointsCount => unusedPointIndices.Count;
         public Vector2[] Points => points;
         public Triangle[] Triangles => triangles;
         public List<Triangle> CCTriangles => ccTriangles;

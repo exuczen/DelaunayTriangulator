@@ -141,16 +141,19 @@ namespace Triangulation
             {
                 rayBuffer[i] = point - vertsBuffer[i];
             }
-            signBuffer[0] = Mathv.GetAngleSign(rayBuffer[2], edgeVecBuffer[2]);
-            signBuffer[1] = Mathv.GetAngleSign(rayBuffer[2], edgeVecBuffer[1]);
-            signBuffer[2] = Mathv.GetAngleSign(rayBuffer[0], edgeVecBuffer[0]);
+            float area = MathF.Abs(Mathv.Cross(edgeVecBuffer[2], -edgeVecBuffer[1]));
+
+            crossBuffer[0] = Mathv.Cross(rayBuffer[2], edgeVecBuffer[2]); // C->P x C->A
+            crossBuffer[1] = Mathv.Cross(rayBuffer[2], edgeVecBuffer[1]); // C->P x B->C
+            crossBuffer[2] = Mathv.Cross(rayBuffer[0], edgeVecBuffer[0]); // A->P x A->B
 
             int sign = 0;
             for (int i = 0; i < 3; i++)
             {
-                int signI = signBuffer[i];
-                if (signI != 0)
+                float cross = crossBuffer[i] / area;
+                if (MathF.Abs(cross) > Mathv.Epsilon)
                 {
+                    int signI = MathF.Sign(cross);
                     if (sign == 0)
                     {
                         sign = signI;
