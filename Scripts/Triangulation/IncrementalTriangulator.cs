@@ -118,21 +118,11 @@ namespace Triangulation
             }
             else
             {
-                var point = points[pointIndex];
-
-                if (triangleGrid.GetCell(point, out var cell, out var cellXY))
+                ClearLastPointData();
+                ProcessClearPoint(pointIndex);
+                if (validate)
                 {
-                    //Log.WriteLine(GetType() + ".RemovePointFromTriangulation: cellXY: " + cellXY + " point: " + point + " pointIndex: " + pointIndex);
-                    ClearLastPointData();
-                    ProcessClearPoint(pointIndex, cell);
-                    if (validate)
-                    {
-                        ValidateTriangulation(EdgesValidation, PointsValidation);
-                    }
-                }
-                else
-                {
-                    Log.WriteWarning("RemovePointFromTriangulation: triangle cell not found for pointIndex: " + pointIndex);
+                    ValidateTriangulation(EdgesValidation, PointsValidation);
                 }
             }
         }
@@ -166,10 +156,10 @@ namespace Triangulation
                     return true;
                 }
             }
-            Log.WriteLine(GetType() + ".AddPointToTriangulation: *************");
+            Log.WriteLine($"{GetType().Name}.AddPointToTriangulation: *************");
             bool result;
 
-            if (triangleGrid.GetCell(point, out var cell, out var cellXY))
+            // Indentation left for commit clarity
             {
                 ClearLastPointData();
                 bool isInTriangle = false;
@@ -178,13 +168,12 @@ namespace Triangulation
                 {
                     if (pointIndex >= 0)
                     {
-                        ProcessClearPoint(pointIndex, cell);
+                        ProcessClearPoint(pointIndex);
                     }
                     result = false;
                 }
-                else
+                else if (triangleGrid.GetCell(point = points[pointIndex], out var cell, out var cellXY))
                 {
-                    point = points[pointIndex];
                     cellPointsIndices.Add(pointIndex);
 
                     ForEachTriangleInCell(cell, (triangle, triangleIndex) => {
@@ -192,20 +181,23 @@ namespace Triangulation
                         {
                             AddCellTriangleToProcess(triangleIndex);
 
-                            if (!isInTriangle && triangle.ContainsPoint(point, points, false))
+                            if (!isInTriangle && triangle.ContainsPoint(point, points))
                             {
                                 isInTriangle = true;
-                                Log.WriteLine(GetType() + ".AddPoints: isInTriangle: " + triangle);
+                                Log.WriteLine($"{GetType().Name}.AddPointToTriangulation: isInTriangle: {triangle}");
                             }
                         }
                     });
-                    Log.WriteLine(GetType() + ".AddPointToTriangulation: " + pointIndex + " isInTriangle: " + isInTriangle + " cellTrianglesIndices.Count: " + cellTrianglesIndices.Count + " cellPointsIndices.Count: " + cellPointsIndices.Count);
+                    Log.WriteLine($"{GetType().Name}.AddPointToTriangulation: {pointIndex} isInTriangle: {isInTriangle} cellTrianglesIndices.Count: {cellTrianglesIndices.Count} cellPointsIndices.Count: {cellPointsIndices.Count}");
                     if (!isInTriangle)
                     {
                         if (InternalOnly)
                         {
-                            Log.WriteError(GetType() + ".AddPoints: InternalOnly && PointOutsideTriangles");
-                            exceptionThrower.ThrowException(GetType() + ".AddPoints: InternalOnly && PointOutsideTriangles", ErrorCode.PointOutsideTriangles, pointIndex);
+                            Log.WriteError($"{GetType().Name}.AddPointToTriangulation: InternalOnly && PointOutsideTriangles: {pointIndex} | triangleCellXY: {cellXY}");
+                            //ForEachTriangleInCell(cell, (triangle, triangleIndex) => {
+                            //    Log.WriteWarning($"{GetType().Name}.AddPointToTriangulation: {triangle} {triangle.ContainsPoint(point, points)}");
+                            //});
+                            exceptionThrower.ThrowException(GetType() + ".AddPointToTriangulation: InternalOnly && PointOutsideTriangles", ErrorCode.PointOutsideTriangles, pointIndex);
                             return false;
                         }
                         result = ProcessExternalPoint(cellXY, pointIndex);
@@ -219,17 +211,16 @@ namespace Triangulation
                         ClearPoint(pointIndex);
                     }
                 }
+                else
+                {
+                    throw new Exception($"AddPointToTriangulation: triangle cell not found for pointIndex: {pointIndex}");
+                }
                 //Log.PrintArray(triangles, trianglesCount, "AddPointToTriangulation: ");
                 //edgeInfo.PrintPointsExternal(pointsCount);
                 if (validate)
                 {
                     ValidateTriangulation(EdgesValidation, PointsValidation);
                 }
-            }
-            else
-            {
-                pointIndex = -1;
-                result = false;
             }
             return result;
         }
@@ -253,9 +244,9 @@ namespace Triangulation
             pointsIndices.Clear();
         }
 
-        private void ForEachTriangleInCell(Vector2 point, Action<Triangle, int> action)
+        private void ForEachTriangleInCell(Vector2 point, Action<Triangle, int> action, out Vector2Int cellXY)
         {
-            if (triangleGrid.GetCell(point, out var cell))
+            if (triangleGrid.GetCell(point, out var cell, out cellXY))
             {
                 ForEachTriangleInCell(cell, action);
             }
@@ -297,15 +288,16 @@ namespace Triangulation
                         bool isPointExternal = edgeInfo.IsPointExternal(i);
                         if (!isPointExternal && !triangle.HasVertex(i) && triangle.CircumCircle.ContainsPointWithSqrt(point, circleSqrOffset, true) && !unusedPointIndices.Contains(i))
                         {
-                            Log.WriteError(GetType() + ".ValidateTriangulation: point " + i + " inside triangle: " + triangle + " | isPointExternal: " + isPointExternal + " | " + point);
+                            Log.WriteError($"{GetType().Name}.ValidateTriangulation: point {i} inside triangle: {triangle} | isPointExternal: {isPointExternal} | {point}");
                             //edgeInfo.PrintExternalEdges("ValidateTriangulation: ");
                             triangles[triangleIndex].CircumCircle.Filled = true;
                             circleOverlapsPoint = true;
                             exceptionThrower.ThrowException("!ValidateTriangulation", ErrorCode.InvalidTriangulation, i);
                         }
-                    });
+                    }, out var triangleCellXY);
                     if (circleOverlapsPoint)
                     {
+                        Log.WriteError($"{GetType().Name}.ValidateTriangulation: triangleCellXY: {triangleCellXY}");
                         break;
                     }
                 }
@@ -313,8 +305,13 @@ namespace Triangulation
             return edgesValid && !circleOverlapsPoint;
         }
 
-        private void ProcessClearPoint(int pointIndex, TriangleCell cell)
+        private void ProcessClearPoint(int pointIndex)
         {
+            var point = points[pointIndex];
+            if (!triangleGrid.GetCell(point, out var cell))
+            {
+                throw new Exception($"ProcessClearPoint: triangle cell not found for pointIndex: {pointIndex}");
+            }
             ForEachTriangleInCell(cell, (triangle, triangleIndex) => {
                 if (triangle.HasVertex(pointIndex))
                 {
