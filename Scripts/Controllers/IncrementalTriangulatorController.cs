@@ -39,16 +39,18 @@ namespace Triangulation
             triangulator.TriangleGrid.SetSelectedCell(point);
         }
 
-        public void AddParticleToTriangulation(Vector2 point, int i, bool findClosestCell, bool validate)
+        public bool AddParticleToTriangulation(Vector2 point, int i, bool findClosestCell, bool validate)
         {
             bool active = triangulator.AddPointToTriangulation(point, i, findClosestCell, validate);
             SetParticle(active, i);
+            return active;
         }
 
-        public void AddParticleToTriangulation(Vector2 point, bool findClosestCell, bool validate)
+        public bool AddParticleToTriangulation(Vector2 point, bool findClosestCell, bool validate)
         {
             bool active = triangulator.AddPointToTriangulation(point, out int i, findClosestCell, validate);
             SetParticle(active, i);
+            return active;
         }
 
         public void RemoveParticleFromTriangulation(int i, bool validate)
