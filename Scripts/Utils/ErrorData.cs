@@ -8,6 +8,7 @@
         BaseTriangulationFailed,
         InvalidTriangulation,
         InternalEdgeExists,
+        InternalDegenerates,
         ExternalEdgesBrokenLoop,
         PointOutsideTriangles,
     }

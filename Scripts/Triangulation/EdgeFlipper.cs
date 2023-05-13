@@ -43,6 +43,7 @@ namespace Triangulation
 
         public void FlipEdgesFrom(Dictionary<int, EdgeEntry> edgeDict, TriangleGrid triangleGrid)
         {
+            //Log.WriteWarning($"{GetType().Name}.FlipEdgesFrom");
             nonDelaunayEdgeKeys.Clear();
             nonDelaunayEdgeDict.Clear();
             addedTriangleKeys.Clear();
@@ -117,7 +118,7 @@ namespace Triangulation
                     removedTriangleKeys.Add(triangleKey);
                     addedTriangleKeys.Remove(triangleKey);
                 }
-                //Log.WriteLine(GetType() + ".FlipEdgesRecursively: FLIPPING TRIANGLES: " + flipTriangles[0] + ", " + flipTriangles[1] + ", flip edge: " + edge);
+                //Log.WriteWarning($"{GetType().Name}.FlipEdgesRecursively: FLIPPING TRIANGLES: {flipTriangles[0]}, {flipTriangles[1]}, flip edge: {edge}");
                 for (int i = 0; i < 2; i++)
                 {
                     for (int j = 0; j < 2; j++)
@@ -147,7 +148,7 @@ namespace Triangulation
                 //edgeInfo.PrintEdgeCounterDict();
                 //edgeInfo.PrintExtEdgeTriangleDict();
                 //edgeInfo.PrintInnerEdgeTriangleDict();
-                //Log.WriteLine(GetType() + ".FlipEdgesRecursively: FLIPPED TRIANGLES: " + flipTriangles[0] + ", " + flipTriangles[1]);
+                //Log.WriteWarning($"{GetType()}.FlipEdgesRecursively: FLIPPED TRIANGLES: {flipTriangles[0]}, {flipTriangles[1]}");
 
                 for (int i = 0; i < 2; i++)
                 {

@@ -152,8 +152,7 @@ namespace Triangulation
                 }
                 else
                 {
-                    Triangulate();
-                    return true;
+                    return Triangulate();
                 }
             }
             Log.WriteLine($"{GetType().Name}.AddPointToTriangulation: *************");
@@ -208,7 +207,10 @@ namespace Triangulation
                     }
                     if (!result)
                     {
-                        ClearPoint(pointIndex);
+                        //ClearPoint(pointIndex);
+                        Log.WriteWarning($"{GetType().Name}.AddPointToTriangulation: Failed: {pointIndex}. Fallback to base triangulation");
+                        ClearLastPointData();
+                        return Triangulate();
                     }
                 }
                 else
@@ -765,7 +767,7 @@ namespace Triangulation
                 }
                 else
                 {
-                    Log.WriteLine(GetType() + ".AddInternalTriangle: SKIPPED INTERNAL DEGENERATE TRIANGLE > 1: edge: " + edge + " pointIndex: " + pointIndex);
+                    exceptionThrower.ThrowException($"AddInternalTriangle: InternalDegenerates: edge: {edge} pointIndex: {pointIndex}", ErrorCode.InternalDegenerates, pointIndex);
                     return false;
                 }
             }
