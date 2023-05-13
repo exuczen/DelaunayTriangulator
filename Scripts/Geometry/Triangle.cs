@@ -133,7 +133,7 @@ namespace Triangulation
             //Array.Sort(indexBuffer, (a, b) => b.CompareTo(a));
         }
 
-        public bool ContainsPoint(Vector2 point, Vector2[] points, bool log = false)
+        public bool ContainsPoint(Vector2 point, Vector2[] points)
         {
             GetEdges(points, edgeVecBuffer);
             GetVerts(points, vertsBuffer);
@@ -141,38 +141,29 @@ namespace Triangulation
             {
                 rayBuffer[i] = point - vertsBuffer[i];
             }
-            crossBuffer[0] = Mathv.Cross(rayBuffer[2], edgeVecBuffer[2]);
-            crossBuffer[1] = Mathv.Cross(rayBuffer[2], edgeVecBuffer[1]);
-            crossBuffer[2] = Mathv.Cross(rayBuffer[0], edgeVecBuffer[0]);
-            int signCount = 0;
-            int sign;
-            if (log)
-            {
-                Log.WriteLine(GetType() + ".ContainsPoint:");
-            }
+            signBuffer[0] = Mathv.GetAngleSign(rayBuffer[2], edgeVecBuffer[2]);
+            signBuffer[1] = Mathv.GetAngleSign(rayBuffer[2], edgeVecBuffer[1]);
+            signBuffer[2] = Mathv.GetAngleSign(rayBuffer[0], edgeVecBuffer[0]);
+
+            int sign = 0;
             for (int i = 0; i < 3; i++)
             {
-                sign = MathF.Sign(crossBuffer[i]);
-                if (log)
+                int signI = signBuffer[i];
+                if (signI != 0)
                 {
-                    Log.WriteLine(GetType() + ".ContainsPoint: " + crossBuffer[i] + " " + sign);
-                }
-                if (sign != 0)
-                {
-                    signBuffer[signCount++] = sign;
+                    if (sign == 0)
+                    {
+                        sign = signI;
+                    }
+                    else if (signI != sign)
+                    {
+                        return false;
+                    }
                 }
             }
-            if (signCount == 0)
+            if (sign == 0)
             {
-                throw new Exception(GetType() + ".ContainsPoint: signCount == 0");
-            }
-            sign = signBuffer[0];
-            for (int i = 1; i < signCount; i++)
-            {
-                if (sign != signBuffer[i])
-                {
-                    return false;
-                }
+                throw new Exception($"{GetType().Name}.ContainsPoint: sign: {sign}");
             }
             return true;
         }
