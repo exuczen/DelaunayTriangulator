@@ -96,16 +96,13 @@ namespace Triangulation
             {
                 var nextEdgeKeys = FlipEdges(edgeData);
 
-                for (int i = 0; i < 2; i++)
+                for (int i = 0; i < nextEdgeKeys.Length; i++)
                 {
-                    for (int j = 0; j < 2; j++)
-                    {
-                        int nextEdgeKey = nextEdgeKeys[i, j];
+                    int nextEdgeKey = nextEdgeKeys[i];
 
-                        if (IsEdgeInnerNonDelaunay(nextEdgeKey))
-                        {
-                            FlipEdgesRecursively(nextEdgeKey);
-                        }
+                    if (IsEdgeInnerNonDelaunay(nextEdgeKey))
+                    {
+                        FlipEdgesRecursively(nextEdgeKey);
                     }
                 }
             }
@@ -115,9 +112,9 @@ namespace Triangulation
             }
         }
 
-        private int[,] FlipEdges(InnerEdgeData edgeData)
+        private int[] FlipEdges(InnerEdgeData edgeData)
         {
-            var nextEdgeKeys = new int[2, 2];
+            var nextEdgeKeys = new int[4];
 
             var edge = edgeData.Edge;
 
@@ -147,7 +144,7 @@ namespace Triangulation
             {
                 for (int j = 0; j < 2; j++)
                 {
-                    nextEdgeKeys[i, j] = edgeInfo.GetEdgeKey(oppVerts[j], edgeVerts[i]);
+                    nextEdgeKeys[(i << 1) + j] = edgeInfo.GetEdgeKey(oppVerts[j], edgeVerts[i]);
                 }
                 flipTriangles[i] = new Triangle(oppVerts[0], oppVerts[1], edgeVerts[i], points);
                 flipTriangles[i].SetKey(points.Length, indexBuffer);
