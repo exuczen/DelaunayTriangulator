@@ -81,7 +81,7 @@ namespace Triangulation
             }
             for (int i = 0; i < addedTriangleKeys.Count; i++)
             {
-                var triangle = triangleSet.GetTriangleRef(addedTriangleKeys[i], out _);
+                var triangle = GetTriangleRef(addedTriangleKeys[i], out _);
                 triangleGrid.AddTriangle(triangle);
             }
         }
@@ -130,7 +130,7 @@ namespace Triangulation
 
             for (int i = 0; i < 2; i++)
             {
-                flipTriangles[i] = triangleSet.GetTriangleRef(triangleKeys[i], out int triangleIndex);
+                flipTriangles[i] = GetTriangleRef(triangleKeys[i], out int triangleIndex);
                 oppVerts[i] = flipTriangles[i].GetOppositeVertex(edge);
 
                 triangleSet.RemoveTriangle(triangleIndex, edgeInfo);
@@ -203,20 +203,15 @@ namespace Triangulation
         private bool IsInnerEdgeNonDelaunay(InnerEdgeData edgeData)
         {
             var edge = edgeData.Edge;
-            var t1 = triangleSet.GetTriangleRef(edgeData.Triangle1Key, out _);
-            var t2 = triangleSet.GetTriangleRef(edgeData.Triangle2Key, out _);
+            var t1 = GetTriangleRef(edgeData.Triangle1Key, out _);
+            var t2 = GetTriangleRef(edgeData.Triangle2Key, out _);
             float angleSum = t1.GetOppositeAngleDeg(edge, points) + t2.GetOppositeAngleDeg(edge, points);
             return angleSum > 180f;
         }
 
-        private EdgeEntry GetEdgeFromKey(int key)
+        private ref Triangle GetTriangleRef(long triangleKey, out int triangleIndex)
         {
-            return edgeInfo.GetEdgeFromKey(key);
-        }
-
-        private int GetEdgeKey(EdgeEntry edge)
-        {
-            return edge.A * points.Length + edge.B;
+            return ref triangleSet.GetTriangleRef(triangleKey, out triangleIndex);
         }
     }
 }
