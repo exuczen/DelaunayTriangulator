@@ -72,7 +72,7 @@ namespace Triangulation
                 int edgeKey = nonDelaunayEdgeKeys[i];
                 if (nonDelaunayEdgeDict[edgeKey])
                 {
-                    FlipEdgesRecursively(GetEdgeFromKey(edgeKey), edgeKey);
+                    FlipEdgesRecursively(edgeKey);
                 }
             }
             for (int i = 0; i < removedTriangleKeys.Count; i++)
@@ -86,7 +86,7 @@ namespace Triangulation
             }
         }
 
-        private void FlipEdgesRecursively(EdgeEntry edge, int edgeKey)
+        private void FlipEdgesRecursively(int edgeKey)
         {
             if (nonDelaunayEdgeDict.ContainsKey(edgeKey))
             {
@@ -94,30 +94,30 @@ namespace Triangulation
             }
             if (edgeInfo.GetInnerEdgeData(edgeKey, out var edgeData))
             {
-                var nextFlipEdges = FlipEdges(edgeData);
+                var nextEdgeKeys = FlipEdges(edgeData);
 
                 for (int i = 0; i < 2; i++)
                 {
                     for (int j = 0; j < 2; j++)
                     {
-                        edge = nextFlipEdges[i, j];
-                        edgeKey = GetEdgeKey(edge);
-                        if (IsEdgeInnerNonDelaunay(edgeKey))
+                        int nextEdgeKey = nextEdgeKeys[i, j];
+
+                        if (IsEdgeInnerNonDelaunay(nextEdgeKey))
                         {
-                            FlipEdgesRecursively(edge, edgeKey);
+                            FlipEdgesRecursively(nextEdgeKey);
                         }
                     }
                 }
             }
             else
             {
-                Log.WriteWarning(GetType() + ".FlipEdgesRecursively: " + edge + " NOT FOUND IN innerEdgeTriangleDict");
+                Log.WriteWarning($"{GetType().Name}.FlipEdgesRecursively: {edgeKey} NOT FOUND IN innerEdgeTriangleDict");
             }
         }
 
-        private EdgeEntry[,] FlipEdges(InnerEdgeData edgeData)
+        private int[,] FlipEdges(InnerEdgeData edgeData)
         {
-            var nextFlipEdges = new EdgeEntry[2, 2];
+            var nextEdgeKeys = new int[2, 2];
 
             var edge = edgeData.Edge;
 
@@ -147,7 +147,7 @@ namespace Triangulation
             {
                 for (int j = 0; j < 2; j++)
                 {
-                    nextFlipEdges[i, j] = new EdgeEntry(oppVerts[j], edgeVerts[i]);
+                    nextEdgeKeys[i, j] = edgeInfo.GetEdgeKey(oppVerts[j], edgeVerts[i]);
                 }
                 flipTriangles[i] = new Triangle(oppVerts[0], oppVerts[1], edgeVerts[i], points);
                 flipTriangles[i].SetKey(points.Length, indexBuffer);
@@ -174,7 +174,7 @@ namespace Triangulation
             //edgeInfo.PrintInnerEdgeTriangleDict();
             //Log.WriteWarning($"{GetType()}.FlipEdges: FLIPPED TRIANGLES: {flipTriangles[0]}, {flipTriangles[1]}");
 
-            return nextFlipEdges;
+            return nextEdgeKeys;
         }
 
         private bool IsEdgeInnerNonDelaunay(int edgeKey/*, bool skipChecked*/)
