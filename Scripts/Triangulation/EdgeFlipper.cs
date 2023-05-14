@@ -41,6 +41,55 @@ namespace Triangulation
             return result;
         }
 
+        public void ForceFlipEdges(TriangleGrid triangleGrid)
+        {
+            Clear();
+
+            void findNonDelaunayEdges()
+            {
+                nonDelaunayEdgeKeys.Clear();
+                nonDelaunayEdgeDict.Clear();
+
+                edgeInfo.ForEachInnerEdge((edgeKey, edgeData) => {
+                    if (IsInnerEdgeNonDelaunay(edgeData) && !nonDelaunayEdgeDict.ContainsKey(edgeKey))
+                    {
+                        nonDelaunayEdgeKeys.Add(edgeKey);
+                        nonDelaunayEdgeDict.Add(edgeKey, true);
+                    }
+                });
+            }
+            findNonDelaunayEdges();
+            int iteration = 0;
+
+            while (nonDelaunayEdgeKeys.Count > 0 && iteration < 10)
+            {
+                //Log.WriteWarning($"{GetType().Name}.ForceFlipEdges: iteration: {iteration}");
+                for (int i = 0; i < nonDelaunayEdgeKeys.Count; i++)
+                {
+                    int edgeKey = nonDelaunayEdgeKeys[i];
+                    if (nonDelaunayEdgeDict[edgeKey] && edgeInfo.GetInnerEdgeData(edgeKey, out var edgeData))
+                    {
+                        nonDelaunayEdgeDict[edgeKey] = false;
+
+                        var nextEdgeKeys = FlipEdges(edgeData);
+                        for (int j = 0; j < nextEdgeKeys.Length; j++)
+                        {
+                            int nextEdgeKey = nextEdgeKeys[j];
+                            if (nonDelaunayEdgeDict.ContainsKey(nextEdgeKey))
+                            {
+                                nonDelaunayEdgeDict[nextEdgeKey] = false;
+                            }
+                        }
+                    }
+                }
+                findNonDelaunayEdges();
+                iteration++;
+            }
+            Log.WriteWarning($"{GetType().Name}.ForceFlipEdges: iterations: {iteration}");
+
+            UpdateTriangleGrid(triangleGrid);
+        }
+
         public void FlipEdgesFrom(Dictionary<int, EdgeEntry> edgeDict, TriangleGrid triangleGrid)
         {
             //Log.WriteWarning($"{GetType().Name}.FlipEdgesFrom");
@@ -212,6 +261,10 @@ namespace Triangulation
 
         private bool IsInnerEdgeNonDelaunay(InnerEdgeData edgeData)
         {
+            if (!triangleSet.ContainsTriangle(edgeData.Triangle1Key) || !triangleSet.ContainsTriangle(edgeData.Triangle2Key))
+            {
+                throw new KeyNotFoundException($"{GetType().Name}.IsInnerEdgeNonDelaunay: {edgeData}");
+            }
             var edge = edgeData.Edge;
             var t1 = GetTriangleRef(edgeData.Triangle1Key, out _);
             var t2 = GetTriangleRef(edgeData.Triangle2Key, out _);

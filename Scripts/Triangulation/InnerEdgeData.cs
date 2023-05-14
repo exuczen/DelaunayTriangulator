@@ -63,7 +63,7 @@ namespace Triangulation
 
         public override string ToString()
         {
-            return string.Format("InnerEdgeData: {0}, {1}", Triangle1Key, Triangle2Key);
+            return string.Format("InnerEdgeData: {0}, triangleKeys: {1}, {2}", Edge.ToShortString(), Triangle1Key, Triangle2Key);
         }
     }
 }

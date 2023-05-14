@@ -75,6 +75,12 @@ namespace Triangulation
         }
         #endregion
 
+        public void ClearTriangleDicts()
+        {
+            innerEdgeTriangleDict.Clear();
+            extEdgeTriangleDict.Clear();
+        }
+
         public void Clear()
         {
             extEdgeRanges.Clear();
@@ -213,6 +219,14 @@ namespace Triangulation
                 }
             }
             return true;
+        }
+
+        public void ForEachInnerEdge(Action<int, InnerEdgeData> action)
+        {
+            foreach (var kvp in innerEdgeTriangleDict)
+            {
+                action(kvp.Key, kvp.Value);
+            }
         }
 
         public void ForEachInnerEdgeWithCCPair(Action<EdgeEntry, Vector2, Vector2> action)

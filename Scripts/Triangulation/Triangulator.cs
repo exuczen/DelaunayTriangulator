@@ -627,6 +627,7 @@ namespace Triangulation
             }
             if (unusedPointIndices.Count > 0)
             {
+                Log.WriteWarning($"{GetType().Name}.FindUnusedPoints: count: {unusedPointIndices.Count}");
                 Log.PrintList(unusedPointIndices, GetType() + ".FindUnusedPoints: ");
             }
         }
