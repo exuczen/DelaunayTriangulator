@@ -31,7 +31,7 @@ namespace Triangulation
         public bool Validate()
         {
             bool result = edgeInfo.ForEachInnerEdge((edgeKey, edgeData) => {
-                if (IsInnerEdgeNonDelaunay(GetEdgeFromKey(edgeKey), edgeData))
+                if (IsInnerEdgeNonDelaunay(edgeData))
                 {
                     Log.WriteError(GetType() + ".Validate: IsInnerEdgeNonDelaunay: " + edgeKey + ", " + edgeData + Log.KIND_OF_FAKAP);
                     return false;
@@ -52,8 +52,7 @@ namespace Triangulation
             foreach (var kvp in edgeDict)
             {
                 int edgeKey = kvp.Key;
-                var edge = kvp.Value;
-                if (IsEdgeInnerNonDelaunay(edge, edgeKey) && !nonDelaunayEdgeDict.ContainsKey(edgeKey))
+                if (IsEdgeInnerNonDelaunay(edgeKey) && !nonDelaunayEdgeDict.ContainsKey(edgeKey))
                 {
                     nonDelaunayEdgeKeys.Add(edgeKey);
                     nonDelaunayEdgeDict.Add(edgeKey, true);
@@ -103,7 +102,7 @@ namespace Triangulation
                     {
                         edge = nextFlipEdges[i, j];
                         edgeKey = GetEdgeKey(edge);
-                        if (IsEdgeInnerNonDelaunay(edge, edgeKey))
+                        if (IsEdgeInnerNonDelaunay(edgeKey))
                         {
                             FlipEdgesRecursively(edge, edgeKey);
                         }
@@ -178,9 +177,13 @@ namespace Triangulation
             return nextFlipEdges;
         }
 
-        private bool IsEdgeInnerNonDelaunay(EdgeEntry edge, int edgeKey/*, bool skipChecked*/)
+        private bool IsEdgeInnerNonDelaunay(int edgeKey/*, bool skipChecked*/)
         {
-            //Log.WriteLine(GetType() + ".IsEdgeInnerNonDelaunay: " + edge + " " + edgeInfo.IsEdgeInternal(edgeKey) + " " + edgeInfo.GetInnerEdgeData(edgeKey, out var edgeData) + " " + edgeData);
+            // Debug
+            {
+                //var edge = edgeInfo.GetEdgeFromKey(edgeKey);
+                //Log.WriteLine($"{GetType().Name}.IsEdgeInnerNonDelaunay: {edge} {edgeInfo.IsEdgeInternal(edgeKey)} {edgeInfo.GetInnerEdgeData(edgeKey, out var innerEdgeData)} {innerEdgeData}");
+            }
             if (edgeInfo.IsEdgeInternal(edgeKey) && edgeInfo.GetInnerEdgeData(edgeKey, out var edgeData))
             {
                 //if (skipChecked)
@@ -195,13 +198,14 @@ namespace Triangulation
                 //        edgeInfo.SetInnerEdgeData(edgeKey, edgeData);
                 //    }
                 //}
-                return IsInnerEdgeNonDelaunay(edge, edgeData);
+                return IsInnerEdgeNonDelaunay(edgeData);
             }
             return false;
         }
 
-        private bool IsInnerEdgeNonDelaunay(EdgeEntry edge, InnerEdgeData edgeData)
+        private bool IsInnerEdgeNonDelaunay(InnerEdgeData edgeData)
         {
+            var edge = edgeData.Edge;
             var t1 = triangleSet.GetTriangleRef(edgeData.Triangle1Key, out _);
             var t2 = triangleSet.GetTriangleRef(edgeData.Triangle2Key, out _);
             float angleSum = t1.GetOppositeAngleDeg(edge, points) + t2.GetOppositeAngleDeg(edge, points);
