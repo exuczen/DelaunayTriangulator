@@ -19,8 +19,8 @@ namespace Triangulation
         public bool PointsValidation = false;
         public bool EdgesValidation = false;
 
-        protected TriangleSet triangleSet = null;
-        protected new IncrementalEdgeInfo edgeInfo = null;
+        protected readonly TriangleSet triangleSet = null;
+        protected new readonly IncrementalEdgeInfo edgeInfo = null;
 
         private readonly List<int> cellPointsIndices = new List<int>();
         private readonly List<int> cellTrianglesIndices = new List<int>();
@@ -38,16 +38,14 @@ namespace Triangulation
 
         public IncrementalTriangulator(int pointsCapacity, IExceptionThrower exceptionThrower) : base(pointsCapacity, exceptionThrower)
         {
+            triangleSet = new TriangleSet(triangles, points);
+            base.edgeInfo = edgeInfo = new IncrementalEdgeInfo(triangleSet, points, exceptionThrower);
             baseEdgeFlipper = new EdgeFlipper(triangleSet, edgeInfo, points);
             addedTriangles = new Triangle[triangles.Length];
             addedEdgeInfo = new IncrementalEdgeInfo(points, exceptionThrower);
         }
 
-        protected override void SetupEdgeInfo()
-        {
-            triangleSet = new TriangleSet(triangles, points);
-            base.edgeInfo = edgeInfo = new IncrementalEdgeInfo(triangleSet, points, exceptionThrower);
-        }
+        protected override void SetupEdgeInfo() { /* Prevents from creating base edgeInfo */ }
 
         public override bool Triangulate()
         {
@@ -667,7 +665,7 @@ namespace Triangulation
 
                 if (addToCellPoints)
                 {
-                    AddTriangleVertsToCellPoints(triangleSet.Triangles[triangleIndex]);
+                    AddTriangleVertsToCellPoints(triangles[triangleIndex]);
                 }
                 return true;
             }
@@ -679,7 +677,7 @@ namespace Triangulation
             for (int i = 0; i < cellTrianglesIndices.Count; i++)
             {
                 int triangleIndex = cellTrianglesIndices[i];
-                AddTriangleEdges(triangleSet.Triangles[triangleIndex]);
+                AddTriangleEdges(triangles[triangleIndex]);
             }
             if (excludeExtEdgeIndex >= 0)
             {
@@ -714,7 +712,7 @@ namespace Triangulation
 
         private void RemoveBaseTriangle(int triangleIndex)
         {
-            triangleGrid.RemoveTriangle(triangleSet.Triangles[triangleIndex]);
+            triangleGrid.RemoveTriangle(triangles[triangleIndex]);
             triangleSet.RemoveTriangle(triangleIndex, ref trianglesCount, edgeInfo);
         }
 
