@@ -216,6 +216,10 @@ namespace Triangulation
             }
             else
             {
+                if (findClosestCell)
+                {
+                    exceptionThrower.ThrowException($"TryAddPointRefIndex: findClosestCell - NOT FOUND | pointIndex: {pointIndex}", ErrorCode.Undefined, pointIndex);
+                }
                 pointIndex = savedIndex;
                 return false;
             }

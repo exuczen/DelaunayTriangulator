@@ -852,7 +852,7 @@ namespace Triangulation
                     var extEdge = extEdges[edgeIndex];
                     if (extEdge.Count <= 0)
                     {
-                        errorMessage = "JoinSortExternalEdges: INTERNAL LOOP EXTERNAL EDGE: " + extEdge;
+                        errorMessage = $"JoinSortExternalEdges: INTERNAL LOOP: {extEdge}";
                         break;
                     }
                     extEdges[edgeIndex].Count = 0;
@@ -865,7 +865,7 @@ namespace Triangulation
 
                     if (nextIndex == firstIndex || nextIndex < 0)
                     {
-                        //Log.WriteLine(GetType() + ".JoinSortExternalEdges: ADD RANGE: " + range + " edgeCounter: " + edgeCounter + " " + extEdge);
+                        //Log.WriteLine($"{GetType().Name}.JoinSortExternalEdges: ADD RANGE: {range} edgeCounter: {edgeCounter} extEdge: {extEdge}");
                         extEdgeRanges.Add(range);
 
                         if (edgeCounter < extEdgeCount - 1 && GetFirstExtEdgeWithPredicate(edge => edge.Count > 0, out _, out int validEdgeIndex))
@@ -913,11 +913,11 @@ namespace Triangulation
             {
                 if (extEdgeRanges.Count > 1)
                 {
-                    errorMessage = "JoinSortExternalEdges: RANGES COUNT: " + extEdgeRanges.Count;
+                    errorMessage = $"JoinSortExternalEdges: RANGES COUNT: {extEdgeRanges.Count}";
                 }
                 else if (!extEdges[0].SharesVertex(extEdges[extEdgeCount - 1]))
                 {
-                    errorMessage = "JoinSortExternalEdges: OPEN LOOP, extEdgeCount: " + extEdgeCount;
+                    errorMessage = $"JoinSortExternalEdges: OPEN LOOP, extEdgeCount: {extEdgeCount}";
                 }
             }
             if (!string.IsNullOrEmpty(errorMessage))

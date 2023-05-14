@@ -98,7 +98,9 @@ namespace Triangulation
         {
             if (pointIndex < 0 || pointIndex >= pointsCount)
             {
-                throw new ArgumentOutOfRangeException("RemovePoint: " + pointIndex + " pointsCount: " + pointsCount);
+                //throw new ArgumentOutOfRangeException($"{GetType().Name}.RemovePointFromTriangulation: {pointIndex} out of bounds (0-{pointsCount})");
+                Log.WriteWarning($"{GetType().Name}.RemovePointFromTriangulation: {pointIndex} out of bounds: (0-{pointsCount})");
+                return;
             }
             else if (Mathv.IsNaN(points[pointIndex]))
             {
@@ -110,6 +112,10 @@ namespace Triangulation
                 }
                 return;
             }
+            //else if (unusedPointIndices.Contains(pointIndex))
+            //{
+            //    exceptionThrower.ThrowException($"unusedPointIndices.Contains({pointIndex})", ErrorCode.Undefined, pointIndex);
+            //}
             else if (trianglesCount <= 0 || NotEnoughPoints(pointsCount))
             {
                 ClearPoint(pointIndex);
@@ -150,6 +156,7 @@ namespace Triangulation
                 }
                 else
                 {
+                    Log.WriteWarning($"{GetType().Name}.AddPointToTriangulation: NotEnoughPoints: {pointsCount}. Fallback to base triangulation");
                     return Triangulate();
                 }
             }
@@ -166,6 +173,7 @@ namespace Triangulation
                     if (pointIndex >= 0)
                     {
                         ProcessClearPoint(pointIndex);
+                        //exceptionThrower.ThrowException($"AddPointToTriangulation: PointExists: {pointIndex}", ErrorCode.Undefined, pointIndex);
                     }
                     result = false;
                 }
@@ -349,14 +357,16 @@ namespace Triangulation
 
             if (!InternalOnly)
             {
-                if (debugFindExtEdges && !edgeInfo.FindExternalEdges(pointsCount, out _))
+                if (debugFindExtEdges && !edgeInfo.FindExternalEdges(pointsCount, out var error))
                 {
-                    exceptionThrower.ThrowException("ProcessClearPoint: ", ErrorCode.ExternalEdgesBrokenLoop, pointIndex);
+                    Log.WriteWarning($"{GetType().Name}.ProcessClearPoint: !FindExternalEdges: {error} | pointIndex: {pointIndex}");
+                    //exceptionThrower.ThrowException($"ProcessClearPoint: !FindExternalEdges: {error}", ErrorCode.ExternalEdgesBrokenLoop, pointIndex);
+                    Clear();
                 }
-                if (trianglesCount > 0 && !edgeInfo.ValidateExternalEdges(out var error))
+                else if (trianglesCount > 0 && !edgeInfo.ValidateExternalEdges(out error))
                 {
-                    Log.WriteWarning(GetType() + ".ProcessClearPoint: VALIDATION ERROR: " + error + " | pointIndex: " + pointIndex);
-                    //exceptionThrower.ThrowException("ProcessClearPoint: VALIDATION ERROR: " + error, ErrorCode.ExternalEdgesBrokenLoop, pointIndex);
+                    Log.WriteWarning($"{GetType().Name}.ProcessClearPoint: !ValidateExternalEdges: {error} | pointIndex: {pointIndex}");
+                    //exceptionThrower.ThrowException($"ProcessClearPoint: !ValidateExternalEdges: {error}", ErrorCode.ExternalEdgesBrokenLoop, pointIndex);
                     Clear();
                 }
             }
