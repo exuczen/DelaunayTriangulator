@@ -333,12 +333,14 @@ namespace Triangulation
 
             AddTrianglesOnClearPoint(pointIndex, out bool debugFindExtEdges);
 
-            ReplaceCellTriangles(addedTriangles, addedTrianglesCount);
+            ReplaceCellTriangles(addedTriangles, addedTrianglesCount, false);
 
             if (isPointExternal)
             {
                 edgeInfo.UpdateTriangleDicts(addedEdgeInfo);
             }
+            FlipEdges(addedTriangles, addedTrianglesCount);
+
             ClearPoints(pointsToClear);
 
             if (NotEnoughTriangles)
@@ -427,7 +429,7 @@ namespace Triangulation
 
             if (ReplaceEdgesWithTriangles(addedPointIndex, extEdgeIndex))
             {
-                ReplaceCellTriangles(addedTriangles, addedTrianglesCount);
+                ReplaceCellTriangles(addedTriangles, addedTrianglesCount, true);
 
                 return addedTrianglesCount > 0;
             }
@@ -450,7 +452,7 @@ namespace Triangulation
                 {
                     if (AddExternalPointTriangles(addedPointIndex, extEdgesRange, innerDegenerate, out EdgePeak loopPeak, out bool processInternal))
                     {
-                        AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Triangle.DefaultColor);
+                        AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Triangle.DefaultColor, true);
 
                         edgeInfo.ClearTrianglesPointsExternal(addedTriangles, addedTrianglesCount);
                         edgeInfo.InsertExternalEdges(loopPeak, extEdgesRange);
@@ -488,17 +490,18 @@ namespace Triangulation
             {
                 AddTriangleEdges(addedTriangles[i]);
             }
+            //baseEdgeFlipper.ForceFlipEdges(triangleGrid);
             baseEdgeFlipper.FlipEdgesFrom(edgeDict, triangleGrid);
             edgeDict.Clear();
         }
 
-        private void ReplaceCellTriangles(Triangle[] addedTriangles, int addedTrianglesCount)
+        private void ReplaceCellTriangles(Triangle[] addedTriangles, int addedTrianglesCount, bool flipEdges)
         {
             RemoveCellTriangles();
 
             if (addedTrianglesCount > 0)
             {
-                AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Color.Azure);
+                AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Color.Azure, flipEdges);
             }
         }
 
@@ -535,13 +538,13 @@ namespace Triangulation
 
                     addedTrianglesCount = cellPolygon.ClipConcavePeaks(addedTriangles, points, edgeInfo);
 
-                    AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Triangle.DefaultColor);
+                    AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Triangle.DefaultColor, true);
                 }
                 //edgeInfo.PrintPointsExternal(pointsCount);
             }
         }
 
-        private void AddTrianglesToTriangleSet(Triangle[] addedTriangles, int addedTrianglesCount, Color innerColor, bool flipEdges = true)
+        private void AddTrianglesToTriangleSet(Triangle[] addedTriangles, int addedTrianglesCount, Color innerColor, bool flipEdges)
         {
             if (addedTrianglesCount <= 0)
             {
@@ -550,8 +553,16 @@ namespace Triangulation
             trianglesCount = triangleSet.AddTriangles(addedTriangles, addedTrianglesCount);
 
             edgeInfo.AddEdgesToCounterDict(addedTriangles, addedTrianglesCount);
-            edgeInfo.AddEdgesToTriangleDicts(addedTriangles, addedTrianglesCount, innerColor);
-
+            //if (refillTrianglesDicts)
+            //{
+            //    edgeInfo.ClearTriangleDicts();
+            //    edgeInfo.AddEdgesToTriangleDicts(triangles, trianglesCount);
+            //    edgeInfo.SetTrianglesColors(innerColor);
+            //}
+            //else
+            {
+                edgeInfo.AddEdgesToTriangleDicts(addedTriangles, addedTrianglesCount, innerColor);
+            }
             //edgeInfo.PrintEdgeCounterDict();
             //edgeInfo.PrintExtEdgeTriangleDict();
             //edgeInfo.PrintInnerEdgeTriangleDict();
