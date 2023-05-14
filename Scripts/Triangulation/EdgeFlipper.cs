@@ -44,10 +44,7 @@ namespace Triangulation
         public void FlipEdgesFrom(Dictionary<int, EdgeEntry> edgeDict, TriangleGrid triangleGrid)
         {
             //Log.WriteWarning($"{GetType().Name}.FlipEdgesFrom");
-            nonDelaunayEdgeKeys.Clear();
-            nonDelaunayEdgeDict.Clear();
-            addedTriangleKeys.Clear();
-            removedTriangleKeys.Clear();
+            Clear();
 
             foreach (var kvp in edgeDict)
             {
@@ -75,6 +72,19 @@ namespace Triangulation
                     FlipEdgesRecursively(edgeKey);
                 }
             }
+            UpdateTriangleGrid(triangleGrid);
+        }
+
+        private void Clear()
+        {
+            nonDelaunayEdgeKeys.Clear();
+            nonDelaunayEdgeDict.Clear();
+            addedTriangleKeys.Clear();
+            removedTriangleKeys.Clear();
+        }
+
+        private void UpdateTriangleGrid(TriangleGrid triangleGrid)
+        {
             for (int i = 0; i < removedTriangleKeys.Count; i++)
             {
                 triangleGrid.RemoveTriangle(removedTriangleKeys[i]);
