@@ -95,60 +95,7 @@ namespace Triangulation
             }
             if (edgeInfo.GetInnerEdgeData(edgeKey, out var edgeData))
             {
-                EdgeEntry[,] nextFlipEdges = new EdgeEntry[2, 2];
-
-                edgeVerts[0] = edge.A;
-                edgeVerts[1] = edge.B;
-                triangleKeys[0] = edgeData.Triangle1Key;
-                triangleKeys[1] = edgeData.Triangle2Key;
-
-                //Log.WriteLine(GetType() + ".FlipEdgesRecursively");
-                //edgeInfo.PrintEdgeCounterDict();
-                //edgeInfo.PrintExtEdgeTriangleDict();
-                //edgeInfo.PrintInnerEdgeTriangleDict();
-
-                for (int i = 0; i < 2; i++)
-                {
-                    flipTriangles[i] = triangleSet.GetTriangleRef(triangleKeys[i], out int triangleIndex);
-                    oppVerts[i] = flipTriangles[i].GetOppositeVertex(edge);
-
-                    triangleSet.RemoveTriangle(triangleIndex, edgeInfo);
-
-                    long triangleKey = triangleKeys[i];
-                    removedTriangleKeys.Add(triangleKey);
-                    addedTriangleKeys.Remove(triangleKey);
-                }
-                //Log.WriteWarning($"{GetType().Name}.FlipEdgesRecursively: FLIPPING TRIANGLES: {flipTriangles[0]}, {flipTriangles[1]}, flip edge: {edge}");
-                for (int i = 0; i < 2; i++)
-                {
-                    for (int j = 0; j < 2; j++)
-                    {
-                        nextFlipEdges[i, j] = new EdgeEntry(oppVerts[j], edgeVerts[i]);
-                    }
-                    flipTriangles[i] = new Triangle(oppVerts[0], oppVerts[1], edgeVerts[i], points);
-                    flipTriangles[i].SetKey(points.Length, indexBuffer);
-
-                    var triangle = flipTriangles[i];
-                    triangleSet.AddTriangle(triangle, out _);
-                    edgeInfo.AddEdgesToCounterDict(triangle);
-
-                    long triangleKey = triangle.Key;
-                    addedTriangleKeys.Add(triangleKey);
-                    removedTriangleKeys.Remove(triangleKey);
-                }
-                for (int i = 0; i < 2; i++)
-                {
-                    edgeInfo.AddEdgesToTriangleDicts(ref flipTriangles[i], Triangle.DefaultColor);
-                    //if (flipTriangles[i].Key != triangleSet.Triangles[triangleSet.Count - 2 + i].Key)
-                    //{
-                    //    throw new Exception("flipTriangles[i].Key != triangleSet.Triangles[triangleSet.Count - 2 + i].Key");
-                    //}
-                    //triangleSet.Triangles[triangleSet.Count - 2 + i].FillColor = flipTriangles[i].FillColor;
-                }
-                //edgeInfo.PrintEdgeCounterDict();
-                //edgeInfo.PrintExtEdgeTriangleDict();
-                //edgeInfo.PrintInnerEdgeTriangleDict();
-                //Log.WriteWarning($"{GetType()}.FlipEdgesRecursively: FLIPPED TRIANGLES: {flipTriangles[0]}, {flipTriangles[1]}");
+                var nextFlipEdges = FlipEdges(edgeData);
 
                 for (int i = 0; i < 2; i++)
                 {
@@ -167,6 +114,68 @@ namespace Triangulation
             {
                 Log.WriteWarning(GetType() + ".FlipEdgesRecursively: " + edge + " NOT FOUND IN innerEdgeTriangleDict");
             }
+        }
+
+        private EdgeEntry[,] FlipEdges(InnerEdgeData edgeData)
+        {
+            var nextFlipEdges = new EdgeEntry[2, 2];
+
+            var edge = edgeData.Edge;
+
+            edgeVerts[0] = edge.A;
+            edgeVerts[1] = edge.B;
+            triangleKeys[0] = edgeData.Triangle1Key;
+            triangleKeys[1] = edgeData.Triangle2Key;
+
+            //Log.WriteLine(GetType() + ".FlipEdges");
+            //edgeInfo.PrintEdgeCounterDict();
+            //edgeInfo.PrintExtEdgeTriangleDict();
+            //edgeInfo.PrintInnerEdgeTriangleDict();
+
+            for (int i = 0; i < 2; i++)
+            {
+                flipTriangles[i] = triangleSet.GetTriangleRef(triangleKeys[i], out int triangleIndex);
+                oppVerts[i] = flipTriangles[i].GetOppositeVertex(edge);
+
+                triangleSet.RemoveTriangle(triangleIndex, edgeInfo);
+
+                long triangleKey = triangleKeys[i];
+                removedTriangleKeys.Add(triangleKey);
+                addedTriangleKeys.Remove(triangleKey);
+            }
+            //Log.WriteWarning($"{GetType().Name}.FlipEdges: FLIPPING TRIANGLES: {flipTriangles[0]}, {flipTriangles[1]}, flip edge: {edge}");
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    nextFlipEdges[i, j] = new EdgeEntry(oppVerts[j], edgeVerts[i]);
+                }
+                flipTriangles[i] = new Triangle(oppVerts[0], oppVerts[1], edgeVerts[i], points);
+                flipTriangles[i].SetKey(points.Length, indexBuffer);
+
+                var triangle = flipTriangles[i];
+                triangleSet.AddTriangle(triangle, out _);
+                edgeInfo.AddEdgesToCounterDict(triangle);
+
+                long triangleKey = triangle.Key;
+                addedTriangleKeys.Add(triangleKey);
+                removedTriangleKeys.Remove(triangleKey);
+            }
+            for (int i = 0; i < 2; i++)
+            {
+                edgeInfo.AddEdgesToTriangleDicts(ref flipTriangles[i], Triangle.DefaultColor);
+                //if (flipTriangles[i].Key != triangleSet.Triangles[triangleSet.Count - 2 + i].Key)
+                //{
+                //    throw new Exception("flipTriangles[i].Key != triangleSet.Triangles[triangleSet.Count - 2 + i].Key");
+                //}
+                //triangleSet.Triangles[triangleSet.Count - 2 + i].FillColor = flipTriangles[i].FillColor;
+            }
+            //edgeInfo.PrintEdgeCounterDict();
+            //edgeInfo.PrintExtEdgeTriangleDict();
+            //edgeInfo.PrintInnerEdgeTriangleDict();
+            //Log.WriteWarning($"{GetType()}.FlipEdges: FLIPPED TRIANGLES: {flipTriangles[0]}, {flipTriangles[1]}");
+
+            return nextFlipEdges;
         }
 
         private bool IsEdgeInnerNonDelaunay(EdgeEntry edge, int edgeKey/*, bool skipChecked*/)
