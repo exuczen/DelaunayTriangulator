@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define DEBUG_CCTRIANGLES
+
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
@@ -658,6 +660,9 @@ namespace Triangulation
             {
                 triangleGrid.ClearFilledCellsColorAndText();
             }
+#if DEBUG_CCTRIANGLES
+            ccTriangles.Clear();
+#endif
         }
 
         /// <summary>
@@ -679,7 +684,9 @@ namespace Triangulation
             {
                 //Log.WriteLine(GetType() + ".AddCellTriangleToProcess: " + triangles[triangleIndex]);
                 cellTrianglesIndices.Add(triangleIndex);
-
+#if DEBUG_CCTRIANGLES
+                ccTriangles.Add(triangles[triangleIndex]);
+#endif
                 if (addToCellPoints)
                 {
                     AddTriangleVertsToCellPoints(triangles[triangleIndex]);
