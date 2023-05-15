@@ -703,6 +703,8 @@ namespace Triangulation
                 int triangleIndex = cellTrianglesIndices[i];
                 AddTriangleEdges(triangles[triangleIndex]);
             }
+            DiscardSeparatedCellTriangles();
+
             if (excludeExtEdgeIndex >= 0)
             {
                 int extEdgeKey = edgeInfo.GetExternalEdgeKey(excludeExtEdgeIndex);
@@ -716,6 +718,22 @@ namespace Triangulation
                 }
             });
             edgeDict.Clear();
+        }
+
+        private void DiscardSeparatedCellTriangles()
+        {
+            if (cellTrianglesIndices.Count > 1)
+            {
+                for (int i = cellTrianglesIndices.Count - 1; i >= 0; i--)
+                {
+                    int triangleIndex = cellTrianglesIndices[i];
+                    var triangle = triangles[triangleIndex];
+                    if (DiscardSeparatedTriangle(triangle))
+                    {
+                        cellTrianglesIndices.RemoveAt(i);
+                    }
+                }
+            }
         }
 
         private void RemoveCellTriangles()

@@ -537,7 +537,7 @@ namespace Triangulation
             }
             if (separated)
             {
-                Log.WriteWarning($"DiscardSeparatedTriangle: {triangle}");
+                Log.WriteWarning($"{GetType().Name}.DiscardSeparatedTriangle: {triangle}");
                 for (int i = 0; i < 3; i++)
                 {
                     edgeDict.Remove(edgeKeyBuffer[i]);
