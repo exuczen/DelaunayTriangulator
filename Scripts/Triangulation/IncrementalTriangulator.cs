@@ -15,6 +15,7 @@ namespace Triangulation
 
         private bool NotEnoughTriangles => Supermanent && trianglesCount <= SuperTrianglesCount || trianglesCount <= 0;
 
+        public bool BaseTriangulationFallback = false;
         public bool BaseOnly = false;
         public bool PointsValidation = false;
         public bool EdgesValidation = false;
@@ -156,7 +157,7 @@ namespace Triangulation
                 }
                 else
                 {
-                    Log.WriteWarning($"{GetType().Name}.AddPointToTriangulation: NotEnoughPoints: {pointsCount}. Fallback to base triangulation");
+                    //Log.WriteWarning($"{GetType().Name}.AddPointToTriangulation: NotEnoughPoints: {pointsCount}. Fallback to base triangulation");
                     return Triangulate();
                 }
             }
@@ -213,10 +214,16 @@ namespace Triangulation
                     }
                     if (!result)
                     {
-                        //ClearPoint(pointIndex);
-                        Log.WriteWarning($"{GetType().Name}.AddPointToTriangulation: Failed: {pointIndex}. Fallback to base triangulation");
-                        ClearLastPointData();
-                        return Triangulate();
+                        if (BaseTriangulationFallback)
+                        {
+                            //Log.WriteWarning($"{GetType().Name}.AddPointToTriangulation: Failed: {pointIndex}. Fallback to base triangulation");
+                            ClearLastPointData();
+                            return Triangulate();
+                        }
+                        else
+                        {
+                            ClearPoint(pointIndex);
+                        }
                     }
                 }
                 else

@@ -85,8 +85,10 @@ namespace Triangulation
                 findNonDelaunayEdges();
                 iteration++;
             }
-            Log.WriteWarning($"{GetType().Name}.ForceFlipEdges: iterations: {iteration}");
-
+            if (iteration > 5)
+            {
+                Log.WriteWarning($"{GetType().Name}.ForceFlipEdges: iterations: {iteration}");
+            }
             UpdateTriangleGrid(triangleGrid);
         }
 
