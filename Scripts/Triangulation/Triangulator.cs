@@ -522,31 +522,39 @@ namespace Triangulation
             return dl > 0f && dl > cc.Radius + circleTolerance;
         }
 
+        protected bool DiscardSeparatedTriangle(Triangle triangle)
+        {
+            bool separated = true;
+            triangle.GetEdges(edgeBuffer);
+            for (int i = 0; i < 3; i++)
+            {
+                int edgeKey = edgeKeyBuffer[i] = edgeInfo.GetEdgeKey(edgeBuffer[i]);
+                if (edgeDict[edgeKey].Count != 1)
+                {
+                    separated = false;
+                    break;
+                }
+            }
+            if (separated)
+            {
+                Log.WriteWarning($"DiscardSeparatedTriangle: {triangle}");
+                for (int i = 0; i < 3; i++)
+                {
+                    edgeDict.Remove(edgeKeyBuffer[i]);
+                }
+            }
+            return separated;
+        }
+
         private void DiscardSeparatedCCTriangles()
         {
             if (ccTriangles.Count > 1)
             {
                 for (int i = ccTriangles.Count - 1; i >= 0; i--)
                 {
-                    bool separated = true;
                     var triangle = ccTriangles[i];
-                    triangle.GetEdges(edgeBuffer);
-                    for (int j = 0; j < 3; j++)
+                    if (DiscardSeparatedTriangle(triangle))
                     {
-                        int edgeKey = edgeKeyBuffer[j] = edgeInfo.GetEdgeKey(edgeBuffer[j]);
-                        if (edgeDict[edgeKey].Count != 1)
-                        {
-                            separated = false;
-                            break;
-                        }
-                    }
-                    if (separated)
-                    {
-                        Log.WriteWarning("DiscardSeparatedCCTriangles: " + triangle);
-                        for (int j = 0; j < 3; j++)
-                        {
-                            edgeDict.Remove(edgeKeyBuffer[j]);
-                        }
                         ccTriangles.RemoveAt(i);
                         AddTriangle(triangle, out _);
                     }
