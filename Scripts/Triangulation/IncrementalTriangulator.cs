@@ -366,6 +366,8 @@ namespace Triangulation
 
             if (!InternalOnly)
             {
+                //debugFindExtEdges = true;
+
                 if (debugFindExtEdges && !edgeInfo.FindExternalEdges(pointsCount, out var error))
                 {
                     Log.WriteWarning($"{GetType().Name}.ProcessClearPoint: !FindExternalEdges: {error} | pointIndex: {pointIndex}");
@@ -448,6 +450,10 @@ namespace Triangulation
             {
                 ReplaceCellTriangles(addedTriangles, addedTrianglesCount, true);
 
+                //if (extEdgeIndex >= 0)
+                //{
+                //    edgeInfo.FindExternalEdges(pointsCount, out _);
+                //}
                 return addedTrianglesCount > 0;
             }
             return false;
@@ -474,6 +480,10 @@ namespace Triangulation
                         edgeInfo.ClearTrianglesPointsExternal(addedTriangles, addedTrianglesCount);
                         edgeInfo.InsertExternalEdges(loopPeak, extEdgesRange);
 
+                        //if (addedTrianglesCount > 0)
+                        //{
+                        //    edgeInfo.FindExternalEdges(pointsCount, out _);
+                        //}
                         return addedTrianglesCount > 0;
                     }
                     else if (processInternal)
