@@ -194,7 +194,7 @@ namespace Triangulation
                             }
                         }
                     });
-                    Log.WriteLine($"{GetType().Name}.AddPointToTriangulation: {pointIndex} isInTriangle: {isInTriangle} cellTrianglesIndices.Count: {cellTrianglesIndices.Count} cellPointsIndices.Count: {cellPointsIndices.Count}");
+                    Log.WriteLine($"{GetType().Name}.AddPointToTriangulation: {pointIndex} isInTriangle: {isInTriangle} cellTrianglesIndices.Count: {cellTrianglesIndices.Count}");
                     if (!isInTriangle)
                     {
                         if (InternalOnly)
@@ -660,16 +660,16 @@ namespace Triangulation
             }
         }
 
+        /// <summary>
+        /// Adds duplicates to cellPointsIndices.
+        /// </summary>
+        /// <param name="triangle"></param>
         private void AddTriangleVertsToCellPoints(Triangle triangle)
         {
             triangle.GetIndices(indexBuffer);
             for (int i = 0; i < 3; i++)
             {
-                int vertIndex = indexBuffer[i];
-                if (!cellPointsIndices.Contains(vertIndex))
-                {
-                    cellPointsIndices.Add(vertIndex);
-                }
+                cellPointsIndices.Add(indexBuffer[i]);
             }
         }
 
