@@ -475,7 +475,7 @@ namespace Triangulation
                 {
                     if (AddExternalPointTriangles(addedPointIndex, extEdgesRange, innerDegenerate, out EdgePeak loopPeak, out bool processInternal))
                     {
-                        AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Triangle.DefaultColor, true);
+                        AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, true);
 
                         edgeInfo.ClearTrianglesPointsExternal(addedTriangles, addedTrianglesCount);
                         edgeInfo.InsertExternalEdges(loopPeak, extEdgesRange);
@@ -528,7 +528,7 @@ namespace Triangulation
 
             if (addedTrianglesCount > 0)
             {
-                AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Color.Azure, flipEdges);
+                AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, flipEdges);
             }
         }
 
@@ -565,13 +565,13 @@ namespace Triangulation
 
                     addedTrianglesCount = cellPolygon.ClipConcavePeaks(addedTriangles, points, edgeInfo);
 
-                    AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, Triangle.DefaultColor, true);
+                    AddTrianglesToTriangleSet(addedTriangles, addedTrianglesCount, true);
                 }
                 //edgeInfo.PrintPointsExternal(pointsCount);
             }
         }
 
-        private void AddTrianglesToTriangleSet(Triangle[] addedTriangles, int addedTrianglesCount, Color innerColor, bool flipEdges)
+        private void AddTrianglesToTriangleSet(Triangle[] addedTriangles, int addedTrianglesCount, bool flipEdges)
         {
             if (addedTrianglesCount <= 0)
             {
@@ -584,11 +584,11 @@ namespace Triangulation
             //{
             //    edgeInfo.ClearTriangleDicts();
             //    edgeInfo.AddEdgesToTriangleDicts(triangles, trianglesCount);
-            //    edgeInfo.SetTrianglesColors(innerColor);
+            //    edgeInfo.SetTrianglesColors(Triangle.DefaultColor);
             //}
             //else
             {
-                edgeInfo.AddEdgesToTriangleDicts(addedTriangles, addedTrianglesCount, innerColor);
+                edgeInfo.AddEdgesToTriangleDicts(addedTriangles, addedTrianglesCount, Color.Azure);
             }
             //edgeInfo.PrintEdgeCounterDict();
             //edgeInfo.PrintExtEdgeTriangleDict();
