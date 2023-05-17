@@ -446,33 +446,35 @@ namespace Triangulation
         private bool ProcessPoints(int beg, int end, bool xySorted)
         {
             Func<Vector2, Circle, bool> canCompleteTriangle = xySorted ? CanCompleteTriangleForXYSorted : CanCompleteTriangleForYXSorted;
-            Vector2 prevPoint;
+            var pointsXY = pointGrid.PointsXY;
+            Vector2Int prevXY;
+
             if (pointsOffset == pointsCount - 1)
             {
                 if (beg != pointsOffset && end != pointsOffset)
                 {
-                    throw new ArgumentOutOfRangeException("ProcessPoints: beg: " + beg + " end: " + end + " pointsOffset: " + pointsOffset + " pointsCount: " + pointsCount);
+                    throw new ArgumentOutOfRangeException($"ProcessPoints: beg: {beg} end: {end} pointsOffset: {pointsOffset} pointsCount: {pointsCount}");
                 }
-                prevPoint = new Vector2(float.MaxValue, float.MaxValue);
+                prevXY = Vector2Int.NegativeOne;
             }
             else
             {
-                prevPoint = points[beg > pointsOffset ? beg - 1 : pointsCount - 1];
+                prevXY = pointsXY[beg > pointsOffset ? beg - 1 : pointsCount - 1];
             }
 
             for (int i = beg; i <= end; i++)
             {
-                var point = points[i];
-                if (Mathv.Equals(point, prevPoint, pointTolerance))
+                var xy = pointsXY[i];
+                if (xy == prevXY)
                 {
-                    Log.WriteError(GetType() + ".Triangulate: point.Equals(prevPoint, tolerance): " + i);
+                    Log.WriteError($"{GetType().Name}.Triangulate: xy == prevXY == {xy} pointIndex: {i} ");
                 }
                 else if (!ProcessPoint(i, canCompleteTriangle))
                 {
                     ThrowCCTrianglesException(i);
                     return false;
                 }
-                prevPoint = point;
+                prevXY = xy;
             }
 
             return true;
@@ -507,20 +509,11 @@ namespace Triangulation
             return ReplaceEdgesWithTriangles(pointIndex);
         }
 
-        private bool CanCompleteTriangleForXYSorted(Vector2 dr, Circle cc)
-        {
-            return CanCompleteTriangle(dr.X, cc);
-        }
+        private bool CanCompleteTriangleForXYSorted(Vector2 dr, Circle cc) => CanCompleteTriangle(dr.X, cc);
 
-        private bool CanCompleteTriangleForYXSorted(Vector2 dr, Circle cc)
-        {
-            return CanCompleteTriangle(dr.Y, cc);
-        }
+        private bool CanCompleteTriangleForYXSorted(Vector2 dr, Circle cc) => CanCompleteTriangle(dr.Y, cc);
 
-        private bool CanCompleteTriangle(float dl, Circle cc)
-        {
-            return dl > 0f && dl > cc.Radius + circleTolerance;
-        }
+        private bool CanCompleteTriangle(float dl, Circle cc) => dl > 0f && dl > cc.Radius + circleTolerance;
 
         protected bool DiscardSeparatedTriangle(Triangle triangle)
         {
