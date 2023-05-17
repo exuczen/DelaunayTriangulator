@@ -216,7 +216,7 @@ namespace Triangulation
                     }
                     if (!result)
                     {
-                        if (BaseTriangulationFallback)
+                        if (BaseTriangulationFallback && !exceptionThrower.ExceptionPending)
                         {
                             //Log.WriteWarning($"{GetType().Name}.AddPointToTriangulation: Failed: {pointIndex}. Fallback to base triangulation");
                             ClearLastPointData();
@@ -224,6 +224,7 @@ namespace Triangulation
                         }
                         else
                         {
+                            //exceptionThrower.ThrowException($"{GetType().Name}.AddPointToTriangulation: IncrementationFailed", ErrorCode.IncrementationFailed, pointIndex);
                             ClearPoint(pointIndex);
                         }
                     }
@@ -828,7 +829,8 @@ namespace Triangulation
                 }
                 else
                 {
-                    exceptionThrower.ThrowException($"AddInternalTriangle: InternalDegenerates: edge: {edge} pointIndex: {pointIndex}", ErrorCode.InternalDegenerates, pointIndex);
+                    //exceptionThrower.ThrowException($"AddInternalTriangle: InternalDegenerates: edge: {edge} pointIndex: {pointIndex}", ErrorCode.InternalDegenerates, pointIndex);
+                    Log.WriteWarning($"AddInternalTriangle: InternalDegenerates: edge: {edge} pointIndex: {pointIndex}");
                     return false;
                 }
             }

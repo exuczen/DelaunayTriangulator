@@ -113,9 +113,14 @@ namespace Triangulation
             InvokeTriangulateAction(() => triangulator.Triangulate());
         }
 
-        protected bool TryAddParticle(Vector2 point)
+        public bool TryAddParticle(Vector2 point, bool findClosestCell = false)
         {
-            if (triangulator.TryAddPoint(point, out int i, false))
+            return TryAddParticle(point, out _, findClosestCell);
+        }
+
+        public bool TryAddParticle(Vector2 point, out int i, bool findClosestCell = false)
+        {
+            if (triangulator.TryAddPoint(point, out i, findClosestCell))
             {
                 SetParticle(true, i);
                 return true;
