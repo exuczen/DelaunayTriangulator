@@ -11,6 +11,7 @@
         InternalDegenerates,
         ExternalEdgesBrokenLoop,
         PointOutsideTriangles,
+        IncrementationFailed
     }
 
     public readonly struct ErrorData

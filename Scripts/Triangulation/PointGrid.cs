@@ -139,6 +139,8 @@ namespace Triangulation
 
         public Vector2 GetPosition(Vector2Int xy) => xy * cellSize;
 
+        public Vector2 SnapToGrid(Vector2 point) => GridUtils.SnapToGrid(point, cellSize, out _);
+
         public bool IsPointBoundary(int pointIndex)
         {
             int x = pointIndex % yCount;
