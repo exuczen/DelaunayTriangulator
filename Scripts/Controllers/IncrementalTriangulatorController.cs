@@ -46,11 +46,16 @@ namespace Triangulation
             return active;
         }
 
-        public bool AddParticleToTriangulation(Vector2 point, bool findClosestCell, bool validate)
+        public bool AddParticleToTriangulation(Vector2 point, out int i, bool findClosestCell, bool validate)
         {
-            bool active = triangulator.AddPointToTriangulation(point, out int i, findClosestCell, validate);
+            bool active = triangulator.AddPointToTriangulation(point, out i, findClosestCell, validate);
             SetParticle(active, i);
             return active;
+        }
+
+        public bool AddParticleToTriangulation(Vector2 point, bool findClosestCell, bool validate)
+        {
+            return AddParticleToTriangulation(point, out _, findClosestCell, validate);
         }
 
         public void RemoveParticleFromTriangulation(int i, bool validate)
