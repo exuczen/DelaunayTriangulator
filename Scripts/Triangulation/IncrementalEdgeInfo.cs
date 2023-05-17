@@ -1227,8 +1227,6 @@ namespace Triangulation
 
         private bool GetOppositeExternalEdgesRange(Vector2 point, int extEdgeIndex, out IndexRange range, out bool pointOnEdge, out bool innerDegenerate)
         {
-            int beg = -1;
-            int end = -1;
             range = IndexRange.None;
             innerDegenerate = false;
 
@@ -1241,12 +1239,16 @@ namespace Triangulation
             }
             if (oppEdgeFound)
             {
+                int beg;
+                int end = -1;
                 if (oppNext == oppPrev)
                 {
                     beg = end = oppNext;
+                    return GetValidatedExtEdgesRange(point, beg, end, out range, out innerDegenerate);
                 }
                 else
                 {
+                    bool result = false;
                     if (oppNext >= 0)
                     {
                         end = GetLastEdgeOppositeToExternalPoint(point, oppNext, true, out pointOnEdge, oppPrev);
@@ -1255,12 +1257,10 @@ namespace Triangulation
                             range.Beg = range.End = end;
                             return false;
                         }
-                        if (beg < 0)
-                        {
-                            beg = oppNext;
-                        }
+                        beg = oppNext;
+                        result = GetValidatedExtEdgesRange(point, beg, end, out range, out innerDegenerate);
                     }
-                    if (oppPrev >= 0)
+                    if (oppPrev >= 0 && !result)
                     {
                         beg = GetLastEdgeOppositeToExternalPoint(point, oppPrev, false, out pointOnEdge, end);
                         if (pointOnEdge)
@@ -1268,14 +1268,13 @@ namespace Triangulation
                             range.Beg = range.End = beg;
                             return false;
                         }
-                        if (end < 0)
-                        {
-                            end = oppPrev;
-                        }
+                        end = oppPrev;
+                        result = GetValidatedExtEdgesRange(point, beg, end, out range, out innerDegenerate);
                     }
+                    return result;
                 }
             }
-            return GetValidatedExtEdgesRange(point, beg, end, out range, out innerDegenerate);
+            return false;
         }
 
         private bool GetValidatedExtEdgesRange(Vector2 point, int beg, int end, out IndexRange range, out bool innerDegenerate)
