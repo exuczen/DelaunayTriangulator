@@ -87,6 +87,11 @@ namespace Triangulation
             Triangulate();
         }
 
+        public bool TryRemovePointFromTriangulation(Vector2 point, bool validate)
+        {
+            return TryRemovePointFromTriangulation(point, validate, out _);
+        }
+
         public bool TryRemovePointFromTriangulation(Vector2 point, bool validate, out int pointIndex)
         {
             if (pointGrid.GetPointIndex(point, out pointIndex) && pointIndex >= 0)
@@ -134,7 +139,12 @@ namespace Triangulation
             }
         }
 
-        public bool AddPointToTriangulation(Vector2 point, out int pointIndex, bool findClosestCell, bool validate)
+        public bool TryAddPointToTriangulation(Vector2 point, bool findClosestCell, bool validate)
+        {
+            return TryAddPointToTriangulation(point, out _, findClosestCell, validate);
+        }
+
+        public bool TryAddPointToTriangulation(Vector2 point, out int pointIndex, bool findClosestCell, bool validate)
         {
             if (trianglesCount <= 0 || NotEnoughPoints(pointsCount))
             {

@@ -10,6 +10,9 @@ namespace Triangulation
     {
         private const int SUPERTRIANGLES_MAX = 16;
 
+        public event Action<int, Vector2> PointAdded = delegate { };
+        public event Action<int> PointCleared = delegate { };
+
         public PointGrid PointGrid => pointGrid;
         public EdgeInfo EdgeInfo => edgeInfo;
         public int TrianglesCount => trianglesCount;
@@ -233,7 +236,13 @@ namespace Triangulation
             {
                 pointIndex = pointsCount++;
             }
+            AddPointToGrid(cellXYI, pointIndex);
+        }
+
+        private void AddPointToGrid(Vector3Int cellXYI, int pointIndex)
+        {
             pointGrid.AddPoint(pointIndex, points, cellXYI);
+            PointAdded(pointIndex, points[pointIndex]);
         }
 
         public void Clear()
@@ -301,9 +310,7 @@ namespace Triangulation
             {
                 throw new Exception("ClearPoint: " + pointIndex);
             }
-            pointGrid.ClearPoint(pointIndex, points);
-            edgeInfo.SetPointExternal(pointIndex, false);
-            points[pointIndex] = Veconst2.NaN;
+            ClearGridPoint(pointIndex);
 
             int lastIndex = pointsCount - 1;
 
@@ -327,6 +334,14 @@ namespace Triangulation
             {
                 throw new Exception("ClearPoint: " + pointIndex + " / " + pointsCount);
             }
+        }
+
+        private void ClearGridPoint(int pointIndex)
+        {
+            edgeInfo.SetPointExternal(pointIndex, false);
+            pointGrid.ClearPoint(pointIndex, points);
+            points[pointIndex] = Veconst2.NaN;
+            PointCleared(pointIndex);
         }
 
         private int GetClosestPointIndex(Vector2 center)
@@ -594,9 +609,8 @@ namespace Triangulation
                 int pointIndex = i - beg;
                 if (Mathv.IsNaN(points[i]))
                 {
-                    pointGrid.ClearPoint(pointIndex, points);
+                    ClearGridPoint(pointIndex);
                     unusedPointIndices.Add(pointIndex);
-                    points[pointIndex] = Veconst2.NaN;
                 }
                 else
                 {

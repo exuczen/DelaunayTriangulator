@@ -23,6 +23,7 @@ namespace Triangulation
         {
             this.particles = particles;
             triangulator = new Triangulator(particles.Capacity, exceptionThrower);
+            AddCallbacks();
         }
 
         public SerializedTriangulator CreateSerializedTriangulator()
@@ -64,13 +65,13 @@ namespace Triangulation
             switch (type)
             {
                 case TriangulationType.None:
-                    TryAddParticle(point);
+                    TryAddPoint(point);
                     break;
                 case TriangulationType.Increment:
                 case TriangulationType.Decrement:
                     throw new ArgumentException("UpdateTriangulation: " + type);
                 case TriangulationType.Entire:
-                    if (TryAddParticle(point))
+                    if (TryAddPoint(point))
                     {
                         UpdateTriangulation();
                     }
@@ -86,7 +87,7 @@ namespace Triangulation
             {
                 for (int x = 0; x < width; ++x)
                 {
-                    TryAddParticle(new Vector2(x * scale, y * scale));
+                    TryAddPoint(new Vector2(x * scale, y * scale));
                 }
             }
             if (triangulate)
@@ -113,28 +114,9 @@ namespace Triangulation
             InvokeTriangulateAction(() => triangulator.Triangulate());
         }
 
-        public bool TryAddParticle(Vector2 point, bool findClosestCell = false)
+        public bool TryAddPoint(Vector2 point, bool findClosestCell = false)
         {
-            return TryAddParticle(point, out _, findClosestCell);
-        }
-
-        public bool TryAddParticle(Vector2 point, out int i, bool findClosestCell = false)
-        {
-            if (triangulator.TryAddPoint(point, out i, findClosestCell))
-            {
-                SetParticle(true, i);
-                return true;
-            }
-            return false;
-        }
-
-        protected void SetParticle(bool active, int i)
-        {
-            particles.SetParticleActive(i, active);
-            if (active)
-            {
-                particles.SetParticlePosition(i, triangulator.GetPoint(i));
-            }
+            return triangulator.TryAddPoint(point, out _, findClosestCell);
         }
 
         protected void InvokeTriangulateAction(Action triangulate)
@@ -153,6 +135,23 @@ namespace Triangulation
             action();
             stopwatch.Stop();
             return stopwatch;
+        }
+
+        protected void AddCallbacks()
+        {
+            triangulator.PointAdded += OnPointAdded;
+            triangulator.PointCleared += OnPointCleared;
+        }
+
+        private void OnPointAdded(int i, Vector2 point)
+        {
+            particles.SetParticleActive(i, true);
+            particles.SetParticlePosition(i, point);
+        }
+
+        private void OnPointCleared(int i)
+        {
+            particles.SetParticleActive(i, false);
         }
     }
 }
