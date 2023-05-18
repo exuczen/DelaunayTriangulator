@@ -24,7 +24,7 @@ namespace Triangulation
                     case 0: return x;
                     case 1: return y;
                     default:
-                        throw new IndexOutOfRangeException("Vector2Int.this[" + index + "]");
+                        throw new IndexOutOfRangeException($"Vector2Int.this[{index}]");
                 }
             }
             set
@@ -34,7 +34,7 @@ namespace Triangulation
                     case 0: x = value; break;
                     case 1: y = value; break;
                     default:
-                        throw new IndexOutOfRangeException("Vector2Int.this[" + index + "]");
+                        throw new IndexOutOfRangeException($"Vector2Int.this[{index}]");
                 }
             }
         }

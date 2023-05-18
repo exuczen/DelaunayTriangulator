@@ -346,7 +346,7 @@ namespace Triangulation
 
             AddCellTrianglesEdges();
 
-            AddTrianglesOnClearPoint(pointIndex, out bool debugFindExtEdges);
+            AddTrianglesOnClearPoint(pointIndex, pointsToClear, out bool debugFindExtEdges);
 
             ReplaceCellTriangles(addedTriangles, addedTrianglesCount, false);
 
@@ -383,7 +383,7 @@ namespace Triangulation
             }
         }
 
-        private void AddTrianglesOnClearPoint(int pointIndex, out bool debugFindExtEdges)
+        private void AddTrianglesOnClearPoint(int pointIndex, List<int> pointsToClear, out bool debugFindExtEdges)
         {
             debugFindExtEdges = false;
 
