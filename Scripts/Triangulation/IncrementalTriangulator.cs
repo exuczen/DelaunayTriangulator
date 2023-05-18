@@ -134,22 +134,11 @@ namespace Triangulation
             }
         }
 
-        public bool AddPointToTriangulation(Vector2 point, int pointIndex, bool findClosestCell, bool validate)
-        {
-            return AddPointToTriangulationRefIndex(point, ref pointIndex, findClosestCell, validate);
-        }
-
         public bool AddPointToTriangulation(Vector2 point, out int pointIndex, bool findClosestCell, bool validate)
-        {
-            pointIndex = -1;
-            return AddPointToTriangulationRefIndex(point, ref pointIndex, findClosestCell, validate);
-        }
-
-        protected bool AddPointToTriangulationRefIndex(Vector2 point, ref int pointIndex, bool findClosestCell, bool validate)
         {
             if (trianglesCount <= 0 || NotEnoughPoints(pointsCount))
             {
-                if (!TryAddPointRefIndex(point, ref pointIndex, findClosestCell))
+                if (!TryAddPoint(point, out pointIndex, findClosestCell))
                 {
                     if (pointIndex >= 0)
                     {
@@ -171,7 +160,7 @@ namespace Triangulation
                 ClearLastPointData();
                 bool isInTriangle = false;
 
-                if (!TryAddPointRefIndex(point, ref pointIndex, findClosestCell))
+                if (!TryAddPoint(point, out pointIndex, findClosestCell))
                 {
                     if (pointIndex >= 0)
                     {

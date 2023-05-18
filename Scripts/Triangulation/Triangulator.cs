@@ -201,43 +201,28 @@ namespace Triangulation
 
         public bool TryAddPoint(Vector2 point, out int pointIndex, bool findClosestCell)
         {
-            pointIndex = -1;
-            return TryAddPointRefIndex(point, ref pointIndex, findClosestCell);
-        }
-
-        protected bool TryAddPointRefIndex(Vector2 point, ref int pointIndex, bool findClosestCell)
-        {
             int savedIndex = -1;
             if (findClosestCell && pointGrid.GetClosestClearCell(point, out var cellXYI) ||
                 !findClosestCell && pointGrid.CanAddPoint(point, out cellXYI, out savedIndex))
             {
-                AddPointRefIndex(cellXYI, ref pointIndex);
+                AddPoint(cellXYI, out pointIndex);
                 return true;
             }
             else
             {
                 if (findClosestCell)
                 {
-                    exceptionThrower.ThrowException($"TryAddPointRefIndex: findClosestCell - NOT FOUND | pointIndex: {pointIndex}", ErrorCode.Undefined, pointIndex);
+                    exceptionThrower.ThrowException(new Exception($"TryAddPoint: findClosestCell - NOT FOUND"));
                 }
                 pointIndex = savedIndex;
                 return false;
             }
         }
 
-        private void AddPointRefIndex(Vector3Int cellXYI, ref int pointIndex)
+        private void AddPoint(Vector3Int cellXYI, out int pointIndex)
         {
             int unusedIndicesCount = unusedPointIndices.Count;
-
-            if (pointIndex >= 0)
-            {
-                if (unusedIndicesCount > 0)
-                {
-                    unusedPointIndices.Remove(pointIndex);
-                }
-                pointsCount = Math.Max(pointIndex + 1, pointsCount);
-            }
-            else if (unusedIndicesCount > 0)
+            if (unusedIndicesCount > 0)
             {
                 int unusedLast = unusedIndicesCount - 1;
                 pointIndex = unusedPointIndices[unusedLast];
