@@ -294,7 +294,7 @@ namespace Triangulation
             centerPointIndex = -1;
         }
 
-        protected void ClearPoint(int pointIndex, bool addToUnused = true)
+        public void ClearPoint(int pointIndex, bool addToUnused = true)
         {
             if (pointIndex < 0)
             {
@@ -322,7 +322,7 @@ namespace Triangulation
             }
             else if (addToUnused)
             {
-                throw new Exception("ClearPoint: " + pointIndex + " / " + pointsCount);
+                throw new Exception($"ClearPoint: {pointIndex} / {pointsCount}");
             }
         }
 
