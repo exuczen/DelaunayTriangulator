@@ -77,7 +77,7 @@ namespace Triangulation
             return SetSortedPoints(points, offset, pointsCount, out bounds);
         }
 
-        public void SetGridPoints(SerializedGridPoint2[] gridPoints, Vector2[] points)
+        public void SetGridPoints(SerializedGridPoint2[] gridPoints, Vector2[] points, Action<int, Vector2> pointAdded)
         {
             ClearIndices();
 
@@ -90,15 +90,16 @@ namespace Triangulation
                     int pointIndex = gridPoint.Index;
                     var cellXY = gridPoint.GetXY();
                     AddPoint(pointIndex, points, cellXY, cellIndex);
+                    pointAdded(pointIndex, points[pointIndex]);
                 }
             }
         }
 
         public void ClearPoint(int pointIndex, Vector2[] points)
         {
-            if (GetCellXYIndex(points[pointIndex], out var cellXYI, false))
+            if (GetCellIndex(pointsXY[pointIndex], out int cellIndex))
             {
-                indices[cellXYI.z] = -1;
+                indices[cellIndex] = -1;
                 points[pointIndex] = Veconst2.NaN;
                 pointsXY[pointIndex] = Vector2Int.NegativeOne;
             }
@@ -308,6 +309,12 @@ namespace Triangulation
             return GetCellIndex(cellXY.x, cellXY.y, out index);
         }
 
+        private bool GetCellIndex(int x, int y, out int cellIndex)
+        {
+            cellIndex = GetCellIndex(x, y);
+            return cellIndex >= 0;
+        }
+
         private int GetCellIndex(int x, int y)
         {
             if (x >= 0 && x < xCount && y >= 0 && y < yCount)
@@ -318,12 +325,6 @@ namespace Triangulation
             {
                 return -1;
             }
-        }
-
-        private bool GetCellIndex(int x, int y, out int cellIndex)
-        {
-            cellIndex = GetCellIndex(x, y);
-            return cellIndex >= 0;
         }
 
         private bool GetCellXYIndex(Vector2 point, out Vector3Int cellXYI, bool throwException = true)

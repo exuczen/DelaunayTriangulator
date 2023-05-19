@@ -123,14 +123,16 @@ namespace Triangulation
                 edgeInfo.SetPointExternal(i, false);
                 points[i] = dataSuperPoints[i].GetXY();
                 pointsXY[i] = Vector2Int.NegativeOne;
+                PointAdded(i, points[i]);
             }
             for (int i = pointsOffset; i < pointsCount; i++)
             {
                 edgeInfo.SetPointExternal(i, false);
                 points[i] = Veconst2.NaN;
                 pointsXY[i] = Vector2Int.NegativeOne;
+                PointCleared(i);
             }
-            pointGrid.SetGridPoints(dataGridPoints, points);
+            pointGrid.SetGridPoints(dataGridPoints, points, PointAdded);
 
             for (int i = 0; i < pointsCount; i++)
             {
