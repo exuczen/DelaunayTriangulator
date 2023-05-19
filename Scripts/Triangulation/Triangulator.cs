@@ -43,7 +43,6 @@ namespace Triangulation
         protected readonly Triangle[] completedTriangles = null;
         protected readonly Dictionary<int, EdgeEntry> edgeDict = new();
         protected readonly List<int> unusedPointIndices = new();
-        protected readonly List<int> initialPointIndices = new();
         protected readonly List<Triangle> ccTriangles = new();
 
         protected readonly EdgeEntry[] edgeBuffer = new EdgeEntry[3];
@@ -139,10 +138,6 @@ namespace Triangulation
                 {
                     unusedPointIndices.Add(i);
                 }
-                else
-                {
-                    initialPointIndices.Add(i);
-                }
             }
             for (int i = 0; i < trianglesCount; i++)
             {
@@ -194,12 +189,6 @@ namespace Triangulation
         public Vector2 GetPoint(int i)
         {
             return points[i];
-        }
-
-        public void GetInitialPointIndices(List<int> indices)
-        {
-            indices.Clear();
-            indices.AddRange(initialPointIndices);
         }
 
         public bool TryAddPoint(Vector2 point, out int pointIndex, bool findClosestCell)
@@ -298,7 +287,6 @@ namespace Triangulation
         protected void ClearPoints()
         {
             pointGrid.Clear();
-            initialPointIndices.Clear();
             unusedPointIndices.Clear();
             pointsCount = pointsOffset;
             centerPointIndex = -1;
@@ -572,16 +560,10 @@ namespace Triangulation
 
         private void FindPointsIndices()
         {
-            initialPointIndices.Clear();
             unusedPointIndices.Clear();
 
-            if (trianglesCount <= 0)
+            if (trianglesCount <= 0 || Supermanent)
             {
-                return;
-            }
-            else if (Supermanent)
-            {
-                initialPointIndices.AddIntRange(pointsOffset, pointsCount - pointsOffset);
                 return;
             }
             int beg = pointsCount;
@@ -614,7 +596,7 @@ namespace Triangulation
                 }
                 else
                 {
-                    initialPointIndices.Add(pointIndex);
+                    PointAdded(pointIndex, points[pointIndex]);
                 }
             }
             int unusedLast = unusedPointIndices.Count - 1;
