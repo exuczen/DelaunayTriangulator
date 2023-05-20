@@ -23,6 +23,11 @@ namespace Triangulation
         {
             this.particles = particles;
             triangulator = new Triangulator(particles.Capacity, exceptionThrower);
+        }
+
+        public void Initialize(Vector2 gridSize, Vector2Int xyCount)
+        {
+            triangulator.Initialize(gridSize, xyCount);
             AddCallbacks();
         }
 
@@ -139,8 +144,8 @@ namespace Triangulation
 
         protected void AddCallbacks()
         {
-            triangulator.PointAdded += OnPointAdded;
-            triangulator.PointCleared += OnPointCleared;
+            triangulator.AddPointAddedAction(OnPointAdded);
+            triangulator.AddPointClearedAction(OnPointCleared);
         }
 
         private void OnPointAdded(int i, Vector2 point)

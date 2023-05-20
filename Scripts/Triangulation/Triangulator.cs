@@ -10,9 +10,6 @@ namespace Triangulation
     {
         private const int SUPERTRIANGLES_MAX = 16;
 
-        public event Action<int, Vector2> PointAdded = delegate { };
-        public event Action<int> PointCleared = delegate { };
-
         public PointGrid PointGrid => pointGrid;
         public EdgeInfo EdgeInfo => edgeInfo;
         public int TrianglesCount => trianglesCount;
@@ -99,7 +96,14 @@ namespace Triangulation
             //Log.WriteLine(GetType() + ".Initialize: circleTolerance: " + circleTolerance);
 
             SetSuperCircumCirclePoints(Bounds2.MinMax(Vector2.Zero, gridSize), false);
+
+            AddPointAddedAction((i, p) => edgeInfo.SetPointExternal(i, false));
+            AddPointClearedAction(i => edgeInfo.SetPointExternal(i, false));
         }
+
+        public void AddPointAddedAction(Action<int, Vector2> action) => pointGrid.PointAdded += action;
+
+        public void AddPointClearedAction(Action<int> action) => pointGrid.PointCleared += action;
 
         public virtual void Load(SerializedTriangulator data)
         {
@@ -113,26 +117,10 @@ namespace Triangulation
             Clear();
 
             pointsOffset = dataSuperPoints.Length;
-            pointsCount = dataGridPoints[^1].Index + 1;
+
+            pointsCount = pointGrid.SetGridPoints(data, points);
+
             trianglesCount = dataTriangles.Length;
-
-            var pointsXY = pointGrid.PointsXY;
-
-            for (int i = 0; i < pointsOffset; i++)
-            {
-                edgeInfo.SetPointExternal(i, false);
-                points[i] = dataSuperPoints[i].GetXY();
-                pointsXY[i] = Vector2Int.NegativeOne;
-                PointAdded(i, points[i]);
-            }
-            for (int i = pointsOffset; i < pointsCount; i++)
-            {
-                edgeInfo.SetPointExternal(i, false);
-                points[i] = Veconst2.NaN;
-                pointsXY[i] = Vector2Int.NegativeOne;
-                PointCleared(i);
-            }
-            pointGrid.SetGridPoints(dataGridPoints, points, PointAdded);
 
             for (int i = 0; i < pointsCount; i++)
             {
@@ -233,7 +221,6 @@ namespace Triangulation
         private void AddPointToGrid(Vector3Int cellXYI, int pointIndex)
         {
             pointGrid.AddPoint(pointIndex, points, cellXYI);
-            PointAdded(pointIndex, points[pointIndex]);
         }
 
         public void Clear()
@@ -252,7 +239,7 @@ namespace Triangulation
 
             pointsList.CopyTo(points);
 
-            pointsCount = pointGrid.SetGridPoints(points, pointsOffset, pointsCount, PointsSortingOrder, out bounds, out bool xySorted);
+            pointsCount = pointGrid.SetGridPoints(this, out bounds, out bool xySorted);
 
             pointsList.Clear();
             for (int i = 0; i < pointsCount; i++)
@@ -271,7 +258,7 @@ namespace Triangulation
             {
                 return false;
             }
-            pointsCount = pointGrid.SetGridPoints(points, pointsOffset, pointsCount, PointsSortingOrder, out bounds, out bool xySorted);
+            pointsCount = pointGrid.SetGridPoints(this, out bounds, out bool xySorted);
 
             return Triangulate(bounds, xySorted);
         }
@@ -328,10 +315,7 @@ namespace Triangulation
 
         private void ClearGridPoint(int pointIndex)
         {
-            edgeInfo.SetPointExternal(pointIndex, false);
             pointGrid.ClearPoint(pointIndex, points);
-            points[pointIndex] = Veconst2.NaN;
-            PointCleared(pointIndex);
         }
 
         private int GetClosestPointIndex(Vector2 center)
@@ -416,7 +400,6 @@ namespace Triangulation
 
             if (centerPointIndex >= pointsOffset)
             {
-                edgeInfo.SetPointExternal(centerPointIndex, false);
                 result = ProcessPoints(pointsOffset, centerPointIndex - 1, xySorted);
                 result = result && ProcessPoints(centerPointIndex + 1, pointsCount - 1, xySorted);
             }
@@ -473,7 +456,6 @@ namespace Triangulation
         private bool ProcessPoint(int pointIndex, Func<Vector2, Circle, bool> canCompleteTriangle)
         {
             ccTriangles.Clear();
-            edgeInfo.SetPointExternal(pointIndex, false);
 
             var point = points[pointIndex];
             int triangleEnd = trianglesCount - 1;
@@ -595,10 +577,6 @@ namespace Triangulation
                 {
                     ClearGridPoint(pointIndex);
                     unusedPointIndices.Add(pointIndex);
-                }
-                else
-                {
-                    PointAdded(pointIndex, points[pointIndex]);
                 }
             }
             int unusedLast = unusedPointIndices.Count - 1;

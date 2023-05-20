@@ -11,6 +11,9 @@ namespace Triangulation
 {
     public class PointGrid
     {
+        public event Action<int, Vector2> PointAdded = delegate { };
+        public event Action<int> PointCleared = delegate { };
+
         public int YCount => yCount;
         public int XCount => xCount;
         public Vector2Int XYCount => new Vector2Int(xCount, yCount);
@@ -58,8 +61,13 @@ namespace Triangulation
             ClearIndices();
         }
 
-        public int SetGridPoints(Vector2[] points, int offset, int pointsCount, PointsSortingOrder sortingOrder, out Bounds2 bounds, out bool xySort)
+        public int SetGridPoints(Triangulator triangulator, out Bounds2 bounds, out bool xySort)
         {
+            var points = triangulator.Points;
+            int offset = triangulator.PointsOffset;
+            int pointsCount = triangulator.PointsCount;
+            var sortingOrder = triangulator.PointsSortingOrder;
+
             if (pointsCount <= 0)
             {
                 bounds = default;
@@ -77,10 +85,27 @@ namespace Triangulation
             return SetSortedPoints(points, offset, pointsCount, out bounds);
         }
 
-        public void SetGridPoints(SerializedGridPoint2[] gridPoints, Vector2[] points, Action<int, Vector2> pointAdded)
+        public int SetGridPoints(SerializedTriangulator data, Vector2[] points)
         {
             ClearIndices();
 
+            var gridPoints = data.GridPoints;
+            var superPoints = data.SuperPoints;
+            int pointsCount = gridPoints[^1].Index + 1;
+            int offset = superPoints.Length;
+
+            for (int i = 0; i < offset; i++)
+            {
+                points[i] = superPoints[i].GetXY();
+                pointsXY[i] = Vector2Int.NegativeOne;
+                PointAdded(i, points[i]);
+            }
+            for (int i = offset; i < pointsCount; i++)
+            {
+                points[i] = Veconst2.NaN;
+                pointsXY[i] = Vector2Int.NegativeOne;
+                PointCleared(i);
+            }
             int gridPointsCount = gridPoints.Length;
             for (int i = 0; i < gridPointsCount; i++)
             {
@@ -90,18 +115,16 @@ namespace Triangulation
                     int pointIndex = gridPoint.Index;
                     var cellXY = gridPoint.GetXY();
                     AddPoint(pointIndex, points, cellXY, cellIndex);
-                    pointAdded(pointIndex, points[pointIndex]);
                 }
             }
+            return pointsCount;
         }
 
         public void ClearPoint(int pointIndex, Vector2[] points)
         {
             if (GetCellIndex(pointsXY[pointIndex], out int cellIndex))
             {
-                indices[cellIndex] = -1;
-                points[pointIndex] = Veconst2.NaN;
-                pointsXY[pointIndex] = Vector2Int.NegativeOne;
+                ClearPoint(pointIndex, cellIndex, points);
             }
         }
 
@@ -129,6 +152,15 @@ namespace Triangulation
             indices[cellIndex] = pointIndex;
             points[pointIndex] = cellXY * cellSize;
             pointsXY[pointIndex] = cellXY;
+            PointAdded(pointIndex, points[pointIndex]);
+        }
+
+        private void ClearPoint(int pointIndex, int cellIndex, Vector2[] points)
+        {
+            indices[cellIndex] = -1;
+            points[pointIndex] = Veconst2.NaN;
+            pointsXY[pointIndex] = Vector2Int.NegativeOne;
+            PointCleared(pointIndex);
         }
 
         public bool GetPointIndex(Vector2 point, out int pointIndex)
@@ -234,6 +266,11 @@ namespace Triangulation
             var minXY = pointsXY[offset];
             var maxXY = minXY;
 
+            for (int i = 0; i < offset; i++)
+            {
+                pointsXY[i] = Vector2Int.NegativeOne;
+                PointAdded(i, points[i]);
+            }
             for (int i = offset; i < pointsCount; i++)
             {
                 var xy = pointsXY[i];
@@ -248,6 +285,7 @@ namespace Triangulation
             {
                 points[i] = Veconst2.NaN;
                 pointsXY[i] = Vector2Int.NegativeOne;
+                PointCleared(i);
             }
             bounds = Bounds2.MinMax(minXY * cellSize, maxXY * cellSize);
 

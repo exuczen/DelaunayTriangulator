@@ -13,6 +13,11 @@ namespace Triangulation
         {
             this.particles = particles;
             base.triangulator = triangulator = new IncrementalTriangulator(particles.Capacity, exceptionThrower);
+        }
+
+        public void Initialize(Vector2 gridSize, int triangleGridDivs = TriangleGrid.MinDivsCount, int pointGridDivsMlp = 5)
+        {
+            triangulator.Initialize(gridSize, triangleGridDivs, pointGridDivsMlp);
             AddCallbacks();
         }
 
