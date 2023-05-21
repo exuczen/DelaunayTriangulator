@@ -263,6 +263,8 @@ namespace Triangulation
             return Triangulate(bounds, xySorted);
         }
 
+        protected virtual void OnBaseTriangulated() { }
+
         protected virtual void ClearTriangles()
         {
             ClearDebugSuperTriangles();
@@ -412,6 +414,8 @@ namespace Triangulation
                 FindValidTriangles(IsTriangleValid);
 
                 FindPointsIndices();
+
+                OnBaseTriangulated();
             }
             return result;
         }
@@ -529,14 +533,16 @@ namespace Triangulation
 
         private void RemoveUnusedPoints()
         {
-            //Log.WriteLine(GetType() + ".RemoveUnusedPoints: unusedPointIndices.Count: " + unusedPointIndices.Count + " pointsCount: " + pointsCount);
+            //Log.WriteLine($"{GetType().Name}.RemoveUnusedPoints: unusedPointIndices.Count: {unusedPointIndices.Count} pointsCount: {pointsCount}");
             if (unusedPointIndices.Count > 0 && pointsCount > 0)
             {
+                var gridPoints = pointGrid.PointsXY;
                 unusedPointIndices.Sort();
                 for (int i = unusedPointIndices.Count - 1; i >= 0; i--)
                 {
                     int pointIndex = unusedPointIndices[i];
                     points[pointIndex] = points[--pointsCount];
+                    gridPoints[pointIndex] = gridPoints[pointsCount];
                 }
             }
             unusedPointIndices.Clear();

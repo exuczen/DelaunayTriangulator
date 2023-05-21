@@ -50,19 +50,13 @@ namespace Triangulation
 
         protected override void SetupEdgeInfo() { /* Prevents from creating base edgeInfo */ }
 
-        public override bool Triangulate()
+        protected override void OnBaseTriangulated()
         {
-            if (base.Triangulate())
+            if (!BaseOnly)
             {
-                if (!BaseOnly)
-                {
-                    AddBaseTrianglesToTriangleSet(true);
-                }
-                ValidateTriangulation(false, PointsValidation);
-
-                return true;
+                AddBaseTrianglesToTriangleSet(true);
             }
-            return false;
+            ValidateTriangulation(false, PointsValidation);
         }
 
         public override void Load(SerializedTriangulator data)
