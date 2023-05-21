@@ -78,7 +78,7 @@ namespace Triangulation
 
             cellPolygon.ReakRectTolerance = 0.1f * circleTolerance;
 
-            Triangulate();
+            Triangulate(true);
         }
 
         public bool TryRemovePointFromTriangulation(Vector2 point, bool validate)
