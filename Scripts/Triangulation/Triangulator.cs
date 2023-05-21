@@ -239,7 +239,7 @@ namespace Triangulation
 
             pointsList.CopyTo(points);
 
-            pointsCount = pointGrid.SetGridPoints(this, out bounds, out bool xySorted);
+            pointsCount = pointGrid.SetGridPoints(this, out bounds, out bool xySorted, true);
 
             pointsList.Clear();
             for (int i = 0; i < pointsCount; i++)
@@ -249,7 +249,7 @@ namespace Triangulation
             return Triangulate(bounds, xySorted);
         }
 
-        public virtual bool Triangulate()
+        public bool Triangulate(bool resetPoints = false)
         {
             RemoveUnusedPoints();
             ClearTriangles();
@@ -258,7 +258,7 @@ namespace Triangulation
             {
                 return false;
             }
-            pointsCount = pointGrid.SetGridPoints(this, out bounds, out bool xySorted);
+            pointsCount = pointGrid.SetGridPoints(this, out bounds, out var xySorted, resetPoints);
 
             return Triangulate(bounds, xySorted);
         }
