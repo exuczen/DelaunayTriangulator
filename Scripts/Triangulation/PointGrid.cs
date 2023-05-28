@@ -83,22 +83,9 @@ namespace Triangulation
             }
             else
             {
-                SortGridPoints(triangulator, out var xyBounds, out xySort);
+                SortGridPoints(triangulator, out bounds, out xySort);
 
-                // Refresh indices
-                {
-                    for (int i = 0; i < offset; i++)
-                    {
-                        PointAdded(i, points[i]);
-                    }
-                    for (int i = offset; i < pointsCount; i++)
-                    {
-                        int cellIndex = GetCellIndex(pointsXY[i]);
-                        indices[cellIndex] = i;
-                        PointAdded(i, points[i]);
-                    }
-                }
-                bounds = Bounds2.MinMax(xyBounds.min * cellSize, xyBounds.max * cellSize);
+                RefreshSortedPoints(points, offset, pointsCount);
 
                 return pointsCount;
             }
@@ -244,16 +231,18 @@ namespace Triangulation
             return false;
         }
 
-        private void SortGridPoints(Triangulator triangulator, out Bounds2Int xyBounds, out bool xySort)
+        private void SortGridPoints(Triangulator triangulator, out Bounds2 bounds, out bool xySort)
         {
             int offset = triangulator.PointsOffset;
             var points = triangulator.Points;
             int pointsCount = triangulator.PointsCount;
             var sortingOrder = triangulator.PointsSortingOrder;
 
-            xyBounds = Bounds2Int.GetBounds(pointsXY, offset, pointsCount - 1);
+            var xyBounds = Bounds2Int.GetBounds(pointsXY, offset, pointsCount - 1);
             var pointsComparer = GetPointsComparer(xyBounds, sortingOrder, out xySort);
             Array.Sort(pointsXY, points, offset, pointsCount - offset, pointsComparer);
+
+            bounds = Bounds2.MinMax(xyBounds.min * cellSize, xyBounds.max * cellSize);
         }
 
         private static IComparer<Vector2Int> GetPointsComparer(Bounds2Int bounds, PointsSortingOrder sortingOrder, out bool xySort)
@@ -286,6 +275,20 @@ namespace Triangulation
             for (int i = offset; i < pointsCount; i++)
             {
                 pointsXY[i] = GridUtils.SnapToGrid(points[i], cellSize);
+            }
+        }
+
+        private void RefreshSortedPoints(Vector2[] points, int offset, int pointsCount)
+        {
+            for (int i = 0; i < offset; i++)
+            {
+                PointAdded(i, points[i]);
+            }
+            for (int i = offset; i < pointsCount; i++)
+            {
+                int cellIndex = GetCellIndex(pointsXY[i]);
+                indices[cellIndex] = i;
+                PointAdded(i, points[i]);
             }
         }
 
