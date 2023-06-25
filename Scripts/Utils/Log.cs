@@ -1,4 +1,4 @@
-﻿#define LOGS_ENABLED
+﻿//#define LOGS_ENABLED
 #if UNITY
 using Debug = UnityEngine.Debug;
 #else
